@@ -166,7 +166,7 @@ segmentation_tool/
 │   │   │   ├── rwkv/             (4 modules)    #     RWKV: RWKV-UNet, U-RWKV, MD-RWKV, RIR-Zigzag
 │   │   │   ├── linear_attn/      (5 modules)    #     Linear attention: RetNet, Linformer, Performer, TTT, xLSTM
 │   │   │   ├── kan_mlp/          (4 modules)    #     KAN/MLP: UKAN, Rolling-UNet, UNeXt, Wav-KAN
-│   │   │   ├── foundation/       (39 modules)   #     Foundation models (DPT head)
+│   │   │   ├── foundation/       (38 modules)   #     Foundation models (DPT head)
 │   │   │   │   ├── general/      (5)            #       DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT
 │   │   │   │   ├── pathology/    (6)            #       Phikon, UNI, PLIP, MUSK, PathFoundation, Phikon-v2
 │   │   │   │   ├── radiology/    (4)            #       Rad-DINO, CXR-Foundation, OmniRad, MedSigLIP
@@ -177,16 +177,16 @@ segmentation_tool/
 │   │   │   │   ├── endoscopy/    (1)            #       EndoViT
 │   │   │   │   └── ultrasound/   (3)            #       UltraDINO, UltraFedFM, USF-MAE
 │   │   │   └── wrapper/          (1 module)     #     timm dynamic wrapper (1000+ models, timm_ prefix)
-│   │   ├── decoders/                            #   40+ decoders
-│   │   │   ├── basic/            (4 modules)    #     Basic upsampling: UNet, Bilinear, Deconv, DepthwiseSep
-│   │   │   ├── dense/            (2 modules)    #     Dense connections: UNet++, UNet3+
-│   │   │   ├── cascade/          (8 modules)    #     Cascade: CASCADE, EMCAD, G-CASCADE, CFM, MERIT, EDLDNet
-│   │   │   ├── attention/        (3 modules)    #     Attention: Attention Gate, HAM, Lawin
-│   │   │   ├── transformer/      (5 modules)    #     Transformer: DAEFormer, MTUNet, nnFormer, SwinUNet, UCTransNet
-│   │   │   ├── mlp/              (2 modules)    #     MLP: SegFormer MLP, MLP Decoder
-│   │   │   ├── specific/         (12 modules)   #     Network-specific: TransUNet CUP, HiFormer, FAT-Net, MALUNet, EGE-UNet, ...
-│   │   │   ├── pyramid/          (1 module)     #     Pyramid: UPerNet
-│   │   │   └── mamba/            (1 module)     #     Mamba: VM-UNet
+│   │   ├── decoders/                            #   40 decoders
+│   │   │   ├── basic/            (4 registered) #     Basic upsampling: UNet, Bilinear, Deconv, DepthwiseSep
+│   │   │   ├── dense/            (2 registered) #     Dense connections: UNet++, UNet3+
+│   │   │   ├── cascade/          (5 registered) #     CASCADE, EMCAD (2 variants), G-CASCADE, CFM
+│   │   │   ├── attention/        (3 registered) #     Attention Gate, HAM, Lawin
+│   │   │   ├── transformer/      (7 registered) #     DAEFormer, MTUNet, nnFormer, SwinUNet, H2Former, MISSFormer, ScaleFormer
+│   │   │   ├── mlp/              (2 registered) #     SegFormer MLP, MLP Decoder
+│   │   │   ├── specific/         (15 registered)#     TransUNet CUP, HiFormer, UCTransNet, FAT-Net, MALUNet, EGE-UNet, MERIT, ...
+│   │   │   ├── pyramid/          (1 registered) #     UPerNet
+│   │   │   └── mamba/            (1 registered) #     VM-UNet
 │   │   ├── bottlenecks/          (17 modules)   #   17 bottlenecks: none, basic, ASPP, DenseASPP, PPM, Transformer, SE, CBAM, ...
 │   │   ├── skip_connections/                    #   25 skip connections
 │   │   │   ├── basic/            (2 modules)    #     Basic: concat, dense
@@ -195,13 +195,13 @@ segmentation_tool/
 │   │   │   ├── mamba/            (1 module)     #     Mamba: SK-VM++ (BSPC 2025)
 │   │   │   └── fusion/           (6 modules)    #     CNN fusion: BiFusion, Deformable, MultiScale, FeatureRefine, CCM, SDI
 │   │   ├── networks/                            #   136 complete architectures
-│   │   │   ├── cnn/              (35 modules)   #     CNN: UNet3+, UNet++, AttUNet, nnUNet, MedNeXt, ACC-UNet, CMUNeXt, Polyper, ...
-│   │   │   ├── transformer/      (36 modules)   #     Transformer: TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, SEPNet, CTNet, ...
-│   │   │   ├── mamba/            (24 modules)   #     Mamba: VMUNet, UMamba, SwinUMamba, SkinMamba, DermoMamba, SerpMamba, ...
-│   │   │   ├── sam/              (13 modules)   #     SAM family: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
-│   │   │   ├── rwkv/             (4 modules)    #     RWKV: U-RWKV, RWKV-UNet, MD-RWKV, RIR-Zigzag
-│   │   │   ├── kan_mlp/          (4 modules)    #     KAN/MLP: UKAN, Rolling-UNet, UNeXt, Wav-KAN
-│   │   │   └── linear_attn/      (3 modules)    #     Linear attention: TTT-UNet, xLSTM-UNet, U-VixLSTM
+│   │   │   ├── cnn/              (40 registered)#     CNN: UNet3+, UNet++, AttUNet, nnUNet, MedNeXt, ACC-UNet, CMUNeXt, STUNet, ...
+│   │   │   ├── transformer/      (33 registered)#     Transformer: TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, SEPNet, CTNet, ...
+│   │   │   ├── mamba/            (23 registered)#     Mamba: VMUNet, UMamba, SwinUMamba, SkinMamba, DermoMamba, SerpMamba, ...
+│   │   │   ├── sam/              (12 registered)#     SAM family: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
+│   │   │   ├── rwkv/             (4 registered) #     RWKV: U-RWKV, RWKV-UNet, MD-RWKV, RIR-Zigzag
+│   │   │   ├── kan_mlp/          (7 registered) #     KAN/MLP: UKAN, Rolling-UNet (4 variants), UNeXt, Wav-KAN
+│   │   │   └── linear_attn/      (4 registered) #     Linear attention: TTT-UNet, xLSTM-UNet (2 variants), U-VixLSTM
 │   │   └── text_unet/            (13 modules)   #   Text-guided: CRIS, BiomedParse, LanGuideMedSeg, LViT, TGANet, TPRO, ...
 │   ├── training/                                # Training paradigms
 │   │   ├── semi/                 (23 modules)   #   21 semi-supervised: MeanTeacher, CPS, UniMatch, FixMatch, AugSeg, CorrMatch, ...
@@ -249,7 +249,7 @@ segmentation_tool/
 │   │   ├── decoder_study/        (121 yamls)    #     Decoder ablation (3 enc × 40 dec)
 │   │   ├── skip_study/           (75 yamls)     #     Skip ablation (3 enc × 25 skip)
 │   │   ├── bottleneck_study/     (51 yamls)     #     Bottleneck ablation (3 enc × 17 bn)
-│   │   └── foundation/           (57 yamls)     #     Foundation models (9 modalities × 39 models)
+│   │   └── foundation/           (57 yamls)     #     Foundation models (9 modalities × 38 encoders)
 │   ├── training_paradigms/       (99 yamls)     #   Training paradigm configs
 │   │   ├── semi_supervision/     (21 yamls)     #     Semi-supervised (21 methods)
 │   │   ├── domain_adaptation/    (18 yamls)     #     Domain adaptation (18 methods)
@@ -306,30 +306,32 @@ segmentation_tool/
 
 | Category | Count | Examples |
 |---|---|---|
-| CNN | 33 | UNet3+, UNet++, Attention-UNet, nnU-Net, MedNeXt, ACC-UNet, CMUNeXt |
-| Transformer | 32 | TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
-| Mamba / SSM | 15 | VM-UNet, U-Mamba, Swin-UMamba, LKM-UNet, LoG-VMamba, HC-Mamba |
-| SAM family | 13 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM |
-| KAN / MLP | 4 | U-KAN, Rolling-UNet, UNeXt, Wav-KAN |
+| CNN | 40 | UNet3+, UNet++, Attention-UNet, nnU-Net, MedNeXt, ACC-UNet, CMUNeXt |
+| Transformer | 33 | TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
+| Mamba / SSM | 23 | VM-UNet, U-Mamba, Swin-UMamba, LKM-UNet, LoG-VMamba, HC-Mamba |
+| SAM family | 12 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM |
+| KAN / MLP | 7 | U-KAN, Rolling-UNet (4 variants), UNeXt, Wav-KAN |
+| Linear Attention | 4 | TTT-UNet, xLSTM-UNet (2 variants), U-VixLSTM |
 | RWKV | 4 | U-RWKV, RWKV-UNet, MD-RWKV-UNet, RIR-Zigzag |
-| Other Linear Attn | 2 | TTT-UNet, xLSTM-UNet |
 | Text-guided | 13 | CRIS, BiomedParse, LanGuideMedSeg, LViT, TGANet, TPRO, CausalCLIPSeg |
 
 > Full list: [docs/models/networks.md](docs/models/networks.md)
 
 ### Encoders — 172
 
-**Highlight: 39 foundation model encoders covering 9 medical modalities**
+**Highlight: 38 foundation model encoders covering 9 medical modalities**
 
-| Modality | Models |
-|---|---|
-| General | DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT |
-| Pathology | Phikon, UNI, PLIP, MUSK, PathFoundation |
-| Radiology | Rad-DINO, CXR-Foundation, OmniRad |
-| Ophthalmology | RETFound-DINOv2, FLAIR, OphMAE |
-| Dermatology | DermFoundation, PanDerm |
-| Medical VLM | BiomedCLIP, MedCLIP, KEEP |
-| MLLM Vision | Qwen3-VL, MedGemma, LLaVA-Med, HuatuoGPT |
+| Modality | Count | Models |
+|---|---|---|
+| General | 5 | DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT |
+| Pathology | 6 | Phikon, Phikon-v2, UNI, PLIP, MUSK, PathFoundation |
+| Radiology | 4 | Rad-DINO, CXR-Foundation, OmniRad, MedSigLIP |
+| Ophthalmology | 4 | RETFound-DINOv2, RETFound, FLAIR, OphMAE |
+| Dermatology | 4 | DermFoundation, DermCLIP, MoNet, PanDerm |
+| Multimodal Medical | 3 | BiomedCLIP, MedCLIP, KEEP |
+| MLLM Vision | 8 | Qwen2.5-VL, Qwen3-VL, MedGemma, LLaVA-Med, HuatuoGPT, HealthGPT, HuLuMed, LingShu |
+| Ultrasound | 3 | UltraDINO, UltraFedFM, US-FMAE |
+| Endoscopy | 1 | Endo-ViT |
 
 All foundation ViTs use **DPT head** (multi-block multi-scale features), not naive FPN-from-tokens.
 
@@ -349,11 +351,11 @@ encoder:
 |---|---|---|
 | Basic (upsampling) | 4 | UNet, Bilinear, Deconv, DepthwiseSep |
 | Dense (connections) | 2 | UNet++, UNet3+ |
-| Cascade | 8 | CASCADE, EMCAD, G-CASCADE, CFM |
+| Cascade | 5 | CASCADE, EMCAD, G-CASCADE, CFM |
 | Attention | 3 | Attention Gate, HAM, Lawin |
-| Transformer | 5 | DAEFormer, MTUNet, SwinUNet, nnFormer |
+| Transformer | 7 | DAEFormer, MTUNet, SwinUNet, nnFormer, H2Former, MISSFormer, ScaleFormer |
 | MLP | 2 | SegFormer MLP, MLP Decoder |
-| Specific (network) | 12 | TransUNet CUP, HiFormer, etc. |
+| Specific (network) | 15 | TransUNet CUP, HiFormer, UCTransNet, FAT-Net, MALUNet, EGE-UNet, MERIT, ... |
 | Mamba | 1 | VM-UNet |
 | Pyramid | 1 | UPerNet |
 

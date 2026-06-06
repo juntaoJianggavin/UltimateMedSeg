@@ -167,7 +167,7 @@ segmentation_tool/
 │   │   │   ├── rwkv/             (4 modules)    #     RWKV: RWKV-UNet, U-RWKV, MD-RWKV, RIR-Zigzag
 │   │   │   ├── linear_attn/      (5 modules)    #     线性注意力: RetNet, Linformer, Performer, TTT, xLSTM
 │   │   │   ├── kan_mlp/          (4 modules)    #     KAN/MLP: UKAN, Rolling-UNet, UNeXt, Wav-KAN
-│   │   │   ├── foundation/       (39 modules)   #     Foundation 模型 (DPT head)
+│   │   │   ├── foundation/       (38 modules)   #     Foundation 模型 (DPT head)
 │   │   │   │   ├── general/      (5)            #       DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT
 │   │   │   │   ├── pathology/    (6)            #       Phikon, UNI, PLIP, MUSK, PathFoundation, Phikon-v2
 │   │   │   │   ├── radiology/    (4)            #       Rad-DINO, CXR-Foundation, OmniRad, MedSigLIP
@@ -178,16 +178,16 @@ segmentation_tool/
 │   │   │   │   ├── endoscopy/    (1)            #       EndoViT
 │   │   │   │   └── ultrasound/   (3)            #       UltraDINO, UltraFedFM, USF-MAE
 │   │   │   └── wrapper/          (1 module)     #     timm 动态 wrapper (1000+ 模型，timm_ 前缀即用)
-│   │   ├── decoders/                            #   40+ 个解码器
-│   │   │   ├── basic/            (4 modules)    #     基础上采样: UNet, Bilinear, Deconv, DepthwiseSep
-│   │   │   ├── dense/            (2 modules)    #     密集连接: UNet++, UNet3+
-│   │   │   ├── cascade/          (8 modules)    #     级联: CASCADE, EMCAD, G-CASCADE, CFM, MERIT, EDLDNet
-│   │   │   ├── attention/        (3 modules)    #     注意力: Attention Gate, HAM, Lawin
-│   │   │   ├── transformer/      (5 modules)    #     Transformer: DAEFormer, MTUNet, nnFormer, SwinUNet, UCTransNet
-│   │   │   ├── mlp/              (2 modules)    #     MLP: SegFormer MLP, MLP Decoder
-│   │   │   ├── specific/         (12 modules)   #     网络专属: TransUNet CUP, HiFormer, FAT-Net, MALUNet, EGE-UNet, ...
-│   │   │   ├── pyramid/          (1 module)     #     金字塔: UPerNet
-│   │   │   └── mamba/            (1 module)     #     Mamba: VM-UNet
+│   │   ├── decoders/                            #   40 个解码器
+│   │   │   ├── basic/            (4 registered) #     基础上采样: UNet, Bilinear, Deconv, DepthwiseSep
+│   │   │   ├── dense/            (2 registered) #     密集连接: UNet++, UNet3+
+│   │   │   ├── cascade/          (5 registered) #     CASCADE, EMCAD (2 变体), G-CASCADE, CFM
+│   │   │   ├── attention/        (3 registered) #     注意力门控, HAM, Lawin
+│   │   │   ├── transformer/      (7 registered) #     DAEFormer, MTUNet, nnFormer, SwinUNet, H2Former, MISSFormer, ScaleFormer
+│   │   │   ├── mlp/              (2 registered) #     SegFormer MLP, MLP 解码器
+│   │   │   ├── specific/         (15 registered)#     TransUNet CUP, HiFormer, UCTransNet, FAT-Net, MALUNet, EGE-UNet, MERIT, ...
+│   │   │   ├── pyramid/          (1 registered) #     金字塔: UPerNet
+│   │   │   └── mamba/            (1 registered) #     Mamba: VM-UNet
 │   │   ├── bottlenecks/          (17 modules)   #   17 个瓶颈层: none, basic, ASPP, DenseASPP, PPM, Transformer, SE, CBAM, ...
 │   │   ├── skip_connections/                    #   25 个跳跃连接
 │   │   │   ├── basic/            (2 modules)    #     基础: concat, dense
@@ -196,13 +196,13 @@ segmentation_tool/
 │   │   │   ├── mamba/            (1 module)     #     Mamba: SK-VM++ (BSPC 2025)
 │   │   │   └── fusion/           (6 modules)    #     CNN融合: BiFusion, Deformable, MultiScale, FeatureRefine, CCM, SDI
 │   │   ├── networks/                            #   136 个完整网络
-│   │   │   ├── cnn/              (35 modules)   #     CNN: UNet3+, UNet++, AttUNet, nnUNet, MedNeXt, ACC-UNet, CMUNeXt, Polyper, ...
-│   │   │   ├── transformer/      (36 modules)   #     Transformer: TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, SEPNet, CTNet, ...
-│   │   │   ├── mamba/            (24 modules)   #     Mamba: VMUNet, UMamba, SwinUMamba, SkinMamba, DermoMamba, SerpMamba, ...
-│   │   │   ├── sam/              (13 modules)   #     SAM 家族: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
-│   │   │   ├── rwkv/             (4 modules)    #     RWKV: U-RWKV, RWKV-UNet, MD-RWKV, RIR-Zigzag
-│   │   │   ├── kan_mlp/          (4 modules)    #     KAN/MLP: UKAN, Rolling-UNet, UNeXt, Wav-KAN
-│   │   │   └── linear_attn/      (3 modules)    #     线性注意力: TTT-UNet, xLSTM-UNet, U-VixLSTM
+│   │   │   ├── cnn/              (40 registered)#     CNN: UNet3+, UNet++, AttUNet, nnUNet, MedNeXt, ACC-UNet, CMUNeXt, STUNet, ...
+│   │   │   ├── transformer/      (33 registered)#     Transformer: TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, SEPNet, CTNet, ...
+│   │   │   ├── mamba/            (23 registered)#     Mamba: VMUNet, UMamba, SwinUMamba, SkinMamba, DermoMamba, SerpMamba, ...
+│   │   │   ├── sam/              (12 registered)#     SAM 家族: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
+│   │   │   ├── rwkv/             (4 registered) #     RWKV: U-RWKV, RWKV-UNet, MD-RWKV, RIR-Zigzag
+│   │   │   ├── kan_mlp/          (7 registered) #     KAN/MLP: UKAN, Rolling-UNet (4 变体), UNeXt, Wav-KAN
+│   │   │   └── linear_attn/      (4 registered) #     线性注意力: TTT-UNet, xLSTM-UNet (2 变体), U-VixLSTM
 │   │   └── text_unet/            (13 modules)   #   文本引导: CRIS, BiomedParse, LanGuideMedSeg, LViT, TGANet, TPRO, ...
 │   ├── training/                                # 训练范式
 │   │   ├── semi/                 (23 modules)   #   21 个半监督: MeanTeacher, CPS, UniMatch, FixMatch, AugSeg, CorrMatch, ...
@@ -250,7 +250,7 @@ segmentation_tool/
 │   │   ├── decoder_study/        (121 yamls)    #     Decoder 消融 (3 enc × 40 dec)
 │   │   ├── skip_study/           (75 yamls)     #     skip 消融 (3 enc × 25 skip)
 │   │   ├── bottleneck_study/     (51 yamls)     #     bottleneck 消融 (3 enc × 17 bn)
-│   │   └── foundation/           (57 yamls)     #     Foundation 模型 (9 模态 × 39 模型)
+│   │   └── foundation/           (57 yamls)     #     Foundation 模型 (9 模态 × 38 编码器)
 │   ├── training_paradigms/       (99 yamls)     #   训练范式配置
 │   │   ├── semi_supervision/     (21 yamls)     #     半监督 (21 方法)
 │   │   ├── domain_adaptation/    (18 yamls)     #     域适应 (18 方法)
@@ -307,30 +307,32 @@ segmentation_tool/
 
 | 类别 | 数量 | 代表模型 |
 |---|---|---|
-| CNN | 33 | UNet3+, UNet++, Attention-UNet, nnU-Net, MedNeXt, ACC-UNet, CMUNeXt |
-| Transformer | 32 | TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
-| Mamba / SSM | 15 | VM-UNet, U-Mamba, Swin-UMamba, LKM-UNet, LoG-VMamba, HC-Mamba |
-| SAM 家族 | 13 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM |
-| KAN / MLP | 4 | U-KAN, Rolling-UNet, UNeXt, Wav-KAN |
+| CNN | 40 | UNet3+, UNet++, Attention-UNet, nnU-Net, MedNeXt, ACC-UNet, CMUNeXt |
+| Transformer | 33 | TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
+| Mamba / SSM | 23 | VM-UNet, U-Mamba, Swin-UMamba, LKM-UNet, LoG-VMamba, HC-Mamba |
+| SAM 家族 | 12 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM |
+| KAN / MLP | 7 | U-KAN, Rolling-UNet (4 变体), UNeXt, Wav-KAN |
+| 线性注意力 | 4 | TTT-UNet, xLSTM-UNet (2 变体), U-VixLSTM |
 | RWKV | 4 | U-RWKV, RWKV-UNet, MD-RWKV-UNet, RIR-Zigzag |
-| 其他线性注意力 | 2 | TTT-UNet, xLSTM-UNet |
 | 文本引导 | 13 | CRIS, BiomedParse, LanGuideMedSeg, LViT, TGANet, TPRO, CausalCLIPSeg |
 
 > 详细列表: [docs/models/networks.md](docs/models/networks.md)
 
 ### 编码器 — 172 个
 
-**亮点：39 个 Foundation 模型编码器，覆盖 9 个医学模态**
+**亮点：38 个 Foundation 模型编码器，覆盖 9 个医学模态**
 
-| 模态 | 模型 |
-|---|---|
-| 通用 | DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT |
-| 病理 | Phikon, UNI, PLIP, MUSK, PathFoundation |
-| 放射 | Rad-DINO, CXR-Foundation, OmniRad |
-| 眼科 | RETFound-DINOv2, FLAIR, OphMAE |
-| 皮肤 | DermFoundation, PanDerm |
-| 医学VLM | BiomedCLIP, MedCLIP, KEEP |
-| MLLM视觉 | Qwen3-VL, MedGemma, LLaVA-Med, HuatuoGPT |
+| 模态 | 数量 | 模型 |
+|---|---|---|
+| 通用 | 5 | DINOv2, DINOv3, DINO, CLIP-ViT, SAM-ViT |
+| 病理 | 6 | Phikon, Phikon-v2, UNI, PLIP, MUSK, PathFoundation |
+| 放射 | 4 | Rad-DINO, CXR-Foundation, OmniRad, MedSigLIP |
+| 眼科 | 4 | RETFound-DINOv2, RETFound, FLAIR, OphMAE |
+| 皮肤 | 4 | DermFoundation, DermCLIP, MoNet, PanDerm |
+| 多模态医学 | 3 | BiomedCLIP, MedCLIP, KEEP |
+| MLLM视觉 | 8 | Qwen2.5-VL, Qwen3-VL, MedGemma, LLaVA-Med, HuatuoGPT, HealthGPT, HuLuMed, LingShu |
+| 超声 | 3 | UltraDINO, UltraFedFM, US-FMAE |
+| 内窥镜 | 1 | Endo-ViT |
 
 所有 Foundation ViT 使用 **DPT head**（从不同深度 block 提取多尺度特征），而非简单的 FPN-from-tokens。
 
@@ -350,11 +352,11 @@ encoder:
 |---|---|---|
 | 基础上采样 | 4 | UNet, Bilinear, Deconv, DepthwiseSep |
 | 密集连接 | 2 | UNet++, UNet3+ |
-| 级联 | 8 | CASCADE, EMCAD, G-CASCADE, CFM |
+| 级联 | 5 | CASCADE, EMCAD, G-CASCADE, CFM |
 | 注意力 | 3 | Attention Gate, HAM, Lawin |
-| Transformer | 5 | DAEFormer, MTUNet, SwinUNet, nnFormer |
-| MLP | 2 | SegFormer MLP, MLP Decoder |
-| 网络专属 | 12 | TransUNet CUP, HiFormer 等 |
+| Transformer | 7 | DAEFormer, MTUNet, SwinUNet, nnFormer, H2Former, MISSFormer, ScaleFormer |
+| MLP | 2 | SegFormer MLP, MLP 解码器 |
+| 网络专属 | 15 | TransUNet CUP, HiFormer, UCTransNet, FAT-Net, MALUNet, EGE-UNet, MERIT, ... |
 | Mamba | 1 | VM-UNet |
 | 金字塔 | 1 | UPerNet |
 
