@@ -1,0 +1,50 @@
+# Student model config
+# Reference: https://arxiv.org/abs/1503.02531
+# Student model configuration (Small UNet)
+# 学生模型配置（小型UNet）
+#
+# This lightweight model will learn from the teacher
+# 该轻量模型将从教师模型学习知识
+#
+# encoder: 编码器 / Encoder backbone
+# decoder: 解码器 / Decoder architecture
+# num_classes: 分割类别数 / Number of segmentation classes
+
+model:
+  encoder:
+    name: timm_resnet18
+    pretrained: true
+  
+  decoder:
+    name: unet
+    params: {}
+  
+  num_classes: 9
+
+data:
+  type: synapse
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  val_dir: ./data/Synapse/test_vol_h5
+  # 测试集（test.py 使用，可与 val 一致）
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  epochs: 100
+  batch_size: 16
+  num_workers: 4
+  
+  optimizer:
+    name: adamw
+    lr: 2e-4
+    weight_decay: 1e-4
+  
+  loss:
+    name: compound
+    params:
+      ce_weight: 1.0
+      dice_weight: 1.0
+  
+  val_interval: 5
+  save_interval: 20

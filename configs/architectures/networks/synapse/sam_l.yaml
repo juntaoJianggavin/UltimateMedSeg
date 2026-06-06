@@ -1,0 +1,43 @@
+# Source: https://github.com/facebookresearch/segment-anything
+# Network: sam_l (complete architecture)
+# 完整网络：sam_l（完整架构）
+model:
+  architecture: sam_l
+  num_classes: 9
+  img_size: 224
+  encoder:
+    in_channels: 3
+  arch_params:
+    pretrained: true
+    pretrained_path: null
+    freeze_image_encoder: true
+    freeze_prompt_encoder: true
+    freeze_mask_decoder: false
+    unfreeze_last_n_blocks: 4
+    inference_only: false
+
+data:
+  type: synapse
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  test_dir: ./data/Synapse/test_vol_h5
+  train_list: ./data/Synapse/lists/lists_Synapse/train.txt
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  epochs: 100
+  batch_size: 4
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+        - {name: ce, weight: 0.4}
+        - {name: dice, weight: 0.6}
+  optimizer:
+    name: adamw
+    lr: 1.0e-4
+    weight_decay: 1.0e-4
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-6

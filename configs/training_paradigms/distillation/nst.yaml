@@ -1,0 +1,69 @@
+# NST: Neuron Selectivity Transfer (Huang & Wang, 2017)
+# Reference: https://github.com/HobbitLong/RepDistiller
+# Paper: https://arxiv.org/abs/1707.01219
+#
+# 神经元选择性迁移：把每个 channel 看成 H*W 维向量，对学生/教师 channel 集合
+# 用 polynomial-kernel MMD 对齐分布。
+# Polynomial-kernel MMD between L2-normalised channel-vectors (per sample).
+#
+# kernel: 'poly' (paper) 或 'linear'
+# poly_c / poly_d: 多项式核常数与次数 / polynomial kernel constant and degree
+# student_channels / teacher_channels: 可选，启用 1x1 通道对齐
+#
+# feature_layers: 抽特征的层 / where to extract features
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/nst.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: nst
+  weight: 50.0
+  feature_layers:
+    - encoder
+  params:
+    kernel: poly
+    poly_c: 0.0
+    poly_d: 2
+    student_channels: 512
+    teacher_channels: 512
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

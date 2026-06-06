@@ -1,0 +1,92 @@
+# CCT (CVPR 2020)
+# Reference: https://github.com/yassouali/CCT
+# ============================================================================
+# CCT — Cross Consistency Training 交叉一致性训练
+# CCT — Cross Consistency Training for Semi-Supervised Segmentation
+# ============================================================================
+# 论文 / Paper:
+#   Ouali et al., "Semi-Supervised Semantic Segmentation with
+#   Cross-Consistency Training", BMVC 2020
+#   https://arxiv.org/abs/2003.09082
+#
+# 算法概述 / Algorithm:
+#   - 共享编码器 + 两个不同解码器 (主解码器 + 辅助解码器)
+#     Shared encoder + two different decoders (main + auxiliary)
+#   - 对无标签数据施加多种数据增强, 要求不同增强下预测一致
+#     Multiple augmentations on unlabeled data; enforce prediction consistency
+#   - 辅助解码器提供额外的一致性约束, 增强模型鲁棒性
+#     Auxiliary decoder provides extra consistency constraints for robustness
+#
+# 参数说明 / Parameters:
+#   consistency_weight — 一致性损失权重 / Consistency loss weight
+#   rampup_epochs      — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 数据增强策略多样时 / Diverse augmentation strategies
+# 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/cct.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: cct
+  params:
+    n_auxiliary: 3
+    perturbation_types:
+      - dropout
+      - feature_noise
+      - feature_drop
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,78 @@
+# ============================================================================
+# Montgomery + Shenzhen — 胸部 X 光肺分割 (Chest X-Ray Lung Segmentation)
+# ============================================================================
+#
+# 简介:
+#   两个公开 CXR 肺分割数据集，常合并使用:
+#
+#   Montgomery County (MC):
+#     Jaeger et al., 2014, IEEE TMI
+#     138 张后前位胸片 (4020×4892 或 4892×4020)
+#     含 58 例结核 + 80 例正常
+#     二分类: 背景 vs 肺野（左右肺合并）
+#
+#   Shenzhen (SZ):
+#     同上论文
+#     662 张后前位胸片（约 3000×3000）
+#     含 336 例结核 + 326 例正常
+#     二分类: 背景 vs 肺野
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 合并 800 张，5折 或 7:1.5:1.5
+#   - 或 Montgomery 训练 → Shenzhen 测试（跨域）
+#
+# 下载:
+#   官方: https://data.lhncbc.nlm.nih.gov/public/Tuberculosis-Chest-X-ray-Datasets/
+#   镜像: https://www.kaggle.com/datasets/nikhilpandey360/chest-xray-masks-and-labels
+#   下载后目录结构:
+#     data/CXR_Lung/
+#     ├── images/    (MCUCXR_0001_0.png, CHNCXR_0001_0.png ...)
+#     └── masks/     (MCUCXR_0001_0_mask.png ...)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 512
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/CXR_Lung
+  img_suffix: .png
+  mask_suffix: _mask.png
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 150
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,64 @@
+# NORM: Normalized Knowledge Distillation (ICLR 2023)
+# Reference: https://github.com/xyliu7/NORM
+# Paper: https://arxiv.org/abs/2305.00367
+#
+# NORM：在 KL 之前对 logits 沿类维做 L2 normalization
+# L2-normalise per-pixel logit vectors along the class axis before
+# the standard temperature-softmax KL. Removes the scale degree of
+# freedom between teacher / student logit magnitudes.
+#
+# temperature: 软目标温度 / softmax temperature (paper default 4.0)
+# scale: 归一化后再缩放系数 / post-normalisation scale; null -> sqrt(C)
+# eps: L2 数值下限 / numeric floor
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/norm_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: norm_kd
+  weight: 1.0
+  params:
+    temperature: 4.0
+    scale: null
+    eps: 0.000001
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

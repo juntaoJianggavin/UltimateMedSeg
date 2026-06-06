@@ -1,0 +1,23 @@
+# Inference-time TTA + ensemble with multiple checkpoints
+# 推理时 TTA + 多检查点集成
+
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+  decoder: { name: bilinear }
+  skip_connection: { name: concat }
+  bottleneck: { name: none }
+
+data:
+  type: synapse
+  img_size: 224
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  batch_size: 1                # TTA increases per-sample cost
+  num_workers: 4

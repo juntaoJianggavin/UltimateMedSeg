@@ -1,0 +1,97 @@
+# DiffRect (MICCAI 2024)
+# Reference: https://github.com/CUHK-AIM-Group/DiffRect
+# Paper: https://arxiv.org/abs/2407.09918
+# ============================================================================
+# DiffRect — 基于扩散模型的伪标签矫正 (Latent Diffusion Label Rectification)
+# ============================================================================
+# 论文 / Paper:
+#   Liu et al., MICCAI 2024
+#   https://arxiv.org/abs/2407.09918
+#
+# 算法概述 / Algorithm:
+#   - 在 labeled GT 上训练一个 x0-prediction 条件扩散网络
+#     g_theta(y_t, image, t) -> y0_logits,
+#     y_t = sqrt(bar_alpha) * one_hot(GT) + sqrt(1-bar_alpha) * eps.
+#   - 训练损失: CE(y0_logits, GT) + lambda_L1 * |softmax(y0_logits) - one_hot|_1.
+#   - 在 unlabeled 上, 把 teacher softmax 当 "轻噪 y_t" (t = diff_rect_t),
+#     单步前向 g_theta 得到 rectified soft label;
+#     置信度阈值 mask + argmax 后监督学生.
+#   - 与 DDFP 的区别: DDFP 是 eps-prediction + DDIM 多步; DiffRect 是
+#     x0-prediction + 单步矫正 + CE 损失.
+#
+# 关键参数 / Key Parameters:
+#   num_classes          — 必填: 类别数 (与 model.num_classes 一致)
+#   diff_num_timesteps   — 扩散总步数 T (默认 200)
+#   diff_rect_t          — 单步矫正注入时间步 (默认 30, 轻噪假设)
+#   diff_warmup_epochs   — 仅训练 rectifier 的初始 epoch (默认 5)
+#   diff_pred_threshold  — 矫正后伪标签置信度阈值 (默认 0.5)
+#   diff_l1_weight       — auxiliary L1 损失权重 (默认 0.1)
+#
+# 适用场景 / Best for: 噪声伪标签很多的医学分割, 标签 5%-20%
+# 用法 / Usage: python semi_train.py --config configs/semi/diffrect.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: diffrect
+  params:
+    num_classes: 4          # 必填, 与 model.num_classes 一致
+    ema_decay: 0.999
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    diff_loss_weight: 1.0
+    diff_warmup_epochs: 5
+    diff_num_timesteps: 200
+    diff_rect_t: 30
+    diff_base_ch: 32
+    diff_pred_threshold: 0.5
+    diff_l1_weight: 0.1
+    beta_start: 0.0001
+    beta_end: 0.02
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

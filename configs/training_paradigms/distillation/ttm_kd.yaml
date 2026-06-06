@@ -1,0 +1,64 @@
+# TTM / WTTM: Transformed (Weighted) Teacher Matching (ICLR 2024)
+# Reference: https://github.com/zkxufo/TTM
+# Paper: https://arxiv.org/abs/2402.11148
+#
+# TTM：只对教师端做温度软化，学生端保持原 logits
+# Apply the temperature transform only on the teacher side (softmax(z_t/T))
+# while keeping the student at T=1. WTTM adds per-pixel weighting by
+# exp( H(p_t) / log C ), so high-entropy teacher predictions count more.
+#
+# temperature: 教师端温度 / teacher-side temperature (paper 4.0)
+# weighted: 是否启用 WTTM 熵加权 / enable WTTM entropy weighting
+# weight_temperature: 熵权重的额外软化系数 / softens the entropy weights
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/ttm_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: ttm_kd
+  weight: 1.0
+  params:
+    temperature: 4.0
+    weighted: true
+    weight_temperature: 1.0
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

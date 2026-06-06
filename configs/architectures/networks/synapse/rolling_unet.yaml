@@ -1,0 +1,37 @@
+# Source: https://github.com/Jiaoyang45/Rolling-Unet
+# Network: rolling_unet (complete architecture)
+# 完整网络：Rolling-UNet（完整架构）
+
+model:
+  num_classes: 9
+  img_size: 224
+  architecture: rolling_unet
+  encoder:
+    in_channels: 3
+  arch_params: {}
+data:
+  type: synapse
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  test_dir: ./data/Synapse/test_vol_h5
+  train_list: ./data/Synapse/lists/lists_Synapse/train.txt
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adam
+    lr: 0.001
+    weight_decay: 1.0e-05
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

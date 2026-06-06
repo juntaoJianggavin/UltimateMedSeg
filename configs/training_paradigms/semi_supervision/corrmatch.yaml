@@ -1,0 +1,90 @@
+# CorrMatch (CVPR 2024)
+# Reference: https://github.com/BBBBchan/CorrMatch
+# Paper: https://arxiv.org/abs/2306.04300
+# ============================================================================
+# CorrMatch — 基于像素相关性传播伪标签的半监督分割
+# CorrMatch — Label Propagation via Correlation Matching
+# ============================================================================
+# 论文 / Paper:
+#   Sun et al., "CorrMatch: Label Propagation via Correlation Matching for
+#   Semi-Supervised Semantic Segmentation", CVPR 2024
+#   https://arxiv.org/abs/2306.04300
+#
+# 算法概述 / Algorithm:
+#   - 对 teacher 在 decoder 特征图上做 L2 normalize, 计算 patch-wise
+#     cosine correlation matrix S in R^{B x N x N}, N = h*w.
+#   - 对每个低置信度像素 j (conf < tau_low), 在高置信度像素集合 {i: conf >=
+#     tau_high} 中选 top-K 个相关性最高 (且 > tau_corr) 的 donor.
+#   - 用 correlation-weighted majority vote 把 donor 的硬伪标签传播到 j.
+#   - 学生在强增广视图上以 (高置信度 + 传播) 的联合 mask 做 CE.
+#
+# 关键参数 / Key Parameters:
+#   tau_high   — 高置信度阈值 (paper 0.95)
+#   tau_low    — 低置信度阈值, 低于则尝试传播 (paper 0.7)
+#   tau_corr   — donor 接受的最小相关性 (paper 0.85)
+#   top_k      — 每个 query 像素的最多 donor 数 (paper 8)
+#   corr_size  — 计算 correlation 矩阵的空间分辨率 (默认 56 = 224/4)
+#
+# 适用场景 / Best for: 大量低置信度像素场景, 标签 1%-20%
+# 用法 / Usage: python semi_train.py --config configs/semi/corrmatch.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: corrmatch
+  params:
+    ema_decay: 0.999
+    tau_high: 0.95
+    tau_low: 0.70
+    tau_corr: 0.85
+    top_k: 8
+    corr_size: 56
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

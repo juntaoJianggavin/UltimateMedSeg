@@ -1,0 +1,75 @@
+# ============================================================================
+# REFUGE — 视网膜视杯视盘分割 (Retinal Fundus Glaucoma Challenge)
+# ============================================================================
+#
+# 简介:
+#   Orlando et al., 2020, Medical Image Analysis
+#   1200 张彩色眼底图像，分割视杯(optic cup)和视盘(optic disc)
+#   三分类: 背景 / 视盘 / 视杯
+#   青光眼诊断的关键指标: cup-to-disc ratio (CDR)
+#
+# 官方划分: train (400) / val (400) / test (400)
+# 推荐用法: 直接使用官方三划分
+#
+# 下载:
+#   官方: https://refuge.grand-challenge.org/
+#   镜像: https://www.kaggle.com/datasets/andrewmvd/refuge-challenge
+#   下载后目录结构:
+#     data/REFUGE/
+#     ├── train/
+#     │   ├── images/    (n0001.jpg ...)
+#     │   └── masks/     (n0001.bmp ... 0=bg, 128=disc, 255=cup)
+#     ├── val/
+#     │   ├── images/
+#     │   └── masks/
+#     └── test/
+#         ├── images/
+#         └── masks/
+#
+# 注意: mask 灰度值编码 (0=背景, 128=视盘, 255=视杯)，需映射为 0/1/2
+# ============================================================================
+
+model:
+  num_classes: 3
+  img_size: 512
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  train_dir: ./data/REFUGE/train
+  val_dir: ./data/REFUGE/val
+  test_dir: ./data/REFUGE/test
+  img_suffix: .jpg
+  mask_suffix: .bmp
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

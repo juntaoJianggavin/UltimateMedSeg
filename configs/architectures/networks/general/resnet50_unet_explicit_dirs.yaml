@@ -1,0 +1,62 @@
+# 场景5: 直接指定 train/val/test 目录路径
+# Scenario 5: Explicit directory paths for each split
+#
+# 适用于: 数据集已经按目录划分好的情况
+# 每个目录下有 images/ 和 masks/ 两个子目录
+#
+# data/
+# ├── train/
+# │   ├── images/
+# │   └── masks/
+# ├── val/
+# │   ├── images/
+# │   └── masks/
+# └── test/        (可选，没有则不评估 test)
+#     ├── images/
+#     └── masks/
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: image_mask
+  img_size: 256
+  # 直接指定各 split 的路径（不做自动划分）
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test   # 可删掉此行 → 无 test 评估
+  img_suffix: .png
+  mask_suffix: .png
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

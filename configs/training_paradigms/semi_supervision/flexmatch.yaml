@@ -1,0 +1,88 @@
+# FlexMatch (NeurIPS 2021)
+# Reference: https://github.com/TorchSSL/TorchSSL
+# ============================================================================
+# FlexMatch — 自适应阈值伪标签 (课程学习)
+# FlexMatch — Adaptive Threshold Pseudo-Labeling (Curriculum Learning)
+# ============================================================================
+# 论文 / Paper:
+#   Zhang et al., "FlexMatch: Boosting Semi-Supervised Learning with
+#   Curriculum Pseudo Labeling", NeurIPS 2021
+#   https://arxiv.org/abs/2110.08263
+#
+# 算法概述 / Algorithm:
+#   - 基于 FixMatch (弱增强→伪标签, 强增强→训练)
+#     Based on FixMatch (weak aug → pseudo-labels, strong aug → training)
+#   - 自适应阈值: 每个类别的阈值根据学习进度动态调整
+#     Adaptive threshold: per-class threshold adjusted by learning progress
+#   - 公式: threshold_c = base_threshold × (n_c / max(n_all))
+#     Formula: threshold_c = base_threshold × (n_c / max(n_all))
+#   - 易学类别阈值低 (更多伪标签), 难学类别阈值高 (更严格过滤)
+#     Easy classes get lower threshold; hard classes get higher threshold
+#
+# 参数说明 / Parameters:
+#   confidence_threshold — 基础伪标签阈值 / Base pseudo-label threshold
+#   consistency_weight   — 一致性损失权重 / Consistency loss weight
+#   rampup_epochs        — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 类别不平衡的半监督 / Class-imbalanced semi-supervised learning
+# 源码参考 / Reference code: https://github.com/TorchSSL/TorchSSL
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/flexmatch.yaml
+# ============================================================================
+
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: random
+
+semi:
+  method: flexmatch
+  params:
+    p_cutoff: 0.95
+    ema_decay: 0.999
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  # Supervised loss for labeled data; the FlexMatch unsupervised consistency
+  # is handled inside medseg/semi/methods.py:FlexMatch (CPL thresholds etc.).
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.5
+        - name: dice
+          weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.0003
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,92 @@
+# Temporal Ensembling (ICLR 2017)
+# Reference: https://github.com/smlaine2/tempens
+# Paper: https://arxiv.org/abs/1610.02242
+# ============================================================================
+# Temporal Ensembling — 历史预测 EMA 自蒸馏
+# Temporal Ensembling — Per-sample EMA of past predictions
+# ============================================================================
+# 论文 / Paper:
+#   Laine & Aila, "Temporal Ensembling for Semi-Supervised Learning"
+#   ICLR 2017  https://arxiv.org/abs/1610.02242  (Section 2.2)
+#
+# 算法概述 / Algorithm:
+#   - 对每个 unlabeled 样本维护一个 prediction EMA: Z_i = α·Z_i + (1-α)·p_i
+#   - bias-correct: z_i = Z_i / (1 - α^t_i)  作为一致性 target
+#   - 损失: L = CE(sup) + w(t) * MSE(softmax(f(x)), z_target)
+#   - 与 Mean Teacher 区别: 平均的是 **prediction** (按样本 id), 而非 weights
+#
+#   For each unlabeled sample, maintain a per-sample EMA of its predictions.
+#   Use the bias-corrected ensemble as the consistency target.  Unlike
+#   Mean Teacher (which averages model weights), this averages predictions.
+#
+# 参数说明 / Parameters:
+#   ensemble_alpha     — prediction EMA 系数 / per-sample prediction EMA (paper: 0.6)
+#   consistency_weight — 最大一致性权重 / Max unsupervised weight w_max
+#   rampup_epochs      — 渐增周期数 / Sigmoid ramp-up length
+#   use_strong_aug     — student 是否过 strong aug / strong aug on student forward
+#
+# 备注 / Notes:
+#   - sample id 取自 unlabeled batch 的 ``case_name`` 字段; 若缺失会自动降级为
+#     batch 内 EMA (会打 warning)
+#   - bank 存在 CPU 以避免大无标注集合 GPU OOM
+#   - Falls back to batch-local EMA when ``case_name`` is missing.
+#     Bank lives on CPU to bound GPU memory for large unlabeled pools.
+#
+# Usage: python semi_train.py --config configs/semi/temporal_ensembling.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: temporal_ensembling
+  params:
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    ensemble_alpha: 0.6   # paper default
+    use_strong_aug: true
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

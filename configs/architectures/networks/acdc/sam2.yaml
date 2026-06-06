@@ -1,0 +1,43 @@
+# Source: https://github.com/facebookresearch/sam2
+# Network: sam2 (complete architecture)
+# 完整网络：sam2（完整架构）
+model:
+  architecture: sam2
+  num_classes: 4
+  img_size: 224
+  encoder:
+    in_channels: 3
+  arch_params:
+    pretrained: true
+    pretrained_path: null
+    freeze_image_encoder: true
+    freeze_prompt_encoder: true
+    freeze_mask_decoder: false
+    unfreeze_last_n_blocks: 4
+    inference_only: false
+
+data:
+  type: acdc
+  img_size: 224
+  train_dir: ./data/ACDC/train_npz
+  test_dir: ./data/ACDC/test_vol_h5
+  train_list: ./data/ACDC/lists/lists_ACDC/train.txt
+  test_list: ./data/ACDC/lists/lists_ACDC/test_vol.txt
+
+training:
+  epochs: 100
+  batch_size: 4
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+        - {name: ce, weight: 0.4}
+        - {name: dice, weight: 0.6}
+  optimizer:
+    name: adamw
+    lr: 1.0e-4
+    weight_decay: 1.0e-4
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-6

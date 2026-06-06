@@ -1,0 +1,41 @@
+model:
+  num_classes: 1
+  img_size: 256
+  architecture: medisee
+  encoder:
+    in_channels: 3
+  arch_params:
+    download_weights: true
+    cache_dir: null
+    precision: fp16
+    conv_type: mistral_instruct
+    max_new_tokens: 32
+    sam_image_size: 1024
+    clip_image_size: 336
+data:
+  type: qata_covid19
+  img_size: 256
+  data_root: ./data/QaTa-COV19
+  tokenizer_name: null
+  text_max_length: 64
+  text_column: text
+  text_source: dataset
+training:
+  epochs: 10
+  batch_size: 1
+  num_workers: 2
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: bce
+        weight: 1.0
+      - name: dice
+        weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.0003
+    weight_decay: 0.0
+  scheduler:
+    name: cosine
+    min_lr: 0.0

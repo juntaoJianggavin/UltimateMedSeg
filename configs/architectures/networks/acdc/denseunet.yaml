@@ -1,0 +1,37 @@
+# Source: https://github.com/zh320/medical-segmentation-pytorch
+# Network: denseunet (complete architecture)
+# 完整网络：denseunet（完整架构）
+
+model:
+  num_classes: 4
+  img_size: 224
+  architecture: denseunet
+  encoder:
+    in_channels: 3
+  arch_params: {}
+data:
+  type: acdc
+  img_size: 224
+  train_dir: ./data/ACDC/train_npz
+  test_dir: ./data/ACDC/test_vol_h5
+  train_list: ./data/ACDC/lists/train.txt
+  test_list: ./data/ACDC/lists/test_vol.txt
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adam
+    lr: 0.0001
+    weight_decay: 0.0
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

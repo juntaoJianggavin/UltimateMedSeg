@@ -1,0 +1,42 @@
+# ViM-UNet: Vision Mamba Encoder + UNet Decoder (Ultrasound)
+# ViM-UNet: Vision Mamba Encoder + UNet Decoder (Ultrasound)
+# Domain: ultrasound
+
+model:
+  num_classes: 2
+  img_size: 256
+  architecture: vim_unet
+  encoder:
+    in_channels: 3
+  arch_params: {}
+
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+
+training:
+  random_state: 42
+  deterministic: true
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

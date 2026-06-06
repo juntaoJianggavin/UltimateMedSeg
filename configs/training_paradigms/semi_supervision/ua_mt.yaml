@@ -1,0 +1,80 @@
+# UA-MT — Uncertainty-Aware Mean Teacher (MICCAI 2019)
+# Reference: https://github.com/yulequan/UA-MT
+# Paper: https://arxiv.org/abs/1907.07034
+# ============================================================================
+# UA-MT — Uncertainty-Aware Mean Teacher / 不确定性感知均值教师
+#
+# [中文] Mean Teacher + MC-Dropout 不确定性估计 (论文原版)。教师 T 次 dropout
+#        前向，求 mean softmax 的 predictive entropy；归一化到 [0,1] 后过阈值，
+#        高不确定区域不参与 MSE 一致性。模型若无 Dropout 层会退化为单次前向
+#        并打 warning；保留 "tta" 作为 ablation 备选。
+# [EN]   Paper-faithful MC-Dropout uncertainty (T stochastic forwards on the
+#        teacher, predictive entropy of mean softmax, normalised by log(C)).
+#        Falls back to a single forward + warning when no Dropout is present.
+#        ``uncertainty_estimator: tta`` restores the old TTA variance path.
+#
+# ema_decay             — EMA衰减率 / EMA decay rate
+# consistency_weight    — 一致性损失权重 / Consistency loss weight
+# uncertainty_threshold — 不确定性阈值 (归一化熵) / Max normalised entropy
+# num_tta               — MC-Dropout 采样数 (或 TTA 数) / MC / TTA samples
+# uncertainty_estimator — "mc_dropout" (默认/论文) | "tta" (旧实现)
+#
+# Usage: python semi_train.py --config configs/semi/ua_mt.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: ua_mt
+  params:
+    ema_decay: 0.999
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    uncertainty_threshold: 0.3      # 归一化 entropy 阈值 in [0, 1]
+    num_tta: 8                       # T = MC-Dropout 采样次数 (paper: 8)
+    uncertainty_estimator: mc_dropout  # 'mc_dropout' (paper) | 'tta'
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,75 @@
+# ============================================================================
+# CHASE_DB1 — 视网膜血管分割 (Child Heart and Health Study in England)
+# ============================================================================
+#
+# 简介:
+#   Fraz et al., 2012, IEEE TBME
+#   28 张彩色眼底图像（999×960），来自 14 名儿童（左右眼各 1 张）
+#   二分类: 背景 vs 血管
+#   相比 DRIVE/STARE 分辨率更高、血管更细
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 前 20 张训练 + 后 8 张测试（常见划分）
+#   - 或 5折交叉验证
+#
+# 下载:
+#   官方: https://blogs.kingston.ac.uk/retinal/chasedb1/
+#   镜像: https://www.kaggle.com/datasets/khoongweihao/chasedb1
+#   下载后目录结构:
+#     data/CHASE_DB1/
+#     ├── images/       (Image_01L.jpg ... 共 28 张)
+#     └── masks/        (Image_01L_1stHO.png ... 第一标注者)
+#
+# 注意:
+#   - 两位标注者: _1stHO.png 和 _2ndHO.png
+#   - 通常用第一标注者
+#   - mask 二值 (0/255)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 512
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/CHASE_DB1
+  img_suffix: .jpg
+  mask_suffix: _1stHO.png
+  # 方式1: 固定划分 (前20训练/后8测试)
+  train_ratio: 0.7
+  val_ratio: 0.15
+  random_state: 42
+
+training:
+  epochs: 300
+  batch_size: 4
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

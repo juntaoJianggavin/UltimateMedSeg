@@ -1,0 +1,45 @@
+# Source: https://github.com/MIC-DKFZ/MedNeXt
+# Architecture combination: encoder=mednext + decoder=cascade_full + skip=attention_gate
+# 架构组合：编码器=MedNeXt + 解码器=完整级联 + 跳连=注意力门控
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: mednext
+    in_channels: 3
+    pretrained: true
+    params: {}
+  bottleneck:
+    name: none
+    params: {}
+  decoder:
+    name: cascade_full
+    params: {}
+  skip_connection:
+    name: attention_gate
+    params: {}
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 0

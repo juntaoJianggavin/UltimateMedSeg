@@ -1,0 +1,75 @@
+# ============================================================================
+# ISIC 2018 — 皮肤病灶分割 (Skin Lesion Segmentation)
+# ============================================================================
+#
+# 简介:
+#   ISIC 2018 Challenge Task 1: Lesion Boundary Segmentation
+#   2594 张训练 + 100 张验证 + 1000 张测试
+#   二分类（背景 vs 病灶），皮肤镜图像
+#   是目前皮肤分割领域最常用的 benchmark 之一
+#
+# 官方划分: train (2594) / val (100) / test (1000)
+# 推荐用法: 直接使用官方三划分
+#
+# 下载:
+#   官方: https://challenge.isic-archive.com/data/#2018
+#   镜像: https://www.kaggle.com/datasets/codeinstitute/isic-2018-challenge-task-1
+#   下载后目录结构:
+#     data/ISIC2018/
+#     ├── train/
+#     │   ├── images/    (ISIC_0024306.jpg ...)
+#     │   └── masks/     (ISIC_0024306_segmentation.png ...)
+#     ├── val/
+#     │   ├── images/
+#     │   └── masks/
+#     └── test/
+#         ├── images/
+#         └── masks/
+#
+# 注意: mask 二值 (0/255)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/ISIC2018/train
+  val_dir: ./data/ISIC2018/val
+  test_dir: ./data/ISIC2018/test
+  img_suffix: .jpg
+  mask_suffix: _segmentation.png
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

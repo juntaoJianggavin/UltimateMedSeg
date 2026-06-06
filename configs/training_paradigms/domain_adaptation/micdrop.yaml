@@ -1,0 +1,87 @@
+# MICDrop: Masking Image and Depth Features via Complementary Dropout (Hoyer et al., ECCV 2024)
+# MICDrop：互补掩码 + 通道 dropout 的双视图一致性
+#
+# Reference: https://github.com/lhoyer/MICDrop
+# Paper:     https://arxiv.org/abs/2408.16478
+#
+# 训练流程 / Algorithm:
+#   teacher (EMA) 在未掩码图上得到 y_T 与 q_T；
+#   student 上构造两个互补视图：
+#     - mask view : 仅保留 mask=1 的 patches；
+#     - drop view : 仅保留 mask=0 的 patches，并对通道做 Bernoulli dropout；
+#   损失 = alpha * CE(p_mask, y_T) + (1-alpha) * CE(p_drop, y_T)
+#        + lambda_cons * MSE(softmax(p_mask), softmax(p_drop))
+#
+# mask_ratio:           被掩码 patch 比例 r
+# patch_size:           掩码 patch 边长 (像素)
+# dropout_p:            互补视图通道 dropout 概率
+# alpha:                mask / drop 两路 CE 的权重 (paper 默认 0.5)
+# confidence_threshold: 伪标签置信阈值 tau
+# consistency_weight:   双视图一致性 MSE 权重 lambda_cons
+# ce_weight:            (alpha * mask + (1-alpha) * drop) CE 总权重
+# num_classes:          分类数
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/micdrop.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: micdrop
+  source_free: false
+  params:
+    mask_ratio: 0.7
+    patch_size: 32
+    dropout_p: 0.5
+    alpha: 0.5
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    ce_weight: 1.0
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

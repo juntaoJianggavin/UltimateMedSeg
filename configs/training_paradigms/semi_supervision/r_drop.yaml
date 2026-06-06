@@ -1,0 +1,91 @@
+# R-Drop (NeurIPS 2021)
+# Reference: https://github.com/dropreg/R-Drop
+# Paper:     https://arxiv.org/abs/2106.14448
+# ============================================================================
+# R-Drop — Regularized Dropout
+# ============================================================================
+# 论文 / Paper:
+#   Wu et al., "R-Drop: Regularized Dropout for Neural Networks"
+#   NeurIPS 2021  https://arxiv.org/abs/2106.14448
+#
+# 算法概述 / Algorithm:
+#   - 同一输入两次 forward (dropout 不同), 得到 p1, p2
+#   - 加双向 KL 正则: L_KL = 0.5 (KL(p1||p2) + KL(p2||p1))
+#   - 有标签: L = 0.5(L_sup(p1)+L_sup(p2)) + α L_KL
+#   - 无标签: L_KL 作为一致性正则 (sigmoid ramp-up)
+#
+#   - Two stochastic forward passes through the same model and add a
+#     symmetric KL between the two output distributions.  Applied to
+#     labeled and unlabeled inputs alike.
+#
+# 注意 / Note:
+#   - 模型必须含有有效 Dropout/Dropout2d (p>0), 否则 R-Drop 无效.
+#     若你的解码器/头无 dropout, 需在 model_builder 配置中加入.
+#   - Method raises ValueError if no active Dropout is present.
+#
+# 参数说明 / Parameters:
+#   alpha              — 有标签 R-Drop 权重 / labeled R-Drop weight (default 1.0)
+#   consistency_weight — 无标签 R-Drop 权重 / unlabeled weight (default 1.0)
+#   rampup_epochs      — sigmoid ramp-up 长度
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/r_drop.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    # Use a decoder that has dropout; "bilinear" decoder in this project
+    # has dropout via Dropout2d inside its blocks.  If you switch to a
+    # decoder without dropout, RDrop.build() will raise.
+    name: bilinear
+    params:
+      dropout: 0.3
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: r_drop
+  params:
+    alpha: 1.0
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

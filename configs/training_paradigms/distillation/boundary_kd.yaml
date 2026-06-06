@@ -1,0 +1,61 @@
+# Boundary-aware KD (self-contained)
+# (Self-contained: no single canonical GitHub source)
+# Boundary-Aware KD: Laplacian Boundary-Weighted Distillation / 边界感知蒸馏
+# 医学图像专用：器官边界区域加强蒸馏权重
+# Medical-specific: Enhanced distillation weight at organ boundary regions
+#
+# boundary_weight: 边界损失权重 / Boundary loss weight
+# kd_weight: 蒸馏损失权重 / KD loss weight
+# temperature: 蒸馏温度 / Distillation temperature
+# edge_kernel_size: 边缘检测核大小 / Edge detection kernel size
+# edge_threshold: 边缘阈值 / Edge threshold
+#
+# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/boundary_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: boundary_kd
+  params:
+    boundary_weight: 3.0
+    kd_weight: 1.0
+    temperature: 4.0
+    edge_kernel_size: 3
+    edge_threshold: 0.1
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

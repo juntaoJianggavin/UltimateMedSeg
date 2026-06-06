@@ -1,0 +1,56 @@
+# CWD: Channel-wise Distillation for Semantic Segmentation
+# CWD：逐通道知识蒸馏
+#
+# ICCV 2021
+# Official source: https://github.com/drilistbox/CWD
+#
+# 逐通道归一化为概率分布 + KL散度蒸馏
+# Per-channel normalization to probability distribution + KL divergence distillation
+#
+# temperature: 通道归一化温度 / Channel normalization temperature
+#
+# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/student_small.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: cwd
+  params:
+    temperature: 1.0
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

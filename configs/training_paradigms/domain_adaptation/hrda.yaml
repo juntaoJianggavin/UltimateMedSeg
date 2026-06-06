@@ -1,0 +1,80 @@
+# HRDA: Context-Aware High-Resolution DA (Hoyer et al., ECCV 2022)
+# HRDA：基于多分辨率上下文与细节融合的域适应
+#
+# Reference: https://github.com/lhoyer/HRDA
+# Paper:     https://arxiv.org/abs/2204.13132
+#
+# 训练流程 / Algorithm:
+#   将单次 forward 的目标图预测当作 detail 分支，
+#   通过 avg_pool + upsample 构造低分辨率 context 分支；
+#   1x1 conv 学习 per-pixel scale attention alpha，
+#   p_HR = alpha * detail + (1-alpha) * context；
+#   伪标签由 teacher 的 fused 预测产生，三分支同时做 CE。
+#
+# scale_ratio:          context 下采样倍率 / Context downsample ratio
+# confidence_threshold: fused 伪标签置信阈值 / Fused PL cutoff
+# detail/context/fused_weight: 三项 CE 权重 / CE weights for each branch
+# num_classes:          分类数 / Number of classes (必须与模型一致)
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/hrda.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: hrda
+  source_free: false
+  params:
+    scale_ratio: 2
+    confidence_threshold: 0.968
+    detail_weight: 0.5
+    context_weight: 0.5
+    fused_weight: 1.0
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

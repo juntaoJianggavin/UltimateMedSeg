@@ -1,0 +1,75 @@
+# ============================================================================
+# STARE — 视网膜血管分割 (Structured Analysis of the Retina)
+# ============================================================================
+#
+# 简介:
+#   Hoover et al., 2000, IEEE TMI
+#   20 张彩色眼底图像（700×605），二分类: 背景 vs 血管
+#   与 DRIVE 并列为视网膜血管分割经典 benchmark
+#   包含正常与病变眼底（有部分图像含渗出/出血）
+#
+# 官方划分: 无（仅 20 张）
+# 推荐用法:
+#   - Leave-one-out 或 5折交叉验证（因数据量极小）
+#   - 或固定 DRIVE 训练 → STARE 测试（跨域泛化）
+#
+# 下载:
+#   官方: https://cecas.clemson.edu/~ahoover/stare/
+#   镜像: https://www.kaggle.com/datasets/vidheeshnacode/stare-dataset
+#   下载后目录结构:
+#     data/STARE/
+#     ├── images/       (im0001.ppm ... 共 20 张)
+#     └── masks/        (im0001.ah.ppm ... 第一标注者 Hoover 的 GT)
+#
+# 注意:
+#   - 两位标注者: .ah.ppm (Hoover) 和 .vk.ppm (Kouznetsova)
+#   - 通常用 Hoover 标注作为 GT
+#   - mask 二值 (0=背景, 255=血管)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 512
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/STARE
+  img_suffix: .ppm
+  mask_suffix: .ah.ppm
+  # 5折交叉验证（数据量小，推荐）
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 300
+  batch_size: 4
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,75 @@
+# ============================================================================
+# ISIC 2017 — 皮肤病灶分割 (Skin Lesion Segmentation)
+# ============================================================================
+#
+# 简介:
+#   ISIC 2017 Challenge Task 1: Lesion Segmentation
+#   2000 张训练 + 150 张验证 + 600 张测试
+#   二分类（背景 vs 病灶），皮肤镜图像
+#
+# 官方划分: train (2000) / val (150) / test (600)
+# 推荐用法: 直接使用官方三划分
+#
+# 下载:
+#   官方: https://challenge.isic-archive.com/data/#2017
+#   镜像: https://www.kaggle.com/datasets/wanderdust/skin-lesion-analysis-toward-melanoma-detection
+#   下载后目录结构:
+#     data/ISIC2017/
+#     ├── train/
+#     │   ├── images/    (ISIC_0000000.jpg ...)
+#     │   └── masks/     (ISIC_0000000_segmentation.png ...)
+#     ├── val/
+#     │   ├── images/
+#     │   └── masks/
+#     └── test/
+#         ├── images/
+#         └── masks/
+#
+# 注意: mask 二值 (0/255)，加载时自动转 0/1
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  # 直接指定官方三划分路径
+  train_dir: ./data/ISIC2017/train
+  val_dir: ./data/ISIC2017/val
+  test_dir: ./data/ISIC2017/test
+  img_suffix: .jpg
+  mask_suffix: _segmentation.png
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

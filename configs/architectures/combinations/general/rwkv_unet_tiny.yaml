@@ -1,0 +1,48 @@
+# Source: https://github.com/juntaoJianggavin/RWKV-UNet
+# Reference: https://github.com/juntaoJianggavin/RWKV-UNet
+# Architecture combination: encoder=rwkv_unet + decoder=rwkv_unet
+# 架构组合：编码器=RWKV-UNet + 解码器=rwkv_unet
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: rwkv_unet
+    pretrained: false
+    in_channels: 3
+    params:
+      variant: t
+      drop_path: 0.05
+  bottleneck:
+    name: none
+  decoder:
+    name: rwkv_unet
+    params:
+      dw_ks: 9
+      se_ratio: 0.0
+      final_channels: 24
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.5
+        - name: dice
+          weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-05

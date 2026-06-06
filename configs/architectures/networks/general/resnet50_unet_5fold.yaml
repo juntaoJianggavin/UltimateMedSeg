@@ -1,0 +1,62 @@
+# 场景3: 5折交叉验证（train/val n-fold，无独立 test）
+# Scenario 3: 5-fold cross-validation (train/val, no separate test)
+#
+# 用法: 对 fold_idx=0,1,2,3,4 各跑一次训练，最终 report 5 个最佳 val dice 及均值
+#
+#   for i in 0 1 2 3 4; do
+#     python train.py --config configs/architectures/networks/general/resnet50_unet_5fold.yaml \
+#       --override data.fold_idx=$i \
+#       --output_dir output/5fold/fold_$i
+#   done
+#
+# 汇总: 取每折 best_model.pth 的 val dice，report 5 个值 + mean ± std
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: image_mask
+  img_size: 256
+  root_dir: ./data/YourDataset
+  img_suffix: .png
+  mask_suffix: .png
+  # n-fold 配置
+  n_splits: 5
+  fold_idx: 0          # 运行时通过 --override data.fold_idx=X 覆盖
+  random_state: 42
+
+training:
+  # 可复现性设置 / Reproducibility settings
+  random_state: 42        # 全局随机种子 / Global random seed
+  deterministic: true     # 确定性模式（稍慢但结果完全一致）/ Deterministic mode
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

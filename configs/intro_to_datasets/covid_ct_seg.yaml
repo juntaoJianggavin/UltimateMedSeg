@@ -1,0 +1,67 @@
+# ============================================================================
+# COVID-19 CT Segmentation — 新冠肺炎 CT 感染区分割
+# ============================================================================
+#
+# 简介:
+#   MedSeg (Italian Radiology Society), 2020
+#   100 张轴位 CT 切片（512×512），标注感染区域（磨玻璃影 + 实变）
+#   三分类: 背景 / 磨玻璃影(GGO) / 实变(consolidation)
+#   或简化为二分类: 背景 vs 感染
+#
+# 官方划分: 无（仅 100 张）
+# 推荐用法: 5折交叉验证
+#
+# 下载:
+#   官方: http://medicalsegmentation.com/covid19/
+#   镜像: https://www.kaggle.com/datasets/andrewmvd/covid19-ct-scans
+#   下载后目录结构:
+#     data/COVID_CT_Seg/
+#     ├── images/    (coronacases_001.png ... 100 张)
+#     └── masks/     (coronacases_001.png ... 0/1/2 或 0/127/255)
+# ============================================================================
+
+model:
+  num_classes: 3
+  img_size: 512
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/COVID_CT_Seg
+  img_suffix: .png
+  mask_suffix: .png
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

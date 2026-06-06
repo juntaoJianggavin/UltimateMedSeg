@@ -1,0 +1,76 @@
+# ============================================================================
+# MoNuSeg — 多器官核分割 (Multi-Organ Nuclei Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Kumar et al., 2017 + 2019, IEEE TMI
+#   MICCAI 2018 Challenge 数据集
+#   来自 7 个器官的 H&E 病理图像，1000×1000 patch
+#   train: 30 张 (含 ~22000 个核标注)
+#   test:  14 张
+#   二分类: 背景 vs 核
+#
+# 官方划分: train (30) / test (14)
+# 推荐用法: 从 train 划出 val (24/6)，test 保持不变
+#
+# 下载:
+#   官方: https://monuseg.grand-challenge.org/Data/
+#   镜像: https://www.kaggle.com/datasets/aryansakhala/monuseg-dataset
+#   下载后目录结构:
+#     data/MoNuSeg/
+#     ├── train/
+#     │   ├── images/    (TCGA-xxx.png ... 30 张 1000×1000)
+#     │   └── masks/     (TCGA-xxx.png ... 二值核 mask)
+#     └── test/
+#         ├── images/    (14 张)
+#         └── masks/
+#
+# 注意: 原始标注为 XML 格式多边形，需预处理为二值 mask
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  root_dir: ./data/MoNuSeg/train
+  img_suffix: .png
+  mask_suffix: .png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  test_dir: ./data/MoNuSeg/test
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

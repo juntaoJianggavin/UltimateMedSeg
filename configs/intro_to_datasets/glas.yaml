@@ -1,0 +1,75 @@
+# ============================================================================
+# GlaS — 腺体分割 (Gland Segmentation in Histology)
+# ============================================================================
+#
+# 简介:
+#   Sirinukunwattana et al., 2017, "Gland segmentation in colon histology images"
+#   MICCAI 2015 Challenge 数据集
+#   165 张 H&E 染色结肠病理图像
+#   二分类: 背景 vs 腺体
+#   图像尺寸不固定（约 500×400 ~ 800×600）
+#
+# 官方划分: train (85) / test_A (60) + test_B (20) = test (80)
+# 推荐用法: 从 train 划出 val，用官方 test 评估
+#
+# 下载:
+#   官方: https://warwick.ac.uk/fac/cross_fac/tia/data/glascontest/
+#   镜像: https://www.kaggle.com/datasets/sani84/glasmiccai2015-gland-segmentation
+#   下载后目录结构:
+#     data/GlaS/
+#     ├── train/
+#     │   ├── images/    (train_1.bmp ...)
+#     │   └── masks/     (train_1_anno.bmp ...)
+#     └── test/
+#         ├── images/    (testA_1.bmp, testB_1.bmp ...)
+#         └── masks/     (testA_1_anno.bmp ...)
+#
+# 注意: mask 中腺体实例用不同灰度值标记，需二值化（>0 = 腺体）
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  root_dir: ./data/GlaS/train
+  img_suffix: .bmp
+  mask_suffix: _anno.bmp
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  test_dir: ./data/GlaS/test
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

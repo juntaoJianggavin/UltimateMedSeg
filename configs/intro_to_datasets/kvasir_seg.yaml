@@ -1,0 +1,73 @@
+# ============================================================================
+# Kvasir-SEG — 胃肠镜息肉分割 (GI Polyp Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Jha et al., 2020, "Kvasir-SEG: A Segmented Polyp Dataset"
+#   1000 张胃肠镜息肉图像 + 对应 ground truth mask
+#   二分类: 背景 vs 息肉
+#   图像尺寸不固定（332×487 ~ 1920×1072）
+#   PraNet / UACANet / Polyp-PVT 等论文的标准 benchmark
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 5折交叉验证
+#   - 或 PraNet 风格: 随机 900 train / 100 test（从 Kvasir-SEG + CVC-ClinicDB 合并）
+#   - 或 8:1:1 随机划分
+#
+# 下载:
+#   官方: https://datasets.simula.no/kvasir-seg/
+#   镜像: https://www.kaggle.com/datasets/debeshjha1/kvasirseg
+#   下载后目录结构:
+#     data/Kvasir-SEG/
+#     ├── images/    (cju0qkwl35piu0993l0dewei2.jpg ...)
+#     └── masks/     (cju0qkwl35piu0993l0dewei2.jpg ...)
+#
+# 注意: mask 与 image 同名同后缀，mask 是二值 (0/255)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 352
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 352
+  root_dir: ./data/Kvasir-SEG
+  img_suffix: .jpg
+  mask_suffix: .jpg
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

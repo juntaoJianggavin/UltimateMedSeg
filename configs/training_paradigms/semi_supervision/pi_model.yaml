@@ -1,0 +1,87 @@
+# Pi-Model (ICLR 2017)
+# Reference: https://github.com/smlaine2/tempens
+# Paper: https://arxiv.org/abs/1610.02242
+# ============================================================================
+# Pi-Model / Π-model — 两次随机扰动一致性
+# Pi-Model — Two Stochastic Forwards Consistency
+# ============================================================================
+# 论文 / Paper:
+#   Laine & Aila, "Temporal Ensembling for Semi-Supervised Learning",
+#   ICLR 2017  https://arxiv.org/abs/1610.02242  (Section 2.1, Π-model)
+#
+# 算法概述 / Algorithm:
+#   - 同一张未标注图像做两次独立的随机扰动 (input noise + dropout, 可选 strong aug)
+#     两次 softmax 输出之间最小化 MSE
+#     Same image -> two stochastic forwards -> minimise MSE on softmax outputs
+#   - 总损失 / Total: L = CE(f(x_l), y_l) + w(t) * MSE(softmax(f(x, η1)), softmax(f(x, η2)))
+#   - w(t) 用 sigmoid rampup, 与 Mean Teacher 同一份调度
+#     w(t) follows the same sigmoid ramp-up as Mean Teacher
+#
+# 参数说明 / Parameters:
+#   consistency_weight — 一致性最大权重 / Max consistency weight w_max
+#   rampup_epochs      — 权重渐增 epoch / Sigmoid ramp-up length
+#   use_strong_aug     — 第二次前向是否加 strong aug (segmentation 适配)
+#                       Strong aug on the second forward (seg adaptation)
+#   input_noise_std    — 输入加性高斯噪声 / Additive Gaussian noise on input
+#
+# 适用场景 / Best for: 简单基线 + 任何带 Dropout 的网络
+#                     Simple SSL baseline; works with any net that has Dropout
+#
+# Usage: python semi_train.py --config configs/semi/pi_model.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: pi_model
+  params:
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    use_strong_aug: true
+    input_noise_std: 0.15
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

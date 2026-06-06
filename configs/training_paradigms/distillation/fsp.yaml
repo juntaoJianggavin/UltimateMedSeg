@@ -1,0 +1,65 @@
+# FSP: A Gift from Knowledge Distillation - Flow of Solution Procedure (CVPR 2017)
+# Reference: https://github.com/yoshitomo-matsubara/torchdistill
+# Paper: https://openaccess.thecvf.com/content_cvpr_2017/papers/Yim_A_Gift_From_CVPR_2017_paper.pdf
+#
+# FSP/Gram 矩阵：G = F1 @ F2^T / (H*W)，连续两层组成「解题流程」
+# Per layer pair: G[c1,c2] = (1/HW) sum F1[c1] * F2[c2]; MSE on teacher vs student G.
+#
+# student_channels / teacher_channels: 每个 hook 层的通道数列表，长度必须一致
+#   (用于 1x1 投影对齐 Gram 矩阵形状)
+#
+# feature_layers: >= 2 个层名，FSP 需要相邻两层组成 flow matrix
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/fsp.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: fsp
+  weight: 1.0
+  feature_layers:
+    - encoder.layer3
+    - encoder.layer4
+  params:
+    student_channels: [256, 512]
+    teacher_channels: [256, 512]
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

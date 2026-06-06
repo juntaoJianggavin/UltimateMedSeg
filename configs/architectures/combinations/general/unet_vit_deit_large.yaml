@@ -1,0 +1,57 @@
+# Reference: DeiT-III ViT-L/16 (Touvron et al., 2022)
+# Architecture combination: encoder=timm_vit_deit_large + decoder=bilinear
+# 架构组合：编码器=timm_vit_deit_large + 解码器=双线性
+
+model:
+  num_classes: 2
+  img_size: 224
+
+  encoder:
+    name: timm_vit_deit_large
+    pretrained: true
+    in_channels: 3
+    params:
+      out_channels: [128, 256, 512, 1024]   # 限制通道避免显存/参数爆炸
+      pyramid_scales: 4
+
+  decoder:
+    name: bilinear
+    params: {}
+
+  skip_connection:
+    name: concat
+    params: {}
+
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 224
+  train_dir: ./data/Binary/train
+  test_dir: ./data/Binary/test
+  train_list: ./data/Binary/lists/train.txt
+  test_list: ./data/Binary/lists/test.txt
+
+training:
+  epochs: 300
+  batch_size: 24
+  num_workers: 4
+
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.0001
+
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

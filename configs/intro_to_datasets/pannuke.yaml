@@ -1,0 +1,74 @@
+# ============================================================================
+# PanNuke — 泛癌核分割 (Pan-Cancer Nuclei Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Gamper et al., 2020, "PanNuke Dataset Extension, Insights and Baselines"
+#   来自 19 种组织类型的 ~7900 张 256×256 H&E 病理 patch
+#   6 类核: Neoplastic / Inflammatory / Connective / Dead / Epithelial + Background
+#   是核实例分割/语义分割的大规模 benchmark
+#
+# 官方划分: 3 个 fold（每 fold ~2600 张），官方推荐 3折交叉验证
+# 推荐用法: 直接用官方 3 fold
+#
+# 下载:
+#   官方: https://warwick.ac.uk/fac/cross_fac/tia/data/pannuke
+#   镜像: https://www.kaggle.com/datasets/andrewmvd/pannuke-dataset
+#   下载后目录结构:
+#     data/PanNuke/
+#     ├── fold1/
+#     │   ├── images/    (patch_0000.png ... ~2600 张 256×256)
+#     │   └── masks/     (patch_0000.npy ... 6-channel instance map)
+#     ├── fold2/
+#     └── fold3/
+#
+# 注意:
+#   - 官方 mask 是 (H,W,6) 的 instance map，需转为语义 mask (argmax/binarize)
+#   - 常见做法: 转为 6 类语义分割 或 2 类（核 vs 背景）
+# ============================================================================
+
+model:
+  num_classes: 6
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  # 用 fold1 + fold2 训练, fold3 测试（官方推荐之一）
+  train_dir: ./data/PanNuke/fold1
+  val_dir: ./data/PanNuke/fold2
+  test_dir: ./data/PanNuke/fold3
+  img_suffix: .png
+  mask_suffix: .png
+
+training:
+  epochs: 100
+  batch_size: 32
+  num_workers: 4
+  val_interval: 5
+  save_interval: 25
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

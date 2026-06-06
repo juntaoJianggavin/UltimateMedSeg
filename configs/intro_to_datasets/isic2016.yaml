@@ -1,0 +1,75 @@
+# ============================================================================
+# ISIC 2016 — 皮肤病灶分割 (Skin Lesion Segmentation)
+# ============================================================================
+#
+# 简介:
+#   ISIC 2016 Challenge Task 1: Lesion Segmentation
+#   900 张训练 + 379 张测试的皮肤镜图像，二分类（背景 vs 病灶）
+#   图像分辨率不固定（约 700×500 ~ 4000×3000），需 resize
+#
+# 官方划分: train (900) / test (379)
+# 推荐用法: 从 train 中划出 val（如 80/20），test 保持官方不动
+#
+# 下载:
+#   官方: https://challenge.isic-archive.com/data/#2016
+#   镜像: https://www.kaggle.com/datasets/angelachristabel/isic-2016
+#   下载后目录结构:
+#     data/ISIC2016/
+#     ├── train/
+#     │   ├── images/    (ISIC_0000000.jpg ...)
+#     │   └── masks/     (ISIC_0000000_Segmentation.png ...)
+#     └── test/
+#         ├── images/
+#         └── masks/
+#
+# 注意: mask 是二值图 (0=背景, 255=病灶)，加载时需 /255 转为 0/1
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  # 方式: 用 train 目录做 80/20 划分出 train+val，test 目录独立评估
+  root_dir: ./data/ISIC2016/train
+  img_suffix: .jpg
+  mask_suffix: _Segmentation.png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  # 独立测试集
+  test_dir: ./data/ISIC2016/test
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

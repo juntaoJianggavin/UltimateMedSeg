@@ -1,0 +1,72 @@
+# ============================================================================
+# ACDC — 心脏 MRI 分割 (Automated Cardiac Diagnosis Challenge)
+# ============================================================================
+#
+# 简介:
+#   Bernard et al., 2018, IEEE TMI
+#   100 例心脏 MRI (cine-MRI)，标注 3 个结构 + 背景 = 4 类
+#   类别: 0=背景, 1=右心室(RV), 2=心肌(MYO), 3=左心室(LV)
+#   TransUNet / MT-UNet 等论文的标准 benchmark
+#
+# TransUNet 划分 (业界标准):
+#   train: 70 例 → 切片为 2D npz (约 1930 切片)
+#   val:   10 例
+#   test:  20 例
+#
+# 下载:
+#   TransUNet 预处理版: https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd
+#   或官方: https://www.creatis.insa-lyon.fr/Challenge/acdc/databases.html
+#   下载后目录结构 (TransUNet 格式):
+#     data/ACDC/
+#     ├── train_npz/       (patient001_frame01_slice_0.npz ...)
+#     ├── val_npz/         (patient071_frame01_slice_0.npz ...)
+#     └── test_vol/        (patient081.npz ... 每个含完整 3D volume)
+#
+# 注意:
+#   - 训练/验证用 2D 切片
+#   - 测试用 3D volume 逐切片推理
+#   - num_classes = 4 (含背景)
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: acdc
+  img_size: 224
+  train_dir: ./data/ACDC/train_npz
+  val_dir: ./data/ACDC/val_npz
+  test_dir: ./data/ACDC/test_vol
+
+training:
+  epochs: 150
+  batch_size: 24
+  num_workers: 4
+  val_interval: 20
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

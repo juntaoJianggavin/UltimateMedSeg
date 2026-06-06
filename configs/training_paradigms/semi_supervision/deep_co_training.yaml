@@ -1,0 +1,95 @@
+# Deep Co-Training (ECCV 2018)
+# Reference: https://github.com/AlanChou/Deep-Co-Training-for-Semi-Supervised-Image-Recognition
+# ============================================================================
+# DeepCoTraining — 深度协同训练 (双网络 + VAT)
+# DeepCoTraining — Deep Co-Training with Dual Networks + VAT
+# ============================================================================
+# 论文 / Paper:
+#   Qiao et al., "DeepCoTraining: Semi-Supervised Image Recognition
+#   with CNNs", ECCV 2018  https://arxiv.org/abs/1802.05321
+#
+# 算法概述 / Algorithm:
+#   - 两个独立网络 (不同初始化) 同时训练
+#     Two independent networks (different init) trained simultaneously
+#   - 交叉伪标签: model1→PL 监督 model2; model2→PL 监督 model1
+#     Cross pseudo-labeling: model1→PL supervises model2 and vice versa
+#   - VAT (Virtual Adversarial Training) 对抗扰动正则化:
+#     VAT adversarial perturbation regularization:
+#       d = xi × randn → KL 梯度方向 → normalize → scale by epsilon
+#       vat_loss = KL(f(x) || f(x + d_hat))
+#   - 评估时使用两模型预测平均 / Ensemble averaging at inference
+#
+# 参数说明 / Parameters:
+#   confidence_threshold — 伪标签置信度阈值 / Pseudo-label confidence threshold
+#   consistency_weight   — 协同训练损失权重 / Co-training loss weight
+#   vat_epsilon          — VAT 扰动幅度 / VAT perturbation magnitude (official: 6.0)
+#   vat_xi               — VAT 梯度估计常数 / VAT gradient constant (official: 1e-6)
+#   rampup_epochs        — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 异构双网络协同 / Heterogeneous dual-network co-training
+# 源码参考 / Reference code: https://github.com/qiaoyu1002/DeepCoTraining
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/deep_co_training.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.2
+  split_mode: dir
+
+semi:
+  method: deep_co_training
+  params:
+    confidence_threshold: 0.9
+    consistency_weight: 1.0
+    vat_epsilon: 6.0
+    vat_xi: 0.000001
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

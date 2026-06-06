@@ -1,0 +1,36 @@
+# Source: https://github.com/FengheTan9/Mobile-U-ViT
+# Network: mobile_u_vit (complete architecture)
+# 完整网络：mobile_u_vit（完整架构）
+
+model:
+  num_classes: 2
+  img_size: 256
+  architecture: mobile_u_vit
+  encoder:
+    in_channels: 3
+  arch_params: {}
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 24
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0

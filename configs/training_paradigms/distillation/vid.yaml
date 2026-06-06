@@ -1,0 +1,69 @@
+# VID: Variational Information Distillation (CVPR 2019)
+# Reference: https://github.com/HobbitLong/RepDistiller
+# Paper: https://arxiv.org/abs/1904.05835
+#
+# 变分信息蒸馏：假设 p(t|s)=N(mu(s), sigma^2)，最大化互信息下界
+# Variational lower bound on I(t;s); minimise negative Gaussian NLL.
+# loss = 0.5 * mean( log(sigma^2) + (t - mu(s))^2 / sigma^2 )
+#
+# student_channels / teacher_channels: 学生/教师特征通道数
+# init_pred_var: sigma^2 初值 / initial variance
+# eps: 数值下限 / numerical floor on sigma^2
+#
+# feature_layers: 抽特征的层 / which layers to hook
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/vid.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: vid
+  weight: 1.0
+  feature_layers:
+    - encoder
+  params:
+    student_channels: 512
+    teacher_channels: 512
+    mid_channels: 512
+    init_pred_var: 5.0
+    eps: 0.00001
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,84 @@
+# DAFormer: PL CE + RCS + Feature-Distance proxy (Hoyer et al., CVPR 2022)
+# DAFormer：质量加权伪标签 CE + 稀有类重采样 + 特征距离正则
+#
+# Reference: https://github.com/lhoyer/DAFormer
+# Paper:     https://arxiv.org/abs/2111.14887
+#
+# 训练流程 / Algorithm:
+#   teacher (EMA) 预测目标图，得到伪标签和置信度 q；
+#   按 EMA 维护的伪标签类频率做 RCS 权重，计算 q * CE_weighted；
+#   对源域 logits 与 EMA-tracked 类原型做 L2 距离作为 L_FD 代理
+#   （由于训练循环不直接暴露 encoder 特征，这里在 logit 空间实现，
+#    保留 "anchor 源域知识" 的等价正则效果）。
+#
+# confidence_threshold: 教师置信阈值 tau / Teacher confidence cutoff
+# pseudo_weight:        L_T 权重 / Weight on PL CE
+# fd_weight:            L_FD 权重 / Weight on feature distance
+# rcs_temperature:      RCS 温度 (paper Eq.6) / RCS temperature
+# freq_momentum:        类频率 EMA 动量 / Class-freq EMA momentum
+# feat_momentum:        类原型 EMA 动量 / Prototype EMA momentum
+# num_classes:          分类数 / Number of classes
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/daformer_fd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: daformer_fd
+  source_free: false
+  params:
+    confidence_threshold: 0.968
+    pseudo_weight: 1.0
+    fd_weight: 0.005
+    rcs_temperature: 0.01
+    freq_momentum: 0.999
+    feat_momentum: 0.99
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

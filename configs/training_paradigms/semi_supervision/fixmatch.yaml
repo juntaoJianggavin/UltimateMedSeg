@@ -1,0 +1,88 @@
+# FixMatch seg variant (NeurIPS 2020)
+# Reference: https://github.com/HiLab-git/SSL4MIS
+# ============================================================================
+# FixMatch — 固定匹配伪标签半监督分割
+# FixMatch — Fixed-Match Pseudo-Labeling for Semi-Supervised Segmentation
+# ============================================================================
+# 论文 / Paper:
+#   Sohn et al., "FixMatch: Simplifying Semi-Supervised Learning with
+#   Consistency and Confidence", NeurIPS 2020
+#   https://arxiv.org/abs/2001.07685
+#
+# 算法概述 / Algorithm:
+#   - 弱增强 (随机翻转) 生成伪标签, 仅保留高置信度预测 (阈值过滤)
+#     Weak augmentation (random flip) generates pseudo-labels with confidence threshold
+#   - 强增强 (RandAugment/CutOut) 训练学生模型匹配伪标签
+#     Strong augmentation (RandAugment/CutOut) trains student to match pseudo-labels
+#   - 无标签损失 = CE(strong_pred, pseudo_label) × mask(confidence > threshold)
+#     Unlabeled loss = CE(strong_pred, pseudo_label) × mask(confidence > threshold)
+#
+# 参数说明 / Parameters:
+#   confidence_threshold — 伪标签置信度阈值 (越高越严格) / Pseudo-label threshold (higher=strict)
+#   consistency_weight   — 一致性损失权重 / Consistency loss weight
+#   rampup_epochs        — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 高置信度伪标签需求 / High-confidence pseudo-label scenarios
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/fixmatch.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: fixmatch
+  params:
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

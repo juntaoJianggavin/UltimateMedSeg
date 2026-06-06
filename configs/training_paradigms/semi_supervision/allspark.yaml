@@ -1,0 +1,91 @@
+# AllSpark (CVPR 2024)
+# Reference: https://github.com/xmed-lab/AllSpark
+# Paper: https://arxiv.org/abs/2403.01818
+# ============================================================================
+# AllSpark — 通过 cross-attention 让 labeled token 从 unlabeled 中再生
+# AllSpark — Reborn Labeled Features from Unlabeled in Transformer
+# ============================================================================
+# 论文 / Paper:
+#   Wang et al., "AllSpark: Reborn Labeled Features from Unlabeled in
+#   Transformer for Semi-Supervised Semantic Segmentation", CVPR 2024
+#   https://arxiv.org/abs/2403.01818
+#
+# 算法概述 / Algorithm:
+#   - 在 decoder 输出 (head 之前) 插入 AllSpark cross-attention block:
+#     Q = LN(F_l) W_q
+#     K = LN(F_u) W_k    (跨样本: 所有 unlabeled tokens 拼成 KV bank)
+#     V = LN(F_u) W_v
+#     F_l_reborn = F_l + Attn(Q, K, V); F_l_reborn += MLP(LN(F_l_reborn))
+#   - 监督损失: head(F_l_reborn) vs 真实标签.
+#   - 无监督损失: head(F_u) vs EMA teacher 的高置信度伪标签.
+#   - 推理时只跑 teacher (没有 batch-paired 配对).
+#
+# 关键参数 / Key Parameters:
+#   num_heads            — cross-attention 头数 (paper 8; 自动除小到能整除)
+#   mlp_ratio            — FFN 扩展比 (默认 2.0)
+#   confidence_threshold — 伪标签阈值 (paper 0.95)
+#   ema_decay            — Teacher EMA 衰减 (paper 0.999)
+#
+# 适用场景 / Best for: 强 backbone (transformer / 大 ResNet), 标签 5%-50%
+# 用法 / Usage: python semi_train.py --config configs/semi/allspark.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: allspark
+  params:
+    ema_decay: 0.999
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    num_heads: 8
+    mlp_ratio: 2.0
+    attn_drop: 0.0
+    proj_drop: 0.0
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

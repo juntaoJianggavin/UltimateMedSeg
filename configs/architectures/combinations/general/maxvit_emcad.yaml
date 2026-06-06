@@ -1,0 +1,43 @@
+# Architecture combination: encoder=maxvit + decoder=emcad
+# 架构组合：编码器=MaxViT + 解码器=EMCAD
+model:
+  num_classes: 2
+  img_size: 448
+  encoder:
+    name: maxvit
+    in_channels: 3
+    pretrained: true
+    params: {}  # crop_to_input: true
+  bottleneck:
+    name: none
+    params: {}
+  decoder:
+    name: emcad
+    params: {}
+  skip_connection:
+    name: concat
+data:
+  type: generic
+  img_size: 448
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 0

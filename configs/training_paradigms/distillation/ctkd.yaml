@@ -1,0 +1,69 @@
+# CTKD: Curriculum Temperature for Knowledge Distillation (AAAI 2023)
+# Reference: https://github.com/zhengli97/CTKD
+# Paper: https://arxiv.org/abs/2211.16231
+#
+# CTKD：可学习的全局温度 + 梯度反转（GRL） + 余弦课程
+# Learnable scalar temperature trained adversarially via a gradient
+# reversal layer (it maximises the KD loss while the student
+# minimises it). The GRL coefficient follows a cosine curriculum from
+# 0 to lambda_max over total_epochs.
+#
+# init_temperature: T 初始值 / initial T (paper 4.0)
+# t_min / t_max: 训练期对 T 的硬截断 / T clamp range
+# lambda_max: 课程曲线终点的 GRL 系数 / max GRL multiplier
+# total_epochs: 课程长度 / curriculum horizon
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/ctkd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: ctkd
+  weight: 1.0
+  params:
+    init_temperature: 4.0
+    t_min: 1.0
+    t_max: 20.0
+    lambda_max: 1.0
+    total_epochs: 100
+    weight: 1.0
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

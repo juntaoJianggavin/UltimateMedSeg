@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(sed -i '' 's/120 networks/123 networks/g' README.md)",
+      "Bash(sed -i '' 's/120 个完整网络/123 个完整网络/g' README.md)",
+      "Bash(sed -i '' 's/\\\\*\\\\*120\\\\*\\\\* 完整网络/\\\\*\\\\*123\\\\*\\\\* 完整网络/g' README.md)",
+      "Bash(sed -i '' 's/\\\\*\\\\*120\\\\*\\\\* networks/\\\\*\\\\*123\\\\*\\\\* networks/g' README.md)",
+      "Bash(sed -i '' 's/120+ 个完整网络/123 个完整网络/g' README.md)"
+    ]
+  }
+}

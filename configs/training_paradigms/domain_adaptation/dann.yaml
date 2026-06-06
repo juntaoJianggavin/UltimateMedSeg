@@ -1,0 +1,73 @@
+# DANN: Domain-Adversarial Neural Network (Ganin et al., JMLR 2016)
+# Reference: https://github.com/fungtion/DANN
+# Paper: https://arxiv.org/abs/1505.07818
+#
+# DANN: 域对抗神经网络 (传统 UDA, 需要 source + target)
+# DANN: Domain-Adversarial Neural Network (classical UDA, source + target)
+#
+# lambda_:      梯度反转层 GRL 系数 / GRL coefficient (will be ramped
+#               automatically via update_epoch using the paper's schedule)
+# num_classes:  分割类别数 / Number of segmentation classes
+# hidden_dim:   域分类器 MLP 隐层宽度 / Domain MLP hidden dim
+# domain_weight:对抗损失的额外权重 / Extra weight on the adversarial loss
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/dann.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: dann
+  source_free: false
+  params:
+    lambda_: 1.0
+    num_classes: 4
+    hidden_dim: 256
+    domain_weight: 1.0
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

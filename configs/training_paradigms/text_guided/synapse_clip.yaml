@@ -1,0 +1,71 @@
+# Text-Guided Segmentation with CLIP Vision-Language Backbone
+# Synapse multi-organ segmentation
+#
+# 与之前用 DINOv3 当视觉塔的方案不同：
+# - 此处视觉塔 (timm_vit_clip_base) 与文本塔 (CLIP text encoder) 同源预训练，
+#   视觉特征与 CLIP 文本嵌入天然位于同一对齐空间，更适合 text-guided 任务。
+# - LAION-2B 预训练，对自然图像语义先验强；医学领域可微调适配。
+
+
+# text 输入: 在 text_guided.class_names 中写每个类别的自然语言描述
+# Text input: write natural language class descriptions in text_guided.class_names
+# 示例 / Examples:
+#   "background region" / "spleen organ" / "right kidney organ"
+
+model:
+  text_guided:
+    model_type: TextPromptUNet
+    prompt_mode: clip                    # 使用 CLIP text encoder 编码 class_names
+    embed_dim: 512                       # CLIP ViT-B/16 文本嵌入维度
+    use_external_encoder: true
+    # 自然语言描述（CLIP 对完整短语效果更好）
+    class_names:
+      - background region
+      - spleen organ
+      - right kidney organ
+      - left kidney organ
+      - gallbladder organ
+      - esophagus organ
+      - liver organ
+      - stomach organ
+      - aorta vessel
+
+  encoder:
+    name: timm_vit_clip_base             # CLIP ViT-B/16 视觉塔（与文本塔同源对齐）
+    pretrained: true
+    in_channels: 3
+    img_size: 256                        # 256/16=16 为 2^4，保证 UNet decoder 上采样链可对齐
+    params:
+      out_channels: [128, 256, 512, 1024]
+      pyramid_scales: 4
+
+data:
+  type: synapse
+  img_size: 256                          # 与 encoder 保持一致
+  train_dir: ./data/Synapse/train_npz
+  val_dir: ./data/Synapse/test_vol_h5
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+
+  optimizer:
+    name: adamw
+    lr: 1e-4
+    weight_decay: 1e-4
+
+  scheduler:
+    name: cosine
+    min_lr: 1e-6
+
+  loss:
+    name: compound
+    params:
+      ce_weight: 1.0
+      dice_weight: 1.0
+
+  val_interval: 10
+  save_interval: 50

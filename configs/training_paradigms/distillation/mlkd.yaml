@@ -1,0 +1,65 @@
+# MLKD: Multi-Level Logit Distillation (CVPR 2023)
+# Reference: https://github.com/Jin-Ying/Multi-Level-Logit-Distillation
+# Paper: https://arxiv.org/abs/2302.13652
+#
+# MLKD：在 instance / batch / class 三个层面同时蒸馏 logits 并跨多个温度平均
+# Multi-level logit alignment at instance, batch and class scales,
+# averaged over several temperatures. Per-pixel KL captures instance,
+# spatial mean-pooled per-image distributions feed BxB sample-Gram
+# and CxC class-Gram comparisons.
+#
+# temperatures: 多温度集合 / set of temperatures (paper [2,3,4,5,6])
+# alpha_instance / alpha_batch / alpha_class: 三个层面的权重
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/mlkd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: mlkd
+  weight: 1.0
+  params:
+    temperatures: [2.0, 3.0, 4.0, 5.0, 6.0]
+    alpha_instance: 1.0
+    alpha_batch: 1.0
+    alpha_class: 1.0
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

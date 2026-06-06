@@ -1,0 +1,72 @@
+# ReviewKD: Distilling Knowledge via Knowledge Review (CVPR 2021)
+# Reference: https://github.com/dvlab-research/ReviewKD
+# Paper: https://arxiv.org/abs/2104.09044
+#
+# ReviewKD：跨阶段特征 review
+# 通过 ABF (Attention-Based Fusion) 把学生早层 feature 与深层融合后
+# 与教师对应层用 HCL (Hierarchical Context Loss) 做多尺度 MSE。
+# Top-down ABF fuses shallow + deep student features, matched to
+# teacher features stage-by-stage with HCL (spatial-pyramid MSE).
+#
+# student_channels / teacher_channels: shallow -> deep 顺序的特征通道列表
+#   (必填；长度需相等且 >= 2)
+# mid_channels: ABF 中间通道维 / ABF mid-dim (default = max teacher channel)
+#
+# feature_layers: hook 出的 student / teacher 中间层 (shallow -> deep)
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/review_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: review_kd
+  weight: 1.0
+  feature_layers:
+    - encoder.layer1
+    - encoder.layer2
+    - encoder.layer3
+    - encoder.layer4
+  params:
+    student_channels: [64, 128, 256, 512]
+    teacher_channels: [64, 128, 256, 512]
+    mid_channels: 256
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

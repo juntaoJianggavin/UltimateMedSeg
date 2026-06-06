@@ -1,0 +1,94 @@
+# Pseudo-Label / Self-Training (ICML 2013 Workshop)
+# Reference: https://github.com/iBelieveCJM/pseudo_label-pytorch
+# Paper: https://www.researchgate.net/publication/280581078
+# ============================================================================
+# Pseudo-Label — argmax 伪标签 + 分段线性 ramp
+# Pseudo-Label — Hard self-training with a piecewise-linear weight schedule
+# ============================================================================
+# 论文 / Paper:
+#   D.-H. Lee, "Pseudo-Label: The simple and efficient semi-supervised
+#   learning method for deep neural networks", ICML Workshop 2013.
+#
+# 算法概述 / Algorithm:
+#   - 对 unlabeled 数据取当前模型 argmax 当作 hard pseudo-label, 再算 CE
+#   - 权重 alpha(t) 用论文 Eq.16 的分段线性 ramp:
+#       alpha = 0           if t < T1
+#       alpha = alpha_f *
+#               (t-T1)/(T2-T1)   if T1 <= t < T2
+#       alpha = alpha_f     if t >= T2
+#   - 额外可选: confidence_threshold > 0 时只保留高置信像素 (现代实践)
+#
+#   On unlabelled data, use the network's current argmax as a hard pseudo
+#   label and add it to a cross-entropy loss with a piecewise-linear
+#   ramp-up weight (Lee 2013 Eq. 16).  Optionally gate with a confidence
+#   threshold (modern self-training extension).
+#
+# 参数说明 / Parameters:
+#   alpha_final          — 最终权重 alpha_f / final unsup weight (paper: 3.0)
+#   T1, T2               — 分段 ramp 的两端 epoch / piecewise ramp anchors;
+#                          -1 时按 rampup_epochs 自动派生 (T1=ru/4, T2=ru*4)
+#   confidence_threshold — 0 关闭 (纯 Lee 2013); >0 加置信门控
+#   use_strong_aug       — student 是否过 strong aug (clean 一直用于取 PL)
+#
+# 适用场景 / Best for: 最简单的自训练基线 / Simplest self-training baseline
+#
+# Usage: python semi_train.py --config configs/semi/pseudo_label.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: pseudo_label
+  params:
+    alpha_final: 3.0
+    T1: -1                     # auto: rampup_epochs // 4
+    T2: -1                     # auto: rampup_epochs * 4
+    confidence_threshold: 0.0  # 0 = pure Lee 2013; ~0.95 for modern setups
+    use_strong_aug: true
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

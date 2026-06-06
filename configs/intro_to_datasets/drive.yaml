@@ -1,0 +1,77 @@
+# ============================================================================
+# DRIVE — 视网膜血管分割 (Digital Retinal Images for Vessel Extraction)
+# ============================================================================
+#
+# 简介:
+#   Staal et al., 2004, IEEE TMI
+#   40 张彩色眼底图像（565×584），二分类: 背景 vs 血管
+#   视网膜血管分割领域最经典的 benchmark，几乎所有论文都报告此数据集
+#
+# 官方划分: train (20) / test (20)
+# 推荐用法: 从 train 划出 val（如 16/4），test 保持官方 20 张
+#
+# 下载:
+#   官方: https://drive.grand-challenge.org/
+#   镜像: https://www.kaggle.com/datasets/andrewmvd/drive-digital-retinal-images-for-vessel-extraction
+#   下载后目录结构:
+#     data/DRIVE/
+#     ├── training/
+#     │   ├── images/       (21_training.tif ... 共 20 张)
+#     │   └── 1st_manual/   (21_manual1.gif ... 第一标注者的 GT)
+#     └── test/
+#         ├── images/       (01_test.tif ... 共 20 张)
+#         └── 1st_manual/   (01_manual1.gif ...)
+#
+# 注意:
+#   - 官方 mask 在 1st_manual/ 目录，格式为 .gif，需转为 png
+#   - mask 二值 (0=背景, 255=血管)
+#   - 还有 FOV mask (mask/ 目录) 标记有效视野区域
+#   - 建议预处理: 统一 resize 到 584×584 或 patch 切割
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 584
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 584
+  root_dir: ./data/DRIVE/training
+  img_suffix: _training.tif
+  mask_suffix: _manual1.gif
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  test_dir: ./data/DRIVE/test
+
+training:
+  epochs: 200
+  batch_size: 4
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

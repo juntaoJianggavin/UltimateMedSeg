@@ -1,0 +1,77 @@
+# FDA: Fourier Domain Adaptation (Yang & Soatto, CVPR 2020)
+# FDA：傅里叶域适应
+#
+# Reference: https://github.com/YanchaoYang/FDA
+# Paper:     https://arxiv.org/abs/2004.05498
+#
+# 传统域适应 (UDA)：需要源域 (有标签) 和目标域 (无标签)。
+# 训练时建议在 DataLoader 里调用 FDALoss.fda_amplitude_swap(src, tgt, beta)
+# 对源图像做预先频谱风格化；本损失模块在网络输出端施加 Charbonnier
+# 罚化的目标域熵正则 (paper Eq. 6)。
+#
+# entropy_weight: 熵正则权重 / Weight on Charbonnier-penalised target entropy
+# eta:            Charbonnier 指数 / Charbonnier exponent (paper default 2.0)
+# beta:           低频带宽 / Low-frequency bandwidth of the amplitude swap mask
+#                 (paper default 0.01)
+# num_classes:    分割类别数 / Number of segmentation classes
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/fda.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: fda
+  source_free: false
+  params:
+    entropy_weight: 0.005
+    eta: 2.0
+    beta: 0.01
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

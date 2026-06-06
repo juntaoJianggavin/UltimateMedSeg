@@ -1,0 +1,89 @@
+# Mean Teacher (NeurIPS 2017)
+# Reference: https://github.com/CuriousAI/mean-teacher
+# ============================================================================
+# Mean Teacher — 均值教师半监督分割
+# Mean Teacher — Semi-Supervised Segmentation via EMA Teacher
+# ============================================================================
+# 论文 / Paper:
+#   Tarvainen & Valpola, "Mean teachers are better role models"
+#   NeurIPS 2017  https://arxiv.org/abs/1703.01780
+#
+# 算法概述 / Algorithm:
+#   - Student 模型正常训练; Teacher 模型为 Student 的 EMA (指数移动平均)
+#     Student trains normally; Teacher is the EMA (exponential moving average) of Student
+#   - 对无标签数据: student 和 teacher 分别预测, 用 MSE 做一致性损失
+#     On unlabeled data: MSE consistency loss between student and teacher predictions
+#   - Teacher 不参与梯度反传, 仅通过 EMA 更新: θ_t = α·θ_t + (1-α)·θ_s
+#     Teacher is not gradient-updated; only EMA: θ_t = α·θ_t + (1-α)·θ_s
+#
+# 参数说明 / Parameters:
+#   ema_decay          — EMA 衰减率 / EMA decay rate (higher = more stable teacher)
+#   consistency_weight — 一致性损失权重 / Consistency loss weight (ramped up over time)
+#   rampup_epochs      — 权重渐增 epoch 数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 通用半监督分割基线 / General-purpose semi-seg baseline
+# 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/mean_teacher.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%（仅当使用同一数据集拆分时生效）
+  labeled_ratio: 0.1
+  # 拆分模式: 'ratio'(按比例自动拆分) 或 'dir'(按目录分开指定)
+  split_mode: dir
+
+semi:
+  method: mean_teacher
+  params:
+    ema_decay: 0.999
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

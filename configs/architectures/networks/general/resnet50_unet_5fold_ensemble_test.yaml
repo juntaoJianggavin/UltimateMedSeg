@@ -1,0 +1,76 @@
+# 场景4: 5折交叉验证 + 5个最佳模型融合用于 test
+# Scenario 4: 5-fold CV with ensemble of 5 best models for final test
+#
+# 流程:
+#   Step 1: 对 fold_idx=0..4 各训练一个模型（train/val 划分由 kfold 决定）
+#   Step 2: 收集 5 个 best_model.pth
+#   Step 3: 用 logit 融合（平均）在独立 test 集上评估
+#
+# 用法:
+#   # Step 1: 训练 5 折
+#   for i in 0 1 2 3 4; do
+#     python train.py --config configs/architectures/networks/general/resnet50_unet_5fold_ensemble_test.yaml \
+#       --override data.fold_idx=$i \
+#       --output_dir output/5fold_ensemble/fold_$i
+#   done
+#
+#   # Step 2: 融合测试 (test.py 支持多 checkpoint 输入)
+#   python test.py \
+#     --config configs/architectures/networks/general/resnet50_unet_5fold_ensemble_test.yaml \
+#     --checkpoints output/5fold_ensemble/fold_0/best_model.pth \
+#                   output/5fold_ensemble/fold_1/best_model.pth \
+#                   output/5fold_ensemble/fold_2/best_model.pth \
+#                   output/5fold_ensemble/fold_3/best_model.pth \
+#                   output/5fold_ensemble/fold_4/best_model.pth \
+#     --ensemble_mode logit_average
+#
+# 注意: data.test_dir 是独立的测试集目录，不参与 k-fold 划分
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: image_mask
+  img_size: 256
+  root_dir: ./data/YourDataset/trainval    # 仅含 train+val 的图像（用于 kfold 划分）
+  img_suffix: .png
+  mask_suffix: .png
+  # n-fold 配置（作用于 root_dir 内的图像）
+  n_splits: 5
+  fold_idx: 0          # 运行时通过 --override data.fold_idx=X 覆盖
+  random_state: 42
+  # 独立测试集（不参与 kfold，仅用于最终融合评估）
+  test_dir: ./data/YourDataset/test
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

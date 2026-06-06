@@ -1,0 +1,92 @@
+# UniMatch (CVPR 2023)
+# Reference: https://github.com/LiheYoung/UniMatch
+# Paper: https://arxiv.org/abs/2208.09910
+# ============================================================================
+# UniMatch — 统一匹配半监督分割
+# UniMatch — Unified Matching for Semi-Supervised Segmentation
+# ============================================================================
+# 论文 / Paper:
+#   Yang et al., "Revisiting Weak-to-Strong Consistency in Semi-Supervised
+#   Semantic Segmentation", CVPR 2023  https://arxiv.org/abs/2208.09910
+#
+# 算法概述 / Algorithm:
+#   - 弱增强 (随机翻转+裁剪) 生成伪标签, 强增强 (颜色抖动) 训练一致性
+#     Weak augmentation (flip+crop) for pseudo-labels; strong (color jitter) for consistency
+#   - 特征级别的混合增强 (CutMix 变体) 提供额外的正则化
+#     Feature-level mixup augmentation (CutMix variant) for extra regularization
+#   - 单模型架构, 训练简单高效
+#     Single-model architecture; simple and efficient training
+#
+# 参数说明 / Parameters:
+#   confidence_threshold — 伪标签置信度阈值 / Pseudo-label confidence threshold
+#   consistency_weight   — 一致性损失权重 / Consistency loss weight
+#   rampup_epochs        — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 单模型高效半监督 / Efficient single-model semi-seg
+# 源码参考 / Reference code: https://github.com/LiheYoung/UniMatch
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/unimatch.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: unimatch
+  params:
+    ema_decay: 0.999
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    feat_drop_rate: 0.5      # Dropout2d 概率 (paper default)
+    feat_noise_range: 0.3    # 乘性 uniform noise 范围 r: feat*(1 + U(-r, r))
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

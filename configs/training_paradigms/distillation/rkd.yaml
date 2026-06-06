@@ -1,0 +1,67 @@
+# RKD: Relational Knowledge Distillation (CVPR 2019)
+# Reference: https://github.com/lenscloth/RKD
+# Paper: https://arxiv.org/abs/1904.05068
+#
+# 关系蒸馏：distance-wise（成对 L2 距离）+ angle-wise（三元组余弦角度）
+# Distance-wise pairwise L2 + angle-wise cosine over batch embeddings.
+# Feature (B,C,H,W) 先 GAP 到 (B,C) 再做关系。
+#
+# w_dist: 距离损失权重 / weight on distance term (paper default 25)
+# w_angle: 角度损失权重 / weight on angle term (paper default 50)
+# pool: gap 或 flatten / how to reduce spatial dims
+#
+# feature_layers: 在哪一层 hook 出特征 / where to extract features
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/rkd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: rkd
+  weight: 1.0
+  feature_layers:
+    - encoder
+  params:
+    w_dist: 25.0
+    w_angle: 50.0
+    pool: gap
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

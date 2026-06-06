@@ -1,0 +1,61 @@
+# Vanilla KD / Hinton KD (NeurIPS workshop 2014/2015)
+# Reference: https://github.com/peterliht/knowledge-distillation-pytorch
+# Paper: https://arxiv.org/abs/1503.02531
+#
+# 经典 Hinton 知识蒸馏 / Vanilla logit-matching KD
+# loss = (1 - alpha) * CE(s, y) + alpha * T^2 * KL(softmax(s/T) || softmax(t/T))
+#
+# temperature: 软目标温度 T / soft-target temperature
+# alpha: KD 权重，1-alpha 给 CE / weight on soft-KD term, (1-alpha) on hard CE
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/vanilla_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: vanilla_kd
+  weight: 1.0
+  params:
+    temperature: 4.0
+    alpha: 0.9
+    ignore_index: -100
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

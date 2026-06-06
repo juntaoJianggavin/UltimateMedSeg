@@ -1,0 +1,78 @@
+# MIC: Masked Image Consistency for Context-Enhanced DA (Hoyer et al., CVPR 2023)
+# MIC：基于掩码图像一致性的上下文增强域适应
+#
+# Reference: https://github.com/lhoyer/MIC
+# Paper:     https://arxiv.org/abs/2212.01322
+#
+# 训练思路 / Algorithm:
+#   teacher (EMA) 在未掩码的目标图上得到 pseudo-label y_T 与置信度 q_T；
+#   student 在 patch-mask 后的目标图上预测 p_T^M；
+#   MIC 损失 = q_T * CE(p_T^M, y_T)，仅在被掩码的 patch 上累计。
+#
+# mask_ratio:           被掩码的 patch 比例 r / Patch mask ratio
+# patch_size:           单个 patch 边长（像素） / Mask patch side length
+# confidence_threshold: pseudo-label 置信阈值 tau / PL confidence cutoff
+# consistency_weight:   损失权重 lambda / Weight on MIC term
+# num_classes:          分类数 / Number of classes
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/mic.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: mic
+  source_free: false
+  params:
+    mask_ratio: 0.7
+    patch_size: 32
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

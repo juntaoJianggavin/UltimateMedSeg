@@ -1,0 +1,107 @@
+# ============================================================================
+# QaTa-COV19 — 胸部 X 光 COVID-19 感染区分割 (Chest X-Ray COVID-19 Segmentation)
+# ============================================================================
+#
+# 简介 / Introduction:
+#   QaTa-COV19 数据集 (LViT enriched version)
+#   胸部 X 光 COVID-19 感染区域分割，二分类（背景 vs 感染区）
+#   包含 per-image 放射学文本描述（来自 LViT 标注）
+#   Chest X-ray COVID-19 infection segmentation, binary (background vs infection)
+#   Includes per-image radiology text annotations (from LViT annotation)
+#
+# 数据量 / Size:
+#   Train: 7145 张 / Val: 1243 张 / Test: 2113 张
+#   图像格式: PNG (灰度或 RGB)
+#   mask 格式: PNG 二值 (0=背景, 255=感染区)
+#   文本标注: Excel (.xlsx)，每张图一段放射报告描述
+#
+# 官方划分: train / val / test (LViT 预设划分)
+# 推荐用法: 直接使用预设三划分
+#
+# 下载 / Download:
+#   LViT enriched version: https://github.com/HUANGLIZI/LViT#datasets
+#   原始 QaTa-COV19: https://www.kaggle.com/datasets/aysendegerli/qatacov19-dataset
+#
+# 目录结构 / Directory structure:
+#   data/QaTa-COV19/
+#   ├── Train Folder/
+#   │   ├── Img/             (胸部 X 光 PNG / Chest X-ray PNGs)
+#   │   ├── GT/              (二值 mask PNG / Binary mask PNGs)
+#   │   └── Train_text.xlsx  (每张图的放射报告描述 / Per-image radiology captions)
+#   ├── Val Folder/
+#   │   ├── Img/
+#   │   ├── GT/
+#   │   └── Val_text.xlsx
+#   └── Test Folder/
+#       ├── Img/
+#       ├── GT/
+#       └── Test_text.xlsx
+#
+# 文本标注格式 / Text annotation format:
+#   Excel 文件每行: [图片文件名, 放射报告文本描述]
+#   Excel file per row: [image filename, radiology report text description]
+#   示例 / Example:
+#     "bilateral ground-glass opacities in both lungs"
+#     "consolidation in right lower lobe"
+#     "patchy infiltrates in bilateral lung fields"
+#
+# 支持的方法 / Supported methods:
+#   ✓ languide (per-image text from xlsx)
+#   ✓ lvit (per-image text from xlsx)
+#   ✓ cris / biomedparse / causal_clipseg / tp_drseg / cxrclipseg / tpro
+#   ✓ clip_universal / salip / medclip_sam / medisee
+#   ✗ tganet (需要息肉属性短语，不适用于 COVID / requires polyp attributes)
+#
+# 数据加载方式 / Data loading:
+#   type: qata_covid19   →  使用 QaTaCOV19Dataset (支持 text.xlsx 自动加载)
+#   type: generic         →  只加载图像+mask（无文本，用于非文本方法）
+# ============================================================================
+
+model:
+  num_classes: 1
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  # 使用 qata_covid19 类型自动加载 LViT 目录结构 + 文本标注
+  # Use qata_covid19 type for auto LViT directory structure + text annotations
+  type: qata_covid19
+  img_size: 224
+  data_root: ./data/QaTa-COV19
+  # 可选: tokenizer 配置（用于 languide / lvit 等需要 tokenize 的方法）
+  # Optional: tokenizer config (for methods needing tokenization)
+  tokenizer_name: bert-base-uncased
+  text_max_length: 24
+
+training:
+  random_state: 42
+  deterministic: true
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,62 @@
+# LSKD: Logit Standardization in Knowledge Distillation (CVPR 2024)
+# Reference: https://github.com/sunshangquan/logit-standardization-KD
+# Paper: https://arxiv.org/abs/2403.01427
+#
+# LSKD：在 KL 之前对每个样本（每个像素）的 logit 沿类维做 Z-score 标准化
+# Z-score standardise the per-pixel class-axis logits before the
+# temperature softmax KL, removing the magnitude degree of freedom
+# that vanilla KD wrongly penalises.
+#
+# temperature: 软目标温度 / softmax temperature (paper 2.0-4.0)
+# eps: per-sample 标准差下限 / per-sample std floor for numerical safety
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/logit_std_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: logit_std_kd
+  weight: 1.0
+  params:
+    temperature: 2.0
+    eps: 0.0000001
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

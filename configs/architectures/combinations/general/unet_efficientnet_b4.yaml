@@ -1,0 +1,44 @@
+# Architecture combination: encoder=timm_efficientnet_b4 + decoder=bilinear
+# 架构组合：编码器=timm_efficientnet_b4 + 解码器=双线性
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_efficientnet_b4
+    pretrained: true
+    in_channels: 3
+    params: {}
+  skip_connection:
+    name: concat
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 24
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

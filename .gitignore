@@ -1,0 +1,30 @@
+__pycache__/
+*.pyc
+*.pth
+.venv/
+*.egg-info/
+runs/
+checkpoints/
+
+# Data directories (user datasets)
+data/_test_dummy/
+data/YourDataset/
+data/source/
+data/target/
+data/target_val/
+data/test_dummy/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output
+output/
+*.log
+smoke_results.txt

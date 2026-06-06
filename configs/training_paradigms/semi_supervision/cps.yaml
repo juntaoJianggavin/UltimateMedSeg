@@ -1,0 +1,88 @@
+# CPS (CVPR 2021)
+# Reference: https://github.com/charlesCXK/TorchSemiSeg
+# ============================================================================
+# CPS — Cross Pseudo Supervision 交叉伪监督
+# CPS — Cross Pseudo Supervision for Semi-Supervised Segmentation
+# ============================================================================
+# 论文 / Paper:
+#   Chen et al., "Semi-Supervised Semantic Segmentation with Cross
+#   Pseudo Supervision", CVPR 2021  https://arxiv.org/abs/2106.01226
+#
+# 算法概述 / Algorithm:
+#   - 两个不同初始化的网络 model1, model2 同时训练
+#     Two networks with different initialization trained simultaneously
+#   - model1 的 argmax 伪标签监督 model2; model2 的伪标签监督 model1
+#     model1's argmax pseudo-labels supervise model2 and vice versa
+#   - 总损失 = 监督损失 + λ × (CPS_loss_1→2 + CPS_loss_2→1) / 2
+#     Total = supervised + λ × (CPS_1→2 + CPS_2→1) / 2
+#
+# 参数说明 / Parameters:
+#   cps_weight    — CPS 一致性损失权重 / CPS consistency loss weight
+#   rampup_epochs — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 有足够显存训练双模型 / Dual-model with sufficient VRAM
+# 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/cps.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: cps
+  params:
+    # 论文推荐: VOC λ=1.5, Cityscapes λ=6.0; 医学2D分割默认 1.0 起步
+    # cps_weight 仅乘到 CPS 损失上 (不乘 sup 损失), 并经 sigmoid rampup
+    cps_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

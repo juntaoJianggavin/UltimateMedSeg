@@ -1,0 +1,62 @@
+# MLLM-Grounding × SAM2 Pipeline (Qwen3-VL + SAM2)
+# Synapse multi-organ segmentation - 推理 only
+#
+# Detect-then-Segment paradigm，与 synapse_qwen2vl_sam2.yaml 一致，
+# 把 grounder 升级为 Qwen3-VL (Alibaba, 2025)。
+# Qwen3-VL 与 Qwen2-VL 共享 grounding 输出格式，所以 prompt 复用。
+#
+# 依赖：
+#   pip install -U transformers accelerate qwen-vl-utils
+#   pip install git+https://github.com/facebookresearch/sam2.git
+
+# ============================================================
+# Step 1: MLLM grounding (Qwen3-VL)
+# ============================================================
+
+# text 输入: 在 mllm.class_names 中列出目标类别的英文名
+# Text input: list target class names in English under mllm.class_names
+# 示例 / Examples: "spleen", "right kidney", "liver", "tumor"
+# Detector 自动构造 grounding prompt，用户无需关心 prompt 模板
+# Detector auto-constructs grounding prompts, no need to worry about templates
+
+mllm:
+  class_names:
+  - spleen
+  - right kidney
+  - left kidney
+  - gallbladder
+  - esophagus
+  - liver
+  - stomach
+  - aorta
+  grounder:
+    type: qwen3vl
+    model_id: Qwen/Qwen3-VL-7B-Instruct
+    device: cuda
+    dtype: bfloat16
+    use_flash_attn: true
+    max_new_tokens: 128
+    prompt_template: 'Locate the {class_name} in this abdominal CT slice.
+
+      If present, output the bounding box in the format
+
+      <|box_start|>(x1,y1),(x2,y2)<|box_end|>.
+
+      Coordinates should be in the range 0-1000.
+
+      '
+  mask_generator:
+    type: sam2
+    model_id: facebook/sam2-hiera-large
+    device: cuda
+    multimask: false
+  refinement:
+    enabled: false
+    config_path: configs/synapse/unet_resnet34.yaml
+    img_size: 224
+    roi_padding: 0.1
+data:
+  type: synapse
+  img_size: 1024
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt

@@ -1,0 +1,47 @@
+# Source: MedCLIP (github.com/RyanWangZf/MedCLIP) — pretrained_path required (GCS download)
+# Foundation encoder: medclip
+# 基础模型编码器：MedCLIP
+model:
+  num_classes: 2
+  img_size: native
+  encoder:
+    name: medclip
+    in_channels: 3
+    pretrained: true
+    params: {}
+    freeze_cfg:
+      freeze: true
+      unfreeze_last_n: 0
+      inference_only: false
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+  skip_connection:
+    name: concat
+data:
+  type: generic
+  img_size: native
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 100
+  batch_size: 4
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

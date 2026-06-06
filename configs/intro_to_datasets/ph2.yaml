@@ -1,0 +1,67 @@
+# ============================================================================
+# PH2 — 皮肤镜病灶分割 (Dermoscopic Image Analysis)
+# ============================================================================
+#
+# 简介:
+#   Mendonça et al., 2013, "PH2 - A dermoscopic image database"
+#   200 张皮肤镜图像（768×560），二分类: 背景 vs 病灶
+#   含 80 common nevi + 80 atypical nevi + 40 melanoma
+#   常作为 ISIC 系列的补充小数据集
+#
+# 官方划分: 无
+# 推荐用法: 5折交叉验证 或 全作为外部测试集（ISIC 训练 → PH2 测试）
+#
+# 下载:
+#   官方: https://www.fc.up.pt/addi/ph2%20database.html
+#   镜像: https://www.kaggle.com/datasets/khoongweihao/ph2-dataset
+#   下载后目录结构:
+#     data/PH2/
+#     ├── images/       (IMD002.bmp ...)
+#     └── masks/        (IMD002_lesion.bmp ...)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  root_dir: ./data/PH2
+  img_suffix: .bmp
+  mask_suffix: _lesion.bmp
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

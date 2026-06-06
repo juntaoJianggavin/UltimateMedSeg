@@ -1,0 +1,34 @@
+# Source: https://github.com/Jiaoyang45/Rolling-Unet
+# Reference: AAAI 2024
+# Network: rolling_unet_m (complete architecture)
+# 完整网络：rolling_unet_m（完整架构）
+
+model:
+  num_classes: 2
+  img_size: 256
+  architecture: rolling_unet_m
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.5
+      - name: dice
+        weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 0

@@ -1,0 +1,73 @@
+# ============================================================================
+# RITE — 视网膜动静脉分割 (Retinal Images vessel Tree Extraction)
+# ============================================================================
+#
+# 简介:
+#   Hu et al., 2013
+#   基于 DRIVE 的 40 张图像，额外标注动脉/静脉分类
+#   三分类: 背景 / 动脉(红) / 静脉(蓝)
+#   比 DRIVE 更细粒度的血管分割任务
+#
+# 官方划分: 同 DRIVE — train (20) / test (20)
+# 推荐用法: 同 DRIVE
+#
+# 下载:
+#   官方: https://medicine.uiowa.edu/eye/rite-dataset
+#   下载后目录结构:
+#     data/RITE/
+#     ├── training/
+#     │   ├── images/       (同 DRIVE)
+#     │   └── av/           (动静脉彩色标注 png)
+#     └── test/
+#         ├── images/
+#         └── av/
+#
+# 注意: av mask 为 RGB 彩色 (红=动脉, 蓝=静脉, 黑=背景)
+# ============================================================================
+
+model:
+  num_classes: 3
+  img_size: 584
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 584
+  root_dir: ./data/RITE/training
+  img_suffix: .tif
+  mask_suffix: .png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  test_dir: ./data/RITE/test
+
+training:
+  epochs: 200
+  batch_size: 4
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.5
+        - name: dice
+          weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

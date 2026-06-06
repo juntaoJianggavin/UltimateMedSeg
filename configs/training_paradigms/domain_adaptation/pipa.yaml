@@ -1,0 +1,81 @@
+# PiPa: Pixel- and Patch-wise Pairing for Cross-Domain Segmentation (Chen et al., ACM MM 2023)
+# PiPa：像素级 + patch 级的双 InfoNCE 对比学习
+#
+# Reference: https://github.com/chen742/PiPa
+# Paper:     https://arxiv.org/abs/2211.07609
+#
+# 训练流程 / Algorithm:
+#   L_pix : 图像内做像素级 InfoNCE（同类正、异类负）；
+#   L_pat : 跨图像做 patch 级 InfoNCE（按主导类对齐）；
+#   特征采用 L2 归一化的 softmax 向量 (projection-free 变体)。
+#
+# pixel_weight / patch_weight: 两路对比损失权重
+# temperature:          InfoNCE 温度 tau
+# pixels_per_image:     单图采样像素数 N
+# patch_size:           patch 边长 (像素)
+# confidence_threshold: 可靠像素置信阈值 (paper §4.3)
+# num_classes:          分类数
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/pipa.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: pipa
+  source_free: false
+  params:
+    pixel_weight: 0.1
+    patch_weight: 0.1
+    temperature: 0.1
+    pixels_per_image: 256
+    patch_size: 16
+    confidence_threshold: 0.5
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

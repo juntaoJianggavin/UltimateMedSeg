@@ -1,0 +1,77 @@
+# PixMatch: Pixel-wise Consistency Training for UDA (Melas-Kyriazi & Manrai, CVPR 2021)
+# PixMatch：基于像素级一致性的无监督域适应
+#
+# Reference: https://github.com/lukemelas/pixmatch
+# Paper:     https://arxiv.org/abs/2105.08128
+#
+# 训练流程：对每张目标图同时做弱增广+强增广，弱增广预测生成伪标签，
+# 强增广预测与伪标签做带置信度掩码的 CE。
+# 当训练循环只能跑一次前向时，本损失模块会在 logits 上注入特征 dropout
+# 近似强增广 (paper § 3.2 strong-aug consistency)。
+#
+# confidence_threshold: 伪标签置信度阈值 tau / Confidence threshold for PL mask
+# consistency_weight:   一致性 CE 权重 / Weight on consistency loss
+# strong_aug_dropout:   in-loss 特征 dropout 概率 / Feature dropout if no
+#                       external strong-aug prediction is provided (0 disables)
+# num_classes:          分割类别数 / Number of segmentation classes
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/pixmatch.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: pixmatch
+  source_free: false
+  params:
+    confidence_threshold: 0.95
+    consistency_weight: 1.0
+    strong_aug_dropout: 0.2
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

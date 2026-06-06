@@ -1,0 +1,85 @@
+# ICT (IJCAI 2019)
+# Reference: https://github.com/vikasverma1077/ICT
+# Paper:     https://arxiv.org/abs/1903.03825
+# ============================================================================
+# Interpolation Consistency Training (ICT)
+# ============================================================================
+# 论文 / Paper:
+#   Verma et al., "Interpolation Consistency Training for Semi-Supervised
+#   Learning", IJCAI 2019  https://arxiv.org/abs/1903.03825
+#
+# 算法概述 / Algorithm:
+#   - 对两张无标签图 (u_a, u_b) 做 mixup: u_mix = λ u_a + (1-λ) u_b
+#   - Teacher (EMA) 在原图上 forward; 目标 = λ p_a + (1-λ) p_b
+#   - Student 在 u_mix 上 forward, 与目标做 MSE 一致性
+#   - λ ~ Beta(α, α), 论文 α=1.0
+#
+#   - Mixup two unlabeled images and ask the student to match the
+#     linearly-interpolated EMA-teacher prediction at the interpolated
+#     input.  Pure consistency regularisation, no thresholding.
+#
+# 参数说明 / Parameters:
+#   ema_decay          — EMA 衰减率 / EMA decay (default 0.999)
+#   mixup_alpha        — Beta(α,α) 参数 / mixup coefficient (default 1.0)
+#   consistency_weight — 一致性权重 / consistency weight (default 1.0)
+#   rampup_epochs      — sigmoid ramp-up 长度 / ramp-up length
+#
+# 适用场景 / Best for: 标注稀少 + 数据流形较平滑的场景
+# 用法 / Usage: python semi_train.py --config configs/semi/ict.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: ict
+  params:
+    ema_decay: 0.999
+    mixup_alpha: 1.0
+    consistency_weight: 1.0
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

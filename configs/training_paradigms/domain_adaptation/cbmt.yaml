@@ -1,0 +1,65 @@
+# CBMT: Class-Balanced Mean Teacher (Source-Free)
+# CBMT：类别均衡均值教师（无源域适应）
+#
+# Li et al., MICCAI 2023
+# Official source: https://github.com/whq-xxh/ADA4MIA
+#
+# Source-Free：仅需目标域数据 + 预训练模型
+# Source-Free: only target data + pretrained model needed
+#
+# consistency_weight: 一致性损失权重 / Consistency loss weight
+# num_classes: 分割类别数 / Number of segmentation classes
+# rampup_epochs: 权重预热轮数 / Weight rampup epochs
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/cbmt.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 目标域（无标签）
+  target:
+    image_dir: ./data/target/images
+  # 验证集（目标域有标签子集）
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  # 测试集（test.py 使用）
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+  # 预训练源模型路径
+  pretrained_model: ./checkpoints/source_model.pth
+
+domain_adaptation:
+  method: class_balanced_mt
+  params:
+    consistency_weight: 1.0
+    num_classes: 4
+    rampup_epochs: 40
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

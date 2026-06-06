@@ -1,0 +1,79 @@
+# DDB: Dual-domain Decoupled Bridging (Du et al., CVPR 2023)
+# DDB：双域解耦桥接 + 双向 KL 蒸馏
+#
+# Reference: https://github.com/xinyuelll/DDB
+# Paper:     https://arxiv.org/abs/2304.05285
+#
+# 训练流程 / Algorithm:
+#   逐样本采样 lambda ~ Beta(a, a)，在 logit 空间做 mixup：
+#     mixed = lambda * source_logits + (1-lambda) * target_logits
+#   CE: 源域用真实 label，目标域用高置信伪标签（按 lambda 加权）；
+#   双向 KL: lambda * KL(p_S || p_mix) + (1-lambda) * KL(p_T || p_mix)。
+#
+# mix_alpha:            Beta 分布参数 / Beta(a,a)
+# bridge_weight:        双向 KL 权重 / Bridging KL weight
+# ce_weight:            mixed-domain CE 权重 / Mixed CE weight
+# confidence_threshold: 目标伪标签置信阈值 / Target PL cutoff
+# num_classes:          分类数
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/ddb.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: ddb
+  source_free: false
+  params:
+    mix_alpha: 1.0
+    bridge_weight: 0.5
+    ce_weight: 1.0
+    confidence_threshold: 0.7
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

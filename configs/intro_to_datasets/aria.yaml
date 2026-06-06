@@ -1,0 +1,72 @@
+# ============================================================================
+# ARIA — 视网膜血管分割 (Automated Retinal Image Analysis)
+# ============================================================================
+#
+# 简介:
+#   Zheng et al., 2012
+#   143 张彩色眼底图像（768×576）
+#   分三组: 正常 (61) / 糖尿病 (59) / AMD (23)
+#   二分类: 背景 vs 血管
+#   特点: 包含多种病变类型，难度高于 DRIVE/STARE
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 5折交叉验证
+#   - 或 7:1.5:1.5 随机划分
+#
+# 下载:
+#   官方: http://www.eyecharity.com/aria_online/
+#   (需注册申请; 部分镜像可在 GitHub 找到)
+#   下载后目录结构:
+#     data/ARIA/
+#     ├── images/       (aria_a_01.tif ...)
+#     └── masks/        (aria_a_01_bw.tif ...)
+#
+# 注意: mask 后缀 _bw.tif 表示 binary vessel map
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 512
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/ARIA
+  img_suffix: .tif
+  mask_suffix: _bw.tif
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

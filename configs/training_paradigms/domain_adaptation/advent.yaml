@@ -1,0 +1,76 @@
+# AdvEnt: Adversarial Entropy Minimization for Domain Adaptation
+# AdvEnt：基于对抗熵最小化的域适应
+#
+# Vu et al., CVPR 2019
+# Official source: https://github.com/valeoai/ADVENT
+#
+# 传统域适应 (UDA)：需要源域（有标签）和目标域（无标签）
+# Traditional UDA: requires source (labeled) + target (unlabeled) domains
+#
+# entropy_weight: 目标域熵最小化权重 / Target domain entropy minimization weight
+# adversarial_weight: 对抗训练权重 / Adversarial training weight
+# num_classes: 分割类别数 / Number of segmentation classes
+# grl_lambda: 梯度反转层系数 / Gradient reversal layer lambda
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/advent.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 源域（有标签）
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  # 目标域（无标签）
+  target:
+    image_dir: ./data/target/images
+  # 验证集（目标域有标签子集，用于评估）
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  # 测试集（test.py 使用）
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: advent
+  params:
+    entropy_weight: 0.1
+    adversarial_weight: 0.1
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,43 @@
+# SaLIP: SAM + CLIP zero-shot (BMVC 2024)
+# SaLIP: SAM + CLIP zero-shot (BMVC 2024)
+# 文本引导分割 / Text-guided segmentation
+# architecture: salip
+
+model:
+  num_classes: 2
+  img_size: 1024
+  architecture: salip
+  encoder:
+    in_channels: 3
+  arch_params: {}
+
+data:
+  type: generic
+  img_size: 1024
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+
+training:
+  random_state: 42
+  deterministic: true
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

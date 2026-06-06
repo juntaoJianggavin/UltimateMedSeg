@@ -1,0 +1,58 @@
+# Weak supervision: boxinst
+# 弱监督学习：boxinst
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+    params: {}
+data:
+  img_size: 224
+  image_dir: ./data/images
+  annotation_file: ./data/annotations/boxes.json
+  val:
+    image_dir: ./data/val/images
+    mask_dir: ./data/val/masks
+  test:
+    image_dir: ./data/test/images
+    mask_dir: ./data/test/masks
+weak_supervision:
+  method: boxinst
+  params:
+    projection_weight: 1.0
+    pairwise_weight: 1.0
+    pairwise_size: 3
+    pairwise_dilation: 2
+    color_thresh: 0.3
+    color_tau: 0.5
+training:
+  epochs: 150
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 30
+  loss:
+    name: boxinst
+    params:
+      projection_weight: 1.0
+      pairwise_weight: 1.0
+      pairwise_size: 3
+      pairwise_dilation: 2
+      color_thresh: 0.3
+      color_tau: 0.5
+      fg_channel_start: 1
+  optimizer:
+    name: adamw
+    lr: 0.0002
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

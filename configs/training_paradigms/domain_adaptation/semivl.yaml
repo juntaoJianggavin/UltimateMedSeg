@@ -1,0 +1,83 @@
+# SemiVL: Semi-Supervised Seg with Vision-Language Guidance (Karazija et al., ECCV 2024)
+# SemiVL：基于类原型 (text-prototype) 的视觉-语言引导对比学习
+#  —— 此处为 UDA 适配 + "no-CLIP" 可学习原型变体 (paper appendix ablation)
+#
+# Reference: https://github.com/google-research/semivl
+# Paper:     https://arxiv.org/abs/2311.16241
+#
+# 训练流程 / Algorithm:
+#   将 student per-pixel softmax 投影到 proto_dim 维，
+#   与可学习的 *类文本原型* t_c 做 InfoNCE (paper Eq. 3) 和 L2 对齐 (Eq. 4)。
+#   teacher 的高置信伪标签决定每个像素的正原型；其它类原型作为负样本。
+#
+# text_weight:          L_text (InfoNCE) 权重
+# align_weight:         L_align (L2) 权重
+# temperature:          InfoNCE 温度 tau (paper 0.07)
+# confidence_threshold: 伪标签置信阈值
+# proto_dim:            文本原型空间维度
+# pixels_per_image:     每张图采样的锚点数
+# num_classes:          分类数
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/semivl.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: semivl_da
+  source_free: false
+  params:
+    text_weight: 0.1
+    align_weight: 0.05
+    temperature: 0.07
+    confidence_threshold: 0.7
+    proto_dim: 64
+    pixels_per_image: 256
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

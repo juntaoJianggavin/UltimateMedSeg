@@ -1,0 +1,57 @@
+# Default configuration for medical image segmentation
+# 医学图像分割默认配置
+
+model:
+  num_classes: 9  # Synapse dataset: 8 organs + background
+  img_size: 224
+
+  encoder:
+    name: timm_resnet50  # timm encoder: timm_resnet50, timm_swin_tiny_patch4_window7_224, etc. Basic: basic. Specialized: swinunet, transunet, etc.
+    pretrained: true
+    in_channels: 3
+    params: {}
+
+  decoder:
+    name: bilinear  # Options: deconv, bilinear, emcad, cascade, dw_sep, attention, mlp, lawin, ham, upernet, unetpp
+    params: {}
+
+  skip_connection:
+    name: concat  # Options: add, concat, cab, sab, ccm, scse, dense, multiscale, gating, cross_attn, feature_refine
+    params: {}
+
+  bottleneck:
+    name: none  # Options: none, basic, aspp, dense_aspp, ppm, transformer, mamba, rwkv, se, dual_attention, cbam, acmix
+    params: {}
+
+data:
+  type: synapse  # Options: synapse, acdc, binary (image_mask is alias for binary)
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  test_dir: ./data/Synapse/test_vol_h5
+  train_list: ./data/Synapse/lists/lists_Synapse/train.txt
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  epochs: 200
+  batch_size: 24
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

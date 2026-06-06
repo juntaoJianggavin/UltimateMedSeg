@@ -1,0 +1,74 @@
+# ============================================================================
+# BUSI — 乳腺超声图像分割 (Breast Ultrasound Images Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Al-Dhabyani et al., 2020, "Dataset of breast ultrasound images"
+#   780 张乳腺超声图像，分三类: normal (133) / benign (437) / malignant (210)
+#   二分类分割: 背景 vs 肿瘤区域（通常只用 benign + malignant 共 647 张）
+#   图像尺寸不固定（约 500×500），灰度或伪彩色
+#
+# 官方划分: 无（需自行划分）
+# 推荐用法:
+#   - 5折交叉验证（论文常用）
+#   - 或 7:1:2 随机划分
+#
+# 下载:
+#   官方: https://scholar.cu.edu.eg/?q=afahmy/pages/dataset
+#   镜像: https://www.kaggle.com/datasets/aryashah2k/breast-ultrasound-images-dataset
+#   下载后目录结构（只保留 benign + malignant）:
+#     data/BUSI/
+#     ├── images/    (benign (1).png, malignant (1).png ...)
+#     └── masks/     (benign (1)_mask.png ...)
+#
+# 注意:
+#   - 部分图像有多个 mask 文件 (xxx_mask.png, xxx_mask_1.png)，取第一个即可
+#   - mask 是二值 (0/255)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  root_dir: ./data/BUSI
+  img_suffix: .png
+  mask_suffix: _mask.png
+  # 5折交叉验证
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

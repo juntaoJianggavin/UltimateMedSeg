@@ -1,0 +1,59 @@
+# Anatomy-aware KD (self-contained)
+# (Self-contained: no single canonical GitHub source)
+# Anatomy-Aware KD: Organ Topology Distillation / 解剖感知蒸馏（器官拓扑）
+# 医学图像专用：利用器官空间关系和包含矩阵约束student
+# Medical-specific: Organ spatial relations + containment matrix distillation
+#
+# anatomy_weight: 解剖损失权重 / Anatomy loss weight
+# kd_weight: 蒸馏损失权重 / KD loss weight
+# temperature: 蒸馏温度 / Distillation temperature
+# relation_type: 关系类型 (spatial/containment/both)
+#
+# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/anatomy_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: anatomy_kd
+  params:
+    anatomy_weight: 1.0
+    kd_weight: 1.0
+    temperature: 4.0
+    relation_type: both
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

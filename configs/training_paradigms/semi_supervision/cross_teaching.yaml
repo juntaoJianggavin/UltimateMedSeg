@@ -1,0 +1,98 @@
+# Cross-Teaching between CNN and Transformer (MIDL 2022)
+# Reference: https://github.com/HiLab-git/SSL4MIS
+# Paper:     https://arxiv.org/abs/2112.04894
+# ============================================================================
+# Cross-Teaching (CTBCT) — Heterogeneous CNN + Transformer cross-supervision
+# ============================================================================
+# 论文 / Paper:
+#   Luo et al., "Semi-Supervised Medical Image Segmentation via
+#   Cross Teaching between CNN and Transformer", MIDL 2022
+#   https://arxiv.org/abs/2112.04894
+#
+# 算法概述 / Algorithm:
+#   - 同时训练一个 CNN 和一个 Transformer 异构分割模型
+#     Train one CNN + one Transformer in parallel
+#   - 有标签: 各自标准监督损失
+#     Labeled: each model uses standard supervised loss
+#   - 无标签: 模型 A 的 argmax 伪标签 (detach) 监督模型 B, 反之亦然
+#     Unlabeled: model_A's argmax pseudo-label supervises model_B (CE) and vice versa
+#   - 无 EMA, 无 confidence threshold — 异构性本身是正则
+#     No EMA, no confidence threshold — heterogeneity is the regularizer
+#
+# 参数说明 / Parameters:
+#   second_model       — 第二支路 (Transformer) 模型配置, 必填
+#                        Required. Second-branch model config (consumed by build_model)
+#   consistency_weight — 交叉监督权重 (sigmoid ramp-up)
+#   rampup_epochs      — ramp-up 长度
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/cross_teaching.yaml
+# ============================================================================
+
+# 主分支: CNN (model)
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: cross_teaching
+  params:
+    consistency_weight: 1.0
+    rampup_epochs: 40
+    # 第二分支: Transformer (Swin-style; 任何 build_model 支持的异构模型均可)
+    second_model:
+      num_classes: 4
+      img_size: 224
+      encoder:
+        name: pvtv2
+        pretrained: true
+        in_channels: 3
+        params: {}
+      decoder:
+        name: bilinear
+        params: {}
+      bottleneck:
+        name: none
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

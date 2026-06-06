@@ -1,0 +1,72 @@
+# Source-Only baseline (fair-comparison lower bound for DA experiments)
+# Reference: https://github.com/valeoai/ADVENT
+# Paper: not applicable (baseline convention; see e.g. https://arxiv.org/abs/1811.12833 Sec. 4.2)
+#
+# Source-Only: 仅在源域上做监督训练，不使用目标域。
+# Source-Only: supervised training on source only, no target adaptation.
+#
+# num_classes:  分割类别数 / Number of segmentation classes
+# ce_weight:    交叉熵权重 / Cross-entropy weight
+# dice_weight:  Dice 权重 / Dice loss weight
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/source_only.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  # Target loader is still required by the training script's plumbing;
+  # the loss itself ignores anything from the target side.
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+
+domain_adaptation:
+  method: source_only
+  source_free: false
+  params:
+    num_classes: 4
+    ce_weight: 0.4
+    dice_weight: 0.6
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,61 @@
+# Cross-modality KD (self-contained)
+# (Self-contained: no single canonical GitHub source)
+# Cross-Modality KD: CT→MRI MMD Feature Alignment / 跨模态蒸馏 (CT→MRI)
+# 医学图像专用：CT teacher蒸馏到MRI student，MMD特征对齐
+# Medical-specific: CT teacher → MRI student distillation with MMD alignment
+#
+# temperature: 蒸馏温度 / Distillation temperature
+# kd_weight: 蒸馏损失权重 / KD loss weight
+# mmd_weight: MMD特征对齐权重 / MMD feature alignment weight
+# mmd_sigma: MMD高斯核带宽 / MMD Gaussian kernel bandwidth
+# cross_attn_weight: 交叉注意力一致性权重 / Cross-attention consistency weight
+#
+# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/cross_modality_kd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: cross_modality_kd
+  params:
+    temperature: 4.0
+    kd_weight: 1.0
+    mmd_weight: 0.5
+    mmd_sigma: 1.0
+    cross_attn_weight: 0.3
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

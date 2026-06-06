@@ -1,0 +1,55 @@
+# Reference: Swin-B (Liu et al., ICCV 2021)
+# Architecture combination: encoder=timm_swin_base_patch4_window7_224 + decoder=bilinear
+# 架构组合：编码器=timm_swin_base_patch4_window7_224 + 解码器=双线性
+
+model:
+  num_classes: 2
+  img_size: 256
+
+  encoder:
+    name: timm_swin_base_patch4_window7_224
+    pretrained: true
+    in_channels: 3
+    params: {}
+
+  decoder:
+    name: bilinear
+    params: {}
+
+  skip_connection:
+    name: concat
+    params: {}
+
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/Binary/train
+  test_dir: ./data/Binary/test
+  train_list: ./data/Binary/lists/train.txt
+  test_list: ./data/Binary/lists/test.txt
+
+training:
+  epochs: 300
+  batch_size: 24
+  num_workers: 4
+
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.0001
+
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

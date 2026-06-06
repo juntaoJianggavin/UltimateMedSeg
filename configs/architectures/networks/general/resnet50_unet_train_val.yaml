@@ -1,0 +1,51 @@
+# 场景1: 标准 train/val 划分（无 test，无 n-fold）
+# Scenario 1: Standard train/val split (no test, no n-fold)
+#
+# data.train_ratio=0.8 表示 80% 训练 / 20% 验证
+# 适用于：小数据集，不需要独立测试集的场景
+
+model:
+  num_classes: 2
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: image_mask
+  img_size: 256
+  root_dir: ./data/YourDataset
+  img_suffix: .png
+  mask_suffix: .png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

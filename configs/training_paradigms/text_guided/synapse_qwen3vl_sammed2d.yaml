@@ -1,0 +1,41 @@
+# Qwen3-VL + SAM-Med2D pipeline
+# Qwen3-VL + SAM-Med2D 检测→分割 pipeline
+#
+# 流程 / Pipeline:
+#   1. Qwen3-VL 用自然语言定位目标 → 输出 bounding boxes ([0,1000] 坐标域)
+#   2. SAM-Med2D 用 box prompt 生成高质量 mask
+#
+
+
+# text 输入: 在 mllm.class_names 中列出目标类别的英文名
+# Text input: list target class names in English under mllm.class_names
+# 示例 / Examples: "spleen", "right kidney", "liver", "tumor"
+# Detector 自动构造 grounding prompt，用户无需关心 prompt 模板
+# Detector auto-constructs grounding prompts, no need to worry about templates
+
+mllm:
+  class_names:
+    - spleen
+    - right kidney
+    - left kidney
+    - gallbladder
+    - liver
+    - stomach
+    - aorta
+    - pancreas
+
+  grounder:
+    type: qwen3_vl
+    model_id: Qwen/Qwen3-VL-7B-Instruct
+    device: cuda
+    dtype: bfloat16
+    use_flash_attn: true
+
+  mask_generator:
+    type: sammed2d
+    checkpoint: null
+    device: cuda
+    image_size: 256
+
+  refinement:
+    enabled: false

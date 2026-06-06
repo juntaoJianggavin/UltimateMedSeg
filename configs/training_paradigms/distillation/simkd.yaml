@@ -1,0 +1,67 @@
+# SimKD (CVPR 2022)
+# Reference: https://github.com/DefangChen/SimKD
+# Paper: https://arxiv.org/abs/2203.16633
+#
+# SimKD：通过重用教师分类器做特征级蒸馏
+# Feature-level KD via reuse-teacher-classifier; loss is sum-MSE
+# between a small projector(student_feat) and teacher_feat.
+#
+# student_channels / teacher_channels: 必填，特征通道数
+# (REQUIRED -- module raises if missing or shape-mismatched)
+# factor: 投影器中间维收缩因子 / projector shrink factor (paper default 2)
+#
+# feature_layers: 取教师/学生的 penultimate 特征所在层
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/simkd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: simkd
+  weight: 1.0
+  feature_layers:
+    - encoder
+  params:
+    student_channels: 512
+    teacher_channels: 512
+    factor: 2
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,72 @@
+# Train-time ensemble: multiple backbones with logit averaging
+# 训练时集成：多骨干网络 logit 平均
+
+model:
+  type: ensemble                # triggers EnsembleModel in build_model
+  mode: train                   # all sub-models stay trainable
+  average: logit                # 'logit' | 'softmax' | 'sigmoid'
+  weights: [0.4, 0.3, 0.3]      # optional per-member weights
+  upsample_to: max              # align spatial size to the largest output
+  num_classes: 9                # mirrored at top-level for trainer/test summary
+
+  members:
+    # Member 1: ResNet50 + UNet
+    - num_classes: 9
+      img_size: 224
+      encoder:
+        name: timm_resnet50
+        pretrained: true
+        in_channels: 3
+      decoder: { name: bilinear }
+      skip_connection: { name: concat }
+      bottleneck: { name: none }
+
+    # Member 2: ConvNeXt-Tiny + UNet++
+    - num_classes: 9
+      img_size: 224
+      encoder:
+        name: timm_convnext_tiny
+        pretrained: true
+        in_channels: 3
+      decoder: { name: unetpp }
+      skip_connection: { name: concat }
+      bottleneck: { name: none }
+
+    # Member 3: Swin-Tiny + EMCAD
+    - num_classes: 9
+      img_size: 224
+      encoder:
+        name: timm_swin_tiny_patch4_window7_224
+        pretrained: true
+        in_channels: 3
+      decoder: { name: emcad }
+      skip_connection: { name: concat }
+      bottleneck: { name: none }
+
+data:
+  type: synapse
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  test_dir: ./data/Synapse/test_vol_h5
+  train_list: ./data/Synapse/lists/lists_Synapse/train.txt
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
+
+training:
+  epochs: 200
+  batch_size: 12                # ensemble is heavier, lower batch_size
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - { name: ce,   weight: 0.4 }
+        - { name: dice, weight: 0.6 }
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

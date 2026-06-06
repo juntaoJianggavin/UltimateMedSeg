@@ -1,0 +1,67 @@
+# AICSD: Adaptive Inter-Class Similarity Distillation (TNNLS 2024)
+# Reference: https://github.com/AmirMansurian/AICSD
+# Paper: https://arxiv.org/abs/2308.04243
+#
+# AICSD：自适应类间相似度蒸馏（分割专用）
+# 计算 ICS (cosine) + ICC (Pearson) 两种 CxC 类间相似度矩阵，
+# 按 teacher 的类置信度自适应加权后做 KL。
+# Two CxC inter-class matrices (cosine + Pearson) over per-class spatial
+# probability maps, weighted by teacher per-class confidence.
+#
+# temperature: 行 softmax 温度 / row softmax temperature
+# lambda_ics: ICS (cosine) 项权重 / cosine similarity term weight
+# lambda_icc: ICC (Pearson) 项权重 / Pearson correlation term weight
+# eps: 数值下限 / numerical floor
+#
+# Usage:
+#   python train_distillation.py \
+#       --teacher_config configs/distillation/teacher_large.yaml \
+#       --student_config configs/distillation/aicsd.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  source:
+    image_dir: ./data/source/images
+    mask_dir: ./data/source/masks
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+
+distillation:
+  method: aicsd
+  weight: 1.0
+  params:
+    temperature: 1.0
+    lambda_ics: 1.0
+    lambda_icc: 1.0
+    eps: 0.00000001
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,38 @@
+model:
+  num_classes: 1
+  img_size: 224
+  architecture: languide
+  encoder:
+    in_channels: 3
+  arch_params:
+    bert_type: microsoft/BiomedVLP-CXR-BERT-specialized
+    vision_type: facebook/convnext-tiny-224
+    project_dim: 512
+    text_len: 24
+data:
+  type: mosmed_plus
+  img_size: 224
+  data_root: ./data/MosMedDataPlus
+  tokenizer_name: microsoft/BiomedVLP-CXR-BERT-specialized
+  text_max_length: 24
+  text_column: text
+  text_source: dataset
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: bce
+        weight: 0.5
+      - name: dice
+        weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

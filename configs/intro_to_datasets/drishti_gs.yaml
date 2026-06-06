@@ -1,0 +1,75 @@
+# ============================================================================
+# Drishti-GS — 视网膜视杯视盘分割 (Retinal OD/OC Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Sivaswamy et al., 2014, ISBI
+#   101 张彩色眼底图像（约 2048×1760）
+#   来自印度人群，含青光眼 + 正常
+#   三分类: 背景 / 视盘(OD) / 视杯(OC)
+#   是 REFUGE 之外最常用的杯盘分割数据集
+#
+# 官方划分: train (50) / test (51)
+# 推荐用法: 从 train 划出 val (40/10)
+#
+# 下载:
+#   官方: http://cvit.iiit.ac.in/projects/mip/drishti-gs/mip-dataset2/Home.php
+#   镜像: https://www.kaggle.com/datasets/lokeshsaipureddi/drishtigs-retina-dataset-for-onh-segmentation
+#   下载后目录结构:
+#     data/Drishti-GS/
+#     ├── train/
+#     │   ├── images/    (drishtiGS_001.png ...)
+#     │   └── masks/     (drishtiGS_001_OD.png / _OC.png ...)
+#     └── test/
+#         ├── images/
+#         └── masks/
+#
+# 注意: OD 和 OC 分开存储，需合并为单个多类 mask (0/1/2)
+# ============================================================================
+
+model:
+  num_classes: 3
+  img_size: 512
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/Drishti-GS/train
+  img_suffix: .png
+  mask_suffix: .png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+  test_dir: ./data/Drishti-GS/test
+
+training:
+  epochs: 200
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

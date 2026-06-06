@@ -1,0 +1,47 @@
+# Source: https://github.com/MrBlankness/LightM-UNet
+# Network: lightm_unet (complete architecture)
+# 完整网络：lightm_unet（完整架构）
+
+model:
+  num_classes: 2
+  img_size: 256
+  architecture: lightm_unet
+  encoder:
+    in_channels: 3
+  arch_params:
+    init_filters: 32
+    blocks_down:
+    - 1
+    - 2
+    - 2
+    - 4
+    blocks_up:
+    - 1
+    - 1
+    - 1
+    d_state: 16
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 0

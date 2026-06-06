@@ -1,0 +1,71 @@
+# ============================================================================
+# SSL4MIS-U — Uncertainty-Aware SSL for Medical Images / 不确定性感知SSL
+# SSL4MIS framework: https://github.com/HiLab-git/SSL4MIS
+#
+# [中文] MC Dropout不确定性引导伪标签筛选 + 方差依赖一致性权重
+# [EN]   MC Dropout uncertainty-guided pseudo-label filtering + variance-dependent weight
+#
+# ema_decay          — EMA衰减率 / EMA decay rate
+# mc_samples         — MC采样次数 / Number of MC samples
+# uncertainty_alpha  — 不确定性加权指数 / Uncertainty weighting exponent
+# pseudo_threshold   — 伪标签置信度阈值 / Pseudo-label confidence threshold
+#
+# Usage: python semi_train.py --config configs/semi/ssl4mis_u.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  labeled_dir: ./data/labeled
+  unlabeled_dir: ./data/unlabeled
+  val_dir: ./data/val
+  test_dir: ./data/test
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: ssl4mis_u
+  params:
+    ema_decay: 0.99
+    consistency_weight: 0.5
+    rampup_epochs: 40
+    mc_samples: 5
+    uncertainty_alpha: 1.0
+    pseudo_threshold: 0.85
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

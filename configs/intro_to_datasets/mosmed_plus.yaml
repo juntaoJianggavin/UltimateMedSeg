@@ -1,0 +1,112 @@
+# ============================================================================
+# MosMedData+ — COVID-19 肺部 CT 切片分割 (COVID-19 Lung CT Slice Segmentation)
+# ============================================================================
+#
+# 简介 / Introduction:
+#   MosMedData+ 数据集 (LViT enriched version)
+#   COVID-19 肺部 CT 2D 切片分割，二分类（背景 vs 感染区）
+#   包含 per-image 医学文本描述（来自 LViT 标注）
+#   COVID-19 lung CT 2D slice segmentation, binary (background vs infection)
+#   Includes per-image medical text annotations (from LViT annotation)
+#
+# 数据量 / Size:
+#   Train: 2628 张 / Val: 304 张 / Test: 742 张
+#   图像格式: PNG (灰度 CT 切片)
+#   mask 格式: PNG 二值 (0=背景, 255=感染区)
+#   文本标注: Excel (.xlsx)，每张图一段医学描述
+#
+# 官方划分: train / val / test (LViT 预设划分)
+# 推荐用法: 直接使用预设三划分
+#
+# 下载 / Download:
+#   LViT enriched version: https://github.com/HUANGLIZI/LViT#datasets
+#   原始 MosMedData: https://mosmed.ai/en/datasets/covid19_1110/
+#
+# 目录结构 / Directory structure:
+#   data/MosMedDataPlus/
+#   ├── Train Folder/
+#   │   ├── Img/             (CT 切片 PNG / CT slice PNGs)
+#   │   ├── GT/              (二值 mask PNG / Binary mask PNGs)
+#   │   └── Train_text.xlsx  (每张图的医学描述 / Per-image medical descriptions)
+#   ├── Val Folder/
+#   │   ├── Img/
+#   │   ├── GT/
+#   │   └── Val_text.xlsx
+#   └── Test Folder/
+#       ├── Img/
+#       ├── GT/
+#       └── Test_text.xlsx
+#
+# 文本标注格式 / Text annotation format:
+#   Excel 文件每行: [图片文件名, 医学描述文本]
+#   Excel file per row: [image filename, medical description text]
+#   示例 / Example:
+#     "ground-glass opacity in the right lung"
+#     "bilateral consolidation with air bronchogram"
+#     "small area of infection in left lower lobe"
+#
+# 与 QaTa-COV19 的区别 / Differences from QaTa-COV19:
+#   - QaTa-COV19 是胸部 X 光 (2D 投影) / QaTa-COV19 is chest X-ray (2D projection)
+#   - MosMedData+ 是 CT 切片 (断层扫描) / MosMedData+ is CT slice (cross-section)
+#   - CT 对比度更高，病灶边界更清晰 / CT has higher contrast, clearer lesion boundaries
+#
+# 支持的方法 / Supported methods:
+#   ✓ languide (per-image text from xlsx)
+#   ✓ lvit (per-image text from xlsx)
+#   ✓ clip_universal / tpro / cris / biomedparse / causal_clipseg
+#   ✓ tp_drseg / cxrclipseg / salip / medclip_sam / medisee
+#   ✗ tganet (需要息肉属性短语，不适用于 COVID / requires polyp attributes)
+#
+# 数据加载方式 / Data loading:
+#   type: mosmed_plus   →  使用 MosMedPlusDataset (支持 text.xlsx 自动加载)
+#   type: generic       →  只加载图像+mask（无文本，用于非文本方法）
+# ============================================================================
+
+model:
+  num_classes: 1
+  img_size: 256
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  # 使用 mosmed_plus 类型自动加载 LViT 目录结构 + 文本标注
+  # Use mosmed_plus type for auto LViT directory structure + text annotations
+  type: mosmed_plus
+  img_size: 256
+  data_root: ./data/MosMedDataPlus
+  # 可选: tokenizer 配置
+  # Optional: tokenizer config
+  tokenizer_name: bert-base-uncased
+  text_max_length: 24
+
+training:
+  random_state: 42
+  deterministic: true
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

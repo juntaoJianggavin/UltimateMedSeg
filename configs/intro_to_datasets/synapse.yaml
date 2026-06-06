@@ -1,0 +1,72 @@
+# ============================================================================
+# Synapse — 腹部CT多器官分割 (Multi-Organ Abdominal CT Segmentation)
+# ============================================================================
+#
+# 简介:
+#   MICCAI 2015 Multi-Atlas Labeling Challenge (Synapse)
+#   30 例腹部 CT，8 个器官标注 + 背景 = 9 类
+#   类别: 0=背景, 1=主动脉, 2=胆囊, 3=左肾, 4=右肾, 5=肝, 6=胰腺, 7=脾, 8=胃
+#   TransUNet / Swin-UNet / nnFormer 等 Transformer 分割论文的标准 benchmark
+#
+# TransUNet 划分 (业界标准):
+#   train: 18 例 (case0005-case0040 中的 18 例) → 切片为 2D npz
+#   test:  12 例 (剩余 12 例) → 保持 3D h5 用于逐 volume 评估
+#
+# 下载:
+#   TransUNet 预处理版: https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd
+#   或: https://github.com/Beckschen/TransUNet (README 中有链接)
+#   下载后目录结构:
+#     data/Synapse/
+#     ├── train_npz/          (case0005_slice000.npz ... 共 2212 个 2D 切片)
+#     │   └── 每个 npz 含 'image' (H,W) 和 'label' (H,W)
+#     └── test_vol_h5/        (case0001.npy.h5 ... 共 12 个 3D volume)
+#         └── 每个 h5 含 'image' (D,H,W) 和 'label' (D,H,W)
+#
+# 注意:
+#   - 训练用 2D 切片 (224×224 已 resize)
+#   - 测试用 3D volume 逐切片推理再拼回 → 用 test.py 的 volume 模式
+#   - num_classes = 9 (含背景)
+# ============================================================================
+
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: synapse
+  img_size: 224
+  train_dir: ./data/Synapse/train_npz
+  val_dir: ./data/Synapse/test_vol_h5
+  test_dir: ./data/Synapse/test_vol_h5
+
+training:
+  epochs: 150
+  batch_size: 24
+  num_workers: 4
+  val_interval: 20
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

@@ -1,0 +1,76 @@
+# ============================================================================
+# HRF — 高分辨率眼底图像血管分割 (High-Resolution Fundus Image Database)
+# ============================================================================
+#
+# 简介:
+#   Budai et al., 2013
+#   45 张高分辨率彩色眼底图像（3504×2336）
+#   分三组: 健康 (15) / 糖尿病视网膜病变 (15) / 青光眼 (15)
+#   二分类: 背景 vs 血管
+#   是高分辨率视网膜分割的代表性数据集
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 5折交叉验证
+#   - 或按 3:1:1 随机划分
+#   - 因分辨率极高，通常需 patch-based 训练或 resize 到 1024×1024
+#
+# 下载:
+#   官方: https://www5.cs.fau.de/research/data/fundus-images/
+#   镜像: https://www.kaggle.com/datasets/andrewmvd/high-resolution-fundus-image-database
+#   下载后目录结构:
+#     data/HRF/
+#     ├── images/       (01_dr.jpg, 01_g.jpg, 01_h.jpg ...)
+#     └── masks/        (01_dr.tif, 01_g.tif, 01_h.tif ...)
+#
+# 注意:
+#   - mask 为 .tif 格式，二值
+#   - 还有 FOV mask (.tif) 标记有效视野
+#   - 建议 resize 到 1024×1024 或做 512×512 patch 提取
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 512
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 512
+  root_dir: ./data/HRF
+  img_suffix: .jpg
+  mask_suffix: .tif
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 4
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

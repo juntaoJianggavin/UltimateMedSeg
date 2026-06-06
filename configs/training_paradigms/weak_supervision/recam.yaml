@@ -1,0 +1,49 @@
+# Weak supervision: recam
+# 弱监督学习：recam
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+    params: {}
+data:
+  img_size: 224
+  image_dir: ./data/images
+  label_file: ./data/annotations/image_labels.json
+  val:
+    image_dir: ./data/val/images
+    mask_dir: ./data/val/masks
+  test:
+    image_dir: ./data/test/images
+    mask_dir: ./data/test/masks
+weak_supervision:
+  method: recam
+  params:
+    lambda_recam: 1.0
+    cls_weight: 1.0
+training:
+  epochs: 150
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 30
+  loss:
+    name: recam
+    params:
+      lambda_recam: 1.0
+      cls_weight: 1.0
+  optimizer:
+    name: adamw
+    lr: 0.0002
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

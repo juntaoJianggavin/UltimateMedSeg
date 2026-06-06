@@ -1,0 +1,62 @@
+# MLLM-Grounding × SAM2 Pipeline (InternVL2.5 + SAM2)
+# Synapse multi-organ segmentation - 推理 only
+#
+# 同 synapse_qwen2vl_sam2.yaml 的 Detect-then-Segment paradigm，
+# 只是把 grounding MLLM 换成 InternVL2.5-8B。
+#
+# InternVL 输出格式：<box>[[x1, y1, x2, y2]]</box> 坐标域 [0, 1000]
+#
+# 依赖：
+#   pip install transformers>=4.40 timm einops
+#   pip install git+https://github.com/facebookresearch/sam2.git
+
+# ============================================================
+# Step 1: MLLM grounding
+# ============================================================
+
+# text 输入: 在 mllm.class_names 中列出目标类别的英文名
+# Text input: list target class names in English under mllm.class_names
+# 示例 / Examples: "spleen", "right kidney", "liver", "tumor"
+# Detector 自动构造 grounding prompt，用户无需关心 prompt 模板
+# Detector auto-constructs grounding prompts, no need to worry about templates
+
+mllm:
+  class_names:
+  - spleen
+  - right kidney
+  - left kidney
+  - gallbladder
+  - esophagus
+  - liver
+  - stomach
+  - aorta
+  grounder:
+    type: internvl
+    model_id: OpenGVLab/InternVL2_5-8B
+    device: cuda
+    dtype: bfloat16
+    max_new_tokens: 128
+    prompt_template: '<image>
+
+      Please provide the bounding box coordinates of the {class_name}
+
+      in this abdominal CT slice, in the format
+
+      <box>[[x1, y1, x2, y2]]</box>.
+
+      '
+  mask_generator:
+    type: sam2
+    model_id: facebook/sam2-hiera-large
+    device: cuda
+    multimask: false
+  refinement:
+    enabled: false
+    config_path: configs/synapse/unet_resnet34.yaml
+    img_size: 224
+    roi_padding: 0.1
+data:
+  type: synapse
+  img_size: 1024
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt

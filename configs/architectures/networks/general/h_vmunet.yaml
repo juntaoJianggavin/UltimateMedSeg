@@ -1,0 +1,50 @@
+# Source: https://github.com/wurenkai/H-vmunet
+# Network: h_vmunet (complete architecture)
+# 完整网络：h_vmunet（完整架构）
+
+model:
+  num_classes: 2
+  img_size: 256
+  architecture: h_vmunet
+  encoder:
+    in_channels: 3
+  arch_params:
+    c_list:
+    - 8
+    - 16
+    - 32
+    - 64
+    - 128
+    - 256
+    depths:
+    - 2
+    - 2
+    - 2
+    - 2
+    drop_path_rate: 0.0
+    bridge: true
+data:
+  type: generic
+  img_size: 256
+  train_dir: ./data/YourDataset/train
+  val_dir: ./data/YourDataset/val
+  test_dir: ./data/YourDataset/test
+training:
+  epochs: 300
+  batch_size: 16
+  num_workers: 4
+  loss:
+    name: compound
+    params:
+      losses:
+      - name: ce
+        weight: 0.4
+      - name: dice
+        weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.01
+  scheduler:
+    name: cosine
+    min_lr: 0

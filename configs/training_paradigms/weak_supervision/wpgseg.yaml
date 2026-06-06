@@ -1,0 +1,59 @@
+# Weak supervision: wpgseg
+# 弱监督学习：wpgseg
+model:
+  num_classes: 9
+  img_size: 224
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+    params: {}
+data:
+  img_size: 224
+  image_dir: ./data/images
+  label_file: ./data/annotations/image_labels.json
+  sam_pseudo_dir: ./data/sam_pseudo
+  sam_confidence_dir: ./data/sam_confidence
+  val:
+    image_dir: ./data/val/images
+    mask_dir: ./data/val/masks
+  test:
+    image_dir: ./data/test/images
+    mask_dir: ./data/test/masks
+weak_supervision:
+  method: wpgseg
+  params:
+    lambda_seg: 1.0
+    cls_weight: 1.0
+    lambda_consist: 0.1
+    conf_thresh: 0.5
+    ignore_index: -1
+    fg_channel_start: 1
+training:
+  epochs: 150
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 30
+  loss:
+    name: wpgseg
+    params:
+      lambda_seg: 1.0
+      cls_weight: 1.0
+      lambda_consist: 0.1
+      conf_thresh: 0.5
+      ignore_index: -1
+      fg_channel_start: 1
+  optimizer:
+    name: adamw
+    lr: 0.0002
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 1.0e-06

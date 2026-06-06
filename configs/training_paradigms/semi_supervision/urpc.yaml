@@ -1,0 +1,91 @@
+# URPC (MIA 2022)
+# Reference: https://github.com/HiLab-git/SSL4MIS
+# ============================================================================
+# URPC — Uncertainty Rectified Pyramid Consistency 不确定性校正金字塔一致性
+# URPC — Uncertainty Rectified Pyramid Consistency for Semi-Supervised Segmentation
+# ============================================================================
+# 论文 / Paper:
+#   Luo et al., "Semi-Supervised Medical Image Segmentation via
+#   Uncertainty Rectified Pyramid Consistency", MIA 2022
+#   https://arxiv.org/abs/2012.07042
+#
+# 算法概述 / Algorithm:
+#   - 多尺度预测: 下采样输入 → 预测 → 上采样回原分辨率
+#     Multi-scale: downsample input → predict → upsample back to original resolution
+#   - softmax_mse 一致性: 每个尺度的 softmax 与所有尺度均值 softmax 之间的 MSE
+#     softmax_mse consistency: MSE between each scale's softmax and the mean softmax
+#   - 熵不确定性加权: weight = exp(-entropy(mean_softmax))
+#     Entropy-based uncertainty weighting: weight = exp(-entropy(mean_softmax))
+#   - 注意: 官方实现使用 softmax_mse_loss, 非 KL 散度
+#     Note: official implementation uses softmax_mse_loss, NOT KL divergence
+#
+# 参数说明 / Parameters:
+#   num_scales         — 金字塔尺度数 / Number of pyramid scales (official: 4)
+#   consistency_weight — 一致性损失权重 / Consistency loss weight (official: 0.1)
+#   rampup_epochs      — 权重渐增周期数 / Epochs to ramp consistency from 0
+#
+# 适用场景 / Best for: 多尺度目标分割 / Multi-scale object segmentation
+# 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
+#
+# 用法 / Usage: python semi_train.py --config configs/semi/urpc.yaml
+# ============================================================================
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  # 有标签数据路径
+  labeled_dir: ./data/labeled
+  # 无标签数据路径
+  unlabeled_dir: ./data/unlabeled
+  # 验证集路径
+  val_dir: ./data/val
+  # 测试集路径（test.py 使用；若缺省则 test.py 会回退到 val_dir）
+  test_dir: ./data/test
+  test_list: ./data/test/list.txt
+  # 标注比例: 可选 5%, 10%, 20%, 50%
+  labeled_ratio: 0.1
+  split_mode: dir
+
+semi:
+  method: urpc
+  params:
+    num_scales: 4
+    consistency_weight: 0.1
+    rampup_epochs: 40
+
+training:
+  epochs: 200
+  batch_size: 16
+  labeled_batch_size: 8
+  unlabeled_batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

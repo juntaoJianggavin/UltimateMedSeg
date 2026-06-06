@@ -1,0 +1,59 @@
+# Grounding DINO × MedSAM Pipeline
+# Synapse multi-organ segmentation - 推理 only
+#
+# Detect-then-Segment paradigm，与 synapse_grounding_dino_sam2.yaml 的唯一差别：
+# 把 Step 2 的 SAM2 换成 MedSAM (Ma et al., NatComm 2024, https://github.com/bowang-lab/MedSAM)，
+# 该模型基于 SAM ViT-B 在 >1.5M 医学图像-mask 对上微调，
+# 在医学领域 box→mask 精度通常优于通用 SAM/SAM2。
+#
+# 依赖：
+#   pip install groundingdino-py
+#   pip install git+https://github.com/facebookresearch/segment-anything.git
+#   下载 medsam_vit_b.pth 至本地（环境变量 MEDSAM_CHECKPOINT 或 mask_generator.checkpoint）
+
+# ============================================================
+# Step 1: Grounding DINO 开放词汇 grounding
+# ============================================================
+
+# text 输入: 在 mllm.class_names 中列出目标类别的英文名
+# Text input: list target class names in English under mllm.class_names
+# 示例 / Examples: "spleen", "right kidney", "liver", "tumor"
+# Detector 自动构造 grounding prompt，用户无需关心 prompt 模板
+# Detector auto-constructs grounding prompts, no need to worry about templates
+
+mllm:
+  class_names:
+  - spleen
+  - right kidney
+  - left kidney
+  - gallbladder
+  - esophagus
+  - liver
+  - stomach
+  - aorta
+  grounder:
+    type: grounding_dino
+    model_id: tiny
+    device: cuda
+    dtype: float32
+    weights_path: null
+    box_threshold: 0.35
+    text_threshold: 0.25
+    prompt_template: a medical CT image of {class_name}
+  mask_generator:
+    type: medsam
+    model_id: vit_b
+    checkpoint: ./checkpoints/medsam_vit_b.pth
+    device: cuda
+    image_size: 1024
+    multimask: false
+  refinement:
+    enabled: false
+    config_path: configs/synapse/unet_resnet34.yaml
+    img_size: 224
+    roi_padding: 0.1
+data:
+  type: synapse
+  img_size: 1024
+  test_dir: ./data/Synapse/test_vol_h5
+  test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt

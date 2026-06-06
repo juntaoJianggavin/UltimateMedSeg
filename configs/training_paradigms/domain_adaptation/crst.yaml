@@ -1,0 +1,67 @@
+# CRST: Confidence Regularized Self-Training (Zou et al., ICCV 2019)
+# CRST：置信度正则化自训练（无源域适应）
+#
+# Reference: https://github.com/yzou2/CRST
+# Paper:     https://arxiv.org/abs/1908.09822
+#
+# Source-Free：仅需目标域数据 + 源域预训练模型
+# Source-Free: only target data + a pretrained source model needed
+#
+# portion:        每类高置信度像素保留比例 / Per-class top fraction kept as PL
+# reg_weight:     置信度正则项权重 / Weight on the confidence regulariser
+# regularizer:    'MRKLD' 或 'LRENT' / 'MRKLD' (KL to uniform) | 'LRENT'
+# confidence_floor: 全局置信度下限 / Global confidence floor (0 = disabled)
+# num_classes:    分割类别数 / Number of segmentation classes
+#
+# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/crst.yaml
+
+model:
+  num_classes: 4
+  img_size: 224
+  encoder:
+    name: timm_resnet34
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: bilinear
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  img_size: 224
+  target:
+    image_dir: ./data/target/images
+  val:
+    image_dir: ./data/target_val/images
+    mask_dir: ./data/target_val/masks
+  test:
+    image_dir: ./data/target_test/images
+    mask_dir: ./data/target_test/masks
+  # Required: source-pretrained checkpoint (source-free DA).
+  pretrained_model: ./checkpoints/source_model.pth
+
+domain_adaptation:
+  method: crst
+  source_free: true
+  params:
+    portion: 0.5
+    reg_weight: 0.1
+    regularizer: MRKLD
+    confidence_floor: 0.0
+    num_classes: 4
+
+training:
+  epochs: 100
+  batch_size: 8
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

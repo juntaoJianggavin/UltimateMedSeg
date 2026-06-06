@@ -1,0 +1,152 @@
+"""HuLuMed (Hulu-Med) vision-tower encoder (foundation-model encoder).
+
+Hulu-Med (ZJU AI4H, 2025) is an open-source medical multimodal-LLM whose
+vision tower is a SigLIP-style ViT (hidden_size=1152, patch=14, 27 layers
+— i.e. the SigLIP-SO400M-patch14 family). The full MLLM lives at
+``ZJU-AI4H/Hulu-Med-7B`` on HuggingFace Hub.
+
+``pretrained=True`` auto-downloads the full MLLM via ``transformers.AutoModel``
+(with ``trust_remote_code=True``) and extracts the vision tower.
+``pretrained=False`` raises RuntimeError.
+
+Output:
+    forward(x) -> List[Tensor] of length 4. Approximate spatial strides
+    [H/4, H/8, H/16, H/32]; channels [dim/8, dim/4, dim/2, dim] with
+    dim=1152 (SigLIP-SO400M-patch14).
+"""
+# Source: https://github.com/ZJUI-AI4H/Hulu-Med (HF: ZJU-AI4H/Hulu-Med-7B)
+
+from __future__ import annotations
+
+import warnings
+from typing import List, Optional
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from medseg.registry import ENCODER_REGISTRY
+from medseg.models.encoders.foundation._base import DPTHead, BaseFoundationEncoder, HuggingFaceViTWrapper
+
+
+_PRIMARY_HF_NAME = "ZJU-AI4H/Hulu-Med-7B"
+PRIMARY_BACKBONE_NAME = _PRIMARY_HF_NAME
+_EMBED_DIM = 1152
+_PATCH_SIZE = 14
+_NATIVE_IMG_SIZE = 384
+
+
+@ENCODER_REGISTRY.register("hulumed_vision")
+class HuLuMedVisionEncoder(BaseFoundationEncoder):
+    """HuLuMed (SigLIP-SO400M-patch14) vision-tower encoder.
+
+    Extracts only the vision encoder of the HuLuMed medical MLLM and
+    exposes a 4-stage DPT-style multi-block multi-scale feature pyramid for use
+    as a segmentation backbone.
+    """
+
+    native_img_size: int = _NATIVE_IMG_SIZE
+
+    def __init__(self, in_channels: int = 3, img_size: Optional[int] = None,
+                 pretrained: bool = True, pretrained_path: Optional[str] = None,
+                 freeze: bool = True, unfreeze_last_n: int = 0,
+                 inference_only: bool = False, **kwargs):
+        if img_size is None:
+            img_size = self.native_img_size
+        super().__init__(in_channels=in_channels, img_size=img_size,
+                         pretrained=pretrained, pretrained_path=pretrained_path,
+                         freeze=freeze, unfreeze_last_n=unfreeze_last_n,
+                         inference_only=inference_only, **kwargs)
+
+        self.embed_dim = _EMBED_DIM
+        self.patch_size = _PATCH_SIZE
+
+        if pretrained:
+            _src = pretrained_path or _PRIMARY_HF_NAME
+            try:
+                import transformers
+                _full_model = transformers.AutoModel.from_pretrained(
+                    _src, trust_remote_code=True,
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    f"HuLuMed auto-download from '{_PRIMARY_HF_NAME}' failed: "
+                    f"{type(e).__name__}: {e}. Provide a local checkpoint via "
+                    f"pretrained_path."
+                ) from e
+            # Extract the vision tower from the full MLLM.
+            _visual = None
+            for attr in ("vision_tower", "vision_model", "visual", "image_encoder"):
+                _visual = getattr(_full_model, attr, None)
+                if _visual is not None:
+                    break
+            if _visual is None:
+                raise RuntimeError(
+                    f"Could not find vision tower in HuLuMed model from '{_src}'."
+                )
+            # Some wrappers nest the actual ViT under .trunk or .backbone.
+            _vit = getattr(_visual, "trunk", None) or getattr(_visual, "backbone", _visual)
+            if not hasattr(_vit, 'embed_dim'):
+                _vit.embed_dim = _EMBED_DIM
+            if not hasattr(_vit, 'num_features'):
+                _vit.num_features = _EMBED_DIM
+            if not hasattr(_vit, 'num_prefix_tokens'):
+                _vit.num_prefix_tokens = 0  # SigLIP has no CLS token.
+            if not hasattr(_vit, 'patch_embed'):
+                class _PE:
+                    pass
+                _vit.patch_embed = _PE()
+                _vit.patch_embed.patch_size = _PATCH_SIZE
+            self.backbone = HuggingFaceViTWrapper(_vit)
+            del _full_model
+        else:
+            raise RuntimeError(
+                "HuLuMedVisionEncoder does not support pretrained=False. "
+                "This encoder requires HuLuMed vision tower weights from "
+                f"'{_PRIMARY_HF_NAME}'. Pass pretrained=True to auto-download, "
+                "or provide a local checkpoint via pretrained_path."
+            )
+        self._backbone_name = PRIMARY_BACKBONE_NAME
+        self.patch_size = int(self.backbone.patch_embed.patch_size)
+        self.embed_dim = int(self.backbone.embed_dim)
+        self.num_prefix_tokens = int(self.backbone.num_prefix_tokens)
+
+        if in_channels != 3:
+            self.input_adapter = nn.Conv2d(in_channels, 3, kernel_size=1, bias=False)
+        else:
+            self.input_adapter = nn.Identity()
+
+        dim = self.embed_dim
+        # DPT head: 从不同深度 block 构建真正多尺度金字塔
+        # DPT head: genuine multi-scale pyramid from different-depth blocks
+        self.dpt = DPTHead(
+            embed_dim=self.embed_dim,
+            num_prefix_tokens=int(self.num_prefix_tokens),
+        )
+        self.out_channels = self.dpt.out_channels
+        self._block_indices = DPTHead.default_block_indices(len(self.backbone.blocks))
+
+        self._maybe_inject_adapters()
+        self._apply_freeze_policy()
+    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+        x = self.input_adapter(x)
+        B, _, H, W = x.shape
+        p = self.patch_size
+
+        # 填充到 patch_size 的倍数 / Pad to multiple of patch_size
+        pad_h = (p - H % p) % p
+        pad_w = (p - W % p) % p
+        if pad_h or pad_w:
+            x = F.pad(x, (0, pad_w, 0, pad_h))
+        Hp, Wp = x.shape[-2], x.shape[-1]
+
+        # 从不同深度 block 提取 token（DPT 核心）
+        # Extract tokens from different-depth blocks (DPT core)
+        multi_tokens = self.backbone.get_intermediate_layers(
+            x, n=self._block_indices,
+        )
+
+        h_patches = Hp // p
+        w_patches = Wp // p
+
+        return self.dpt(list(multi_tokens), h_patches, w_patches, H, W)

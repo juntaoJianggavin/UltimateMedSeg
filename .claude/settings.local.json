@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python3 scripts/_bilingual_comments.py)",
+      "Bash(mv medseg/text_unet/sammed2d.py medseg/networks/sam/sammed2d_prompted.py)",
+      "Bash(mv medseg/text_unet/litemedsamm.py medseg/networks/sam/lite_medsam.py)",
+      "Bash(mv -v configs/text_guided/qata_covid19_sammed2d.yaml configs/foundation/sam/qata_covid19_sammed2d.yaml)",
+      "Bash(mv -v configs/text_guided/qata_covid19_litemedsamm.yaml configs/foundation/sam/qata_covid19_litemedsamm.yaml)",
+      "WebFetch(domain:arxiv.org)"
+    ]
+  }
+}

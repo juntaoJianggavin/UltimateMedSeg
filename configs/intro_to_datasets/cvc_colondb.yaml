@@ -1,0 +1,70 @@
+# ============================================================================
+# CVC-ColonDB — 结肠镜息肉分割 (Colonoscopy Polyp Segmentation)
+# ============================================================================
+#
+# 简介:
+#   Bernal et al., 2012
+#   380 张结肠镜图像（来自 15 个视频序列）+ 对应息肉 mask
+#   二分类: 背景 vs 息肉
+#   图像尺寸: 574×500 (固定)
+#   常作为跨数据集泛化测试集
+#
+# 官方划分: 无
+# 推荐用法:
+#   - 5折交叉验证
+#   - 或作为 out-of-distribution 测试集（在 Kvasir-SEG/CVC-ClinicDB 上训）
+#
+# 下载:
+#   官方: http://mv.cvc.uab.es/projects/colon-qa/cvccolondb
+#   镜像: https://www.kaggle.com/datasets/balraj98/cvccolondb
+#   下载后目录结构:
+#     data/CVC-ColonDB/
+#     ├── images/    (1.png ... 380.png)
+#     └── masks/     (1.png ... 380.png)
+# ============================================================================
+
+model:
+  num_classes: 2
+  img_size: 352
+  encoder:
+    name: timm_resnet50
+    pretrained: true
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 352
+  root_dir: ./data/CVC-ColonDB
+  img_suffix: .png
+  mask_suffix: .png
+  n_splits: 5
+  fold_idx: 0
+  random_state: 42
+
+training:
+  epochs: 200
+  batch_size: 16
+  num_workers: 4
+  val_interval: 10
+  save_interval: 50
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

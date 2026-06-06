@@ -1,0 +1,46 @@
+# Reference: https://github.com/bowang-lab/MedSAM/tree/LiteMedSAM
+# Text-guided segmentation: litemedsamm
+# 文本引导分割：litemedsamm
+
+# prompt 输入 / Prompt input:
+#   text=None 时使用图像中心点作为默认 click prompt
+#   When text=None, uses image center point as default click prompt
+#   也可传 dict {boxes: (B, 4)} 或 {points: (B,N,2), labels: (B,N)}
+#   注意: 这是 prompt-guided (点/框)，不是文本引导
+
+model:
+  num_classes: 1
+  img_size: 256
+  architecture: lite_medsam
+  encoder:
+    in_channels: 3
+  arch_params:
+    pretrained: true
+    checkpoint: null  # set to path of lite_medsam.pth if available
+
+data:
+  type: qata_covid19
+  img_size: 256
+  data_root: ./data/QaTa-COV19
+
+training:
+  epochs: 50
+  batch_size: 8
+  num_workers: 4
+  val_interval: 5
+  save_interval: 25
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.4
+        - name: dice
+          weight: 0.6
+  optimizer:
+    name: adamw
+    lr: 0.0005
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001
