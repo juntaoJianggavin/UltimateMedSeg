@@ -19,18 +19,17 @@
 
 ## 📑 Table of Contents
 
-- [Installation](##installation)
-- [Quick Start](##quick-start)
-- [Tutorial](##tutorial)
-- [Project Structure](##project-structure)
-- [Model Components](##model-components)
-- [Training Paradigms](##training-paradigms)
-- [Deployment & Efficiency](##deployment--efficiency)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Tutorial](#tutorial)
+- [Project Structure](#project-structure)
+- [Model Components](#model-components)
+- [Training Paradigms](#training-paradigms)
+- [Deployment & Efficiency](#deployment--efficiency)
 - [Datasets](#datasets)
-- [Config System](##config-system)
-- [Custom Extensions](##custom-extensions)
-- [Citation & License](##citation--license)
-
+- [Config System](#config-system)
+- [Custom Extensions](#custom-extensions)
+- [Citation & License](#citation--license)
 ---
 
 ## 📦 Installation
