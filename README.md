@@ -43,7 +43,7 @@
 
 ```bash
 git clone https://github.com/juntaoJianggavin/UltimateMedSeg.git
-cd segmentation_tool
+cd UltimateMedSeg
 
 # Install dependencies
 pip install -r requirements.txt
