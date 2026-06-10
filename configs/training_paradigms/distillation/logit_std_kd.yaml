@@ -12,8 +12,8 @@
 #
 # Usage:
 #   python train_distillation.py \
-#       --teacher_config configs/distillation/teacher_large.yaml \
-#       --student_config configs/distillation/logit_std_kd.yaml
+#       --teacher_config configs/training_paradigms/distillation/teacher_large.yaml \
+#       --student_config configs/training_paradigms/distillation/logit_std_kd.yaml
 
 model:
   num_classes: 4

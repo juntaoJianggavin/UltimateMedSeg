@@ -25,7 +25,7 @@
 #   rampup_epochs      — sigmoid ramp-up 长度 / ramp-up length
 #
 # 适用场景 / Best for: 标注稀少 + 数据流形较平滑的场景
-# 用法 / Usage: python semi_train.py --config configs/semi/ict.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/ict.yaml
 # ============================================================================
 
 model:

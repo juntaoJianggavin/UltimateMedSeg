@@ -10,7 +10,7 @@
 # confidence_threshold: 伪标签置信度阈值 / Pseudo-label confidence threshold
 # pseudo_weight: 伪标签损失权重 / Pseudo-label loss weight
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/dpl.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/dpl.yaml
 
 model:
   num_classes: 4

@@ -13,7 +13,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from medseg.utils.timm_compat import DropPath, to_2tuple, trunc_normal_
 
 
 # ---------------------------------------------------------------------------

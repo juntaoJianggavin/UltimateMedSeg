@@ -29,7 +29,7 @@
 # 适用场景 / Best for: 异构双网络协同 / Heterogeneous dual-network co-training
 # 源码参考 / Reference code: https://github.com/qiaoyu1002/DeepCoTraining
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/deep_co_training.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/deep_co_training.yaml
 # ============================================================================
 
 model:

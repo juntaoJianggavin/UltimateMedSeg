@@ -25,7 +25,7 @@
 #   consistency_weight — 交叉监督权重 (sigmoid ramp-up)
 #   rampup_epochs      — ramp-up 长度
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/cross_teaching.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/cross_teaching.yaml
 # ============================================================================
 
 # 主分支: CNN (model)

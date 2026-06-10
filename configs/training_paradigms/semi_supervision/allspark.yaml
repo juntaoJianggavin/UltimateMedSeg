@@ -27,7 +27,7 @@
 #   ema_decay            — Teacher EMA 衰减 (paper 0.999)
 #
 # 适用场景 / Best for: 强 backbone (transformer / 大 ResNet), 标签 5%-50%
-# 用法 / Usage: python semi_train.py --config configs/semi/allspark.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/allspark.yaml
 # ============================================================================
 
 model:

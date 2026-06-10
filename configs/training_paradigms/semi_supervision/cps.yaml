@@ -23,7 +23,7 @@
 # 适用场景 / Best for: 有足够显存训练双模型 / Dual-model with sufficient VRAM
 # 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/cps.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/cps.yaml
 # ============================================================================
 
 model:

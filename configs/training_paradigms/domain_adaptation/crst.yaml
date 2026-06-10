@@ -13,7 +13,7 @@
 # confidence_floor: 全局置信度下限 / Global confidence floor (0 = disabled)
 # num_classes:    分割类别数 / Number of segmentation classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/crst.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/crst.yaml
 
 model:
   num_classes: 4

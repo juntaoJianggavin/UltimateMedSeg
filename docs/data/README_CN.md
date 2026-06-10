@@ -142,6 +142,31 @@ data:
 
 ---
 
+## Synapse / ACDC（TransUNet 预处理格式）
+
+两种常见的 npz 布局（``SynapseDataset`` 会自动识别）：
+
+| 布局 | ``image`` 形状 | 典型用途 | 示例 |
+|------|----------------|----------|------|
+| **单切片文件** | ``(H, W)`` | TransUNet 官方 train_npz / val_npz | ``case0005_slice000.npz`` |
+| **3D 打包** | ``(D, H, W)`` | 自定义 smoke 数据、部分 3D 导出 | ``case0001.npz`` |
+
+测试集 volume 使用 ``test_vol_h5/*.npy.h5`` 或 ``test_vol/*.npz``，形状 ``(D,H,W)``。
+
+**下载**：推荐 [TransUNet 预处理 Google Drive](https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd)（Synapse）；ACDC 另见 [ACDC 预处理包](https://drive.google.com/drive/folders/1KQcrci7aKsYZi1hQoZ3T3QUtcy7b--n4)。
+
+**训练前校验**：
+
+```bash
+python scripts/verify_synapse_acdc.py \
+  --train-dir ./data/Synapse/train_npz \
+  --val-dir ./data/Synapse/test_vol_h5
+```
+
+灰度 CT/MRI 会在 loader 内复制为 3 通道；``img_size`` 由 ``get_train_transforms`` 在线 resize。
+
+---
+
 ## Synapse 配置示例
 
 ```yaml
@@ -168,9 +193,9 @@ model:
 data:
   type: acdc
   img_size: 224
-  train_dir: ./data/ACDC/train
-  val_dir: ./data/ACDC/val
-  test_dir: ./data/ACDC/test
+  train_dir: ./data/ACDC/train_npz
+  val_dir: ./data/ACDC/val_npz
+  test_dir: ./data/ACDC/test_vol
 ```
 
 ## 通用配置示例

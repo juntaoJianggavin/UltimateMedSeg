@@ -12,7 +12,7 @@ import torch.nn.functional as F
 from typing import List
 from functools import partial
 import math
-from timm.models.layers import DropPath, to_2tuple, trunc_normal_
+from medseg.utils.timm_compat import DropPath, to_2tuple, trunc_normal_
 from einops.layers.torch import Rearrange
 from einops import rearrange
 

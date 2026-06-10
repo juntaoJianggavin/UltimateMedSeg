@@ -117,7 +117,7 @@ torchrun --nproc_per_node=4 train.py \
 ### 2. 半监督训练
 
 ```bash
-python semi_train.py --config configs/training_paradigms/semi/mean_teacher.yaml \
+python semi_train.py --config configs/training_paradigms/semi_supervision/mean_teacher.yaml \
     --output_dir output/semi_mt
 ```
 
@@ -451,7 +451,7 @@ training:
 > **注意**: 所有强度参数均使用 `_range` 后缀命名（如 `degrees_range`, `alpha_range`），每次调用时从范围内随机采样。
 
 > 每个增强方法的完整参数说明: [docs/data/README.md](docs/data/README_CN.md#数据增强管线--augmentation-pipeline--24-种方法)
-> 完整配置示例: [configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml](configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml)
+> 完整配置示例: [resnet50_unet_advanced_aug.yaml](configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml)
 
 ### 半监督 — 21 个方法
 

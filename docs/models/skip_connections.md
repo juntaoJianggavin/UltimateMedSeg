@@ -10,50 +10,50 @@ This project provides **25** skip connection modules in 5 categories, transferri
 
 | Key | Description | YAML |
 |---|---|---|
-| `concat` | Channel-wise concatenation (default) | [resnet50_concat](../../configs/architectures/skip_study/general/resnet50_concat.yaml) |
-| `dense` | Dense skip (UNet++ style nested connections) | [resnet50_dense](../../configs/architectures/skip_study/general/resnet50_dense.yaml) |
+| `concat` | Channel-wise concatenation (default) | [resnet50_concat.yaml](../../configs/architectures/skip_study/general/resnet50_concat.yaml) |
+| `dense` | Dense skip (UNet++ style nested connections) | [resnet50_dense.yaml](../../configs/architectures/skip_study/general/resnet50_dense.yaml) |
 
 ## Attention (10)
 
 | Key | Source | Description | YAML |
 |---|---|---|---|
-| `attention_gate` | Attention U-Net (Oktay 2018) | Attention gate | [resnet50](../../configs/architectures/skip_study/general/resnet50_attention_gate.yaml) |
-| `cab` | — | Channel Attention Bridge | [resnet50](../../configs/architectures/skip_study/general/resnet50_cab.yaml) |
-| `sab` | — | Spatial Attention Bridge | [resnet50](../../configs/architectures/skip_study/general/resnet50_sab.yaml) |
-| `scse` | Roy et al., TMI 2019 | Spatial-Channel Squeeze & Excitation | [resnet50](../../configs/architectures/skip_study/general/resnet50_scse.yaml) |
-| `cbam` | Woo et al., ECCV 2018 | Conv Block Attention Module | [resnet50](../../configs/architectures/skip_study/general/resnet50_cbam.yaml) |
-| `gating` | — | Gating mechanism | [resnet50](../../configs/architectures/skip_study/general/resnet50_gating.yaml) |
-| `gru_gate` | — | GRU-based gating | [resnet50](../../configs/architectures/skip_study/general/resnet50_gru_gate.yaml) |
-| `gab` | EGE-UNet, MICCAI 2023 Workshop, [GitHub](https://github.com/JCruan519/EGE-UNet) | Group Aggregation Bridge | [resnet50](../../configs/architectures/skip_study/general/resnet50_gab.yaml) |
-| `sc_att_bridge` | MALUNet, BIBM 2022, [GitHub](https://github.com/JCruan519/MALUNet) | Spatial-Channel Attention Bridge | [resnet50](../../configs/architectures/skip_study/general/resnet50_sc_att_bridge.yaml) |
-| `ta_mosc` | UTANet, AAAI 2025, [GitHub](https://github.com/AshleyLuo001/UTANet) | Task-Adaptive Mixture of Skip Connections | [resnet50](../../configs/architectures/skip_study/general/resnet50_ta_mosc.yaml) |
+| `attention_gate` | Attention U-Net (Oktay 2018) | Attention gate | [resnet50_attention_gate.yaml](../../configs/architectures/skip_study/general/resnet50_attention_gate.yaml) |
+| `cab` | — | Channel Attention Bridge | [resnet50_cab.yaml](../../configs/architectures/skip_study/general/resnet50_cab.yaml) |
+| `sab` | — | Spatial Attention Bridge | [resnet50_sab.yaml](../../configs/architectures/skip_study/general/resnet50_sab.yaml) |
+| `scse` | Roy et al., TMI 2019 | Spatial-Channel Squeeze & Excitation | [resnet50_scse.yaml](../../configs/architectures/skip_study/general/resnet50_scse.yaml) |
+| `cbam` | Woo et al., ECCV 2018 | Conv Block Attention Module | [resnet50_cbam.yaml](../../configs/architectures/skip_study/general/resnet50_cbam.yaml) |
+| `gating` | — | Gating mechanism | [resnet50_gating.yaml](../../configs/architectures/skip_study/general/resnet50_gating.yaml) |
+| `gru_gate` | — | GRU-based gating | [resnet50_gru_gate.yaml](../../configs/architectures/skip_study/general/resnet50_gru_gate.yaml) |
+| `gab` | EGE-UNet, MICCAI 2023 Workshop, [GitHub](https://github.com/JCruan519/EGE-UNet) | Group Aggregation Bridge | [resnet50_gab.yaml](../../configs/architectures/skip_study/general/resnet50_gab.yaml) |
+| `sc_att_bridge` | MALUNet, BIBM 2022, [GitHub](https://github.com/JCruan519/MALUNet) | Spatial-Channel Attention Bridge | [resnet50_sc_att_bridge.yaml](../../configs/architectures/skip_study/general/resnet50_sc_att_bridge.yaml) |
+| `ta_mosc` | UTANet, AAAI 2025, [GitHub](https://github.com/AshleyLuo001/UTANet) | Task-Adaptive Mixture of Skip Connections | [resnet50_ta_mosc.yaml](../../configs/architectures/skip_study/general/resnet50_ta_mosc.yaml) |
 
 ## Transformer (5)
 
 | Key | Source | Description | YAML |
 |---|---|---|---|
-| `cross_attn` | — | Cross-attention (decoder Q × encoder KV) | [resnet50](../../configs/architectures/skip_study/general/resnet50_cross_attn.yaml) |
-| `transformer_fusion` | — | Transformer feature fusion | [resnet50](../../configs/architectures/skip_study/general/resnet50_transformer_fusion.yaml) |
-| `aggregation_attention` | — | Aggregation attention | [resnet50](../../configs/architectures/skip_study/general/resnet50_aggregation_attention.yaml) |
-| `missformer_bridge` | MISSFormer, 2022, [GitHub](https://github.com/ZhifangDeng/MISSFormer) | MISSFormer bridge module | [resnet50](../../configs/architectures/skip_study/general/resnet50_missformer_bridge.yaml) |
-| `uctrans` | UCTransNet, AAAI 2022, [GitHub](https://github.com/McGregorWwww/UCTransNet) | Channel-wise Cross Transformer | [resnet50](../../configs/architectures/skip_study/general/resnet50_uctrans.yaml) |
+| `cross_attn` | — | Cross-attention (decoder Q × encoder KV) | [resnet50_cross_attn.yaml](../../configs/architectures/skip_study/general/resnet50_cross_attn.yaml) |
+| `transformer_fusion` | — | Transformer feature fusion | [resnet50_transformer_fusion.yaml](../../configs/architectures/skip_study/general/resnet50_transformer_fusion.yaml) |
+| `aggregation_attention` | — | Aggregation attention | [resnet50_aggregation_attention.yaml](../../configs/architectures/skip_study/general/resnet50_aggregation_attention.yaml) |
+| `missformer_bridge` | MISSFormer, 2022, [GitHub](https://github.com/ZhifangDeng/MISSFormer) | MISSFormer bridge module | [resnet50_missformer_bridge.yaml](../../configs/architectures/skip_study/general/resnet50_missformer_bridge.yaml) |
+| `uctrans` | UCTransNet, AAAI 2022, [GitHub](https://github.com/McGregorWwww/UCTransNet) | Channel-wise Cross Transformer | [resnet50_uctrans.yaml](../../configs/architectures/skip_study/general/resnet50_uctrans.yaml) |
 
 ## Mamba (1)
 
 | Key | Source | Description | YAML |
 |---|---|---|---|
-| `skvmpp` | SK-VM++, BSPC 2025, [GitHub](https://github.com/wurenkai/SK-VMPlusPlus) | Mamba SS2D-assisted skip (Pyramid Vision Mamba Layer) | [resnet50](../../configs/architectures/skip_study/general/resnet50_skvmpp.yaml) |
+| `skvmpp` | SK-VM++, BSPC 2025, [GitHub](https://github.com/wurenkai/SK-VMPlusPlus) | Mamba SS2D-assisted skip (Pyramid Vision Mamba Layer) | [resnet50_skvmpp.yaml](../../configs/architectures/skip_study/general/resnet50_skvmpp.yaml) |
 
 ## Fusion — CNN Fusion (6)
 
 | Key | Source | Description | YAML |
 |---|---|---|---|
-| `bifusion` | TransFuse style | Bi-directional fusion | [resnet50](../../configs/architectures/skip_study/general/resnet50_bifusion.yaml) |
-| `deformable` | — | Deformable convolution fusion | [resnet50](../../configs/architectures/skip_study/general/resnet50_deformable.yaml) |
-| `multiscale` | — | Multi-scale fusion | [resnet50](../../configs/architectures/skip_study/general/resnet50_multiscale.yaml) |
-| `feature_refine` | — | Feature refinement with CBAM | [resnet50](../../configs/architectures/skip_study/general/resnet50_feature_refine.yaml) |
-| `ccm` | — | Cross Channel Module | [resnet50](../../configs/architectures/skip_study/general/resnet50_ccm.yaml) |
-| `sdi` | U-Net V2, ISBI 2025, [GitHub](https://github.com/yaoppeng/U-Net_v2) | Scale-Diverse Integration | [resnet50](../../configs/architectures/skip_study/general/resnet50_sdi.yaml) |
+| `bifusion` | TransFuse style | Bi-directional fusion | [resnet50_bifusion.yaml](../../configs/architectures/skip_study/general/resnet50_bifusion.yaml) |
+| `deformable` | — | Deformable convolution fusion | [resnet50_deformable.yaml](../../configs/architectures/skip_study/general/resnet50_deformable.yaml) |
+| `multiscale` | — | Multi-scale fusion | [resnet50_multiscale.yaml](../../configs/architectures/skip_study/general/resnet50_multiscale.yaml) |
+| `feature_refine` | — | Feature refinement with CBAM | [resnet50_feature_refine.yaml](../../configs/architectures/skip_study/general/resnet50_feature_refine.yaml) |
+| `ccm` | — | Cross Channel Module | [resnet50_ccm.yaml](../../configs/architectures/skip_study/general/resnet50_ccm.yaml) |
+| `sdi` | U-Net V2, ISBI 2025, [GitHub](https://github.com/yaoppeng/U-Net_v2) | Scale-Diverse Integration | [resnet50_sdi.yaml](../../configs/architectures/skip_study/general/resnet50_sdi.yaml) |
 
 ---
 

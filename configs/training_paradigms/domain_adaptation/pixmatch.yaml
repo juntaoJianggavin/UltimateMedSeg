@@ -15,7 +15,7 @@
 #                       external strong-aug prediction is provided (0 disables)
 # num_classes:          分割类别数 / Number of segmentation classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/pixmatch.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/pixmatch.yaml
 
 model:
   num_classes: 4

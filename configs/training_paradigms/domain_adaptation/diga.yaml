@@ -18,7 +18,7 @@
 # class_acc_momentum:   类频率 EMA momentum
 # num_classes:          分类数
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/diga.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/diga.yaml
 
 model:
   num_classes: 4

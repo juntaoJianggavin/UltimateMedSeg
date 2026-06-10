@@ -11,7 +11,7 @@
 # num_classes: 分割类别数 / Number of segmentation classes
 # rampup_epochs: 权重预热轮数 / Weight rampup epochs
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/cbmt.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/cbmt.yaml
 
 model:
   num_classes: 4

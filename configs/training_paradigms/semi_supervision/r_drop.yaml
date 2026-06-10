@@ -28,7 +28,7 @@
 #   consistency_weight — 无标签 R-Drop 权重 / unlabeled weight (default 1.0)
 #   rampup_epochs      — sigmoid ramp-up 长度
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/r_drop.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/r_drop.yaml
 # ============================================================================
 
 model:

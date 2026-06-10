@@ -16,7 +16,7 @@
 # detail/context/fused_weight: 三项 CE 权重 / CE weights for each branch
 # num_classes:          分类数 / Number of classes (必须与模型一致)
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/hrda.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/hrda.yaml
 
 model:
   num_classes: 4

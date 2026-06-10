@@ -106,19 +106,14 @@ def _hf_file(repo_id: str, filename: str, repo_type: str = "model") -> Callable[
     """Build a fetcher that pulls ``filename`` from a HuggingFace repo."""
 
     def _fetch(target: Path) -> None:
-        try:
-            from huggingface_hub import hf_hub_download  # type: ignore
-        except ImportError as e:
-            raise ImportError(
-                "huggingface_hub is required for HF-based downloads. "
-                "Install it with `pip install huggingface_hub`."
-            ) from e
-        local = hf_hub_download(
-            repo_id=repo_id,
-            filename=filename,
+        from medseg.utils.hf_hub import hf_hub_download_file
+
+        local = hf_hub_download_file(
+            repo_id,
+            filename,
             repo_type=repo_type,
-            cache_dir=str(target.parent.parent),
-            local_dir=str(target.parent),
+            cache_dir=target.parent.parent,
+            local_dir=target.parent,
             local_dir_use_symlinks=False,
         )
         # hf_hub_download may write to a different filename if HF caches by
@@ -214,7 +209,7 @@ register(WeightSource(
     manual_instructions=(
         "Swin-T variant of GroundingDINO (open-set object detector). "
         "Used as the prompt source for MedSAM/SAM2 in detector→segmenter "
-        "pipelines (configs/text_guided/synapse_grounding_dino_*.yaml)."
+        "pipelines (configs/training_paradigms/text_guided/synapse_grounding_dino_*.yaml)."
     ),
     size_mb=694,
 ))
@@ -489,7 +484,8 @@ def hf_from_pretrained(
             f"  instructions:\n"
             f"    1. If the repo is gated (e.g. Llama / CogVLM), "
             f"`huggingface-cli login` with an account that has access.\n"
-            f"    2. If you are behind a proxy, set HF_ENDPOINT=https://hf-mirror.com.\n"
+            f"    2. If you are behind a firewall, set MEDSEG_HF_MIRROR=1 "
+            f"or HF_ENDPOINT=https://hf-mirror.com.\n"
             f"    3. To use a local copy, pass the local directory path "
             f"instead of the repo id.\n"
         ) from e

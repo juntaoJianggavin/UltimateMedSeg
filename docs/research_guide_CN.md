@@ -248,12 +248,12 @@ bash scripts/experiments/run_lightweight_skin.sh
 
 | 方法 | 配置 |
 |------|------|
-| Mean Teacher | `configs/training_paradigms/semi/mean_teacher.yaml` |
-| CPS | `configs/training_paradigms/semi/cps.yaml` |
-| UniMatch | `configs/training_paradigms/semi/unimatch.yaml` |
-| FixMatch | `configs/training_paradigms/semi/fixmatch.yaml` |
-| AugSeg (CVPR 2023) | `configs/training_paradigms/semi/augseg.yaml` |
-| CorrMatch (CVPR 2024) | `configs/training_paradigms/semi/corrmatch.yaml` |
+| Mean Teacher | `configs/training_paradigms/semi_supervision/mean_teacher.yaml` |
+| CPS | `configs/training_paradigms/semi_supervision/cps.yaml` |
+| UniMatch | `configs/training_paradigms/semi_supervision/unimatch.yaml` |
+| FixMatch | `configs/training_paradigms/semi_supervision/fixmatch.yaml` |
+| AugSeg (CVPR 2023) | —（暂无配置文件） |
+| CorrMatch (CVPR 2024) | `configs/training_paradigms/semi_supervision/corrmatch.yaml` |
 
 ### 域适应
 

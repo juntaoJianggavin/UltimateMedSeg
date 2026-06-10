@@ -16,7 +16,7 @@
 # confidence_threshold: 目标伪标签置信阈值 / Target PL cutoff
 # num_classes:          分类数
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/ddb.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/ddb.yaml
 
 model:
   num_classes: 4

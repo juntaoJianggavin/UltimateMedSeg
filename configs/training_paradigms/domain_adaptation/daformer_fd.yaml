@@ -19,7 +19,7 @@
 # feat_momentum:        类原型 EMA 动量 / Prototype EMA momentum
 # num_classes:          分类数 / Number of classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/daformer_fd.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/daformer_fd.yaml
 
 model:
   num_classes: 4

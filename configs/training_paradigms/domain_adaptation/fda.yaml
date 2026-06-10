@@ -15,7 +15,7 @@
 #                 (paper default 0.01)
 # num_classes:    分割类别数 / Number of segmentation classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/fda.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/fda.yaml
 
 model:
   num_classes: 4

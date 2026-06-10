@@ -186,7 +186,7 @@ class MLLMGroundingSegPipeline:
 def build_pipeline_from_config(cfg: Dict[str, Any]) -> MLLMGroundingSegPipeline:
     """根据 yaml cfg 构建 pipeline。
 
-    期望 cfg 结构（见 configs/text_guided/synapse_qwen2vl_sam2.yaml）：
+    期望 cfg 结构（见 configs/training_paradigms/text_guided/synapse_qwen2vl_sam2.yaml）：
       mllm: {type, model_id, device, dtype, prompt_template, class_names, ...}
       mask_generator: {type, model_id, device, multimask, ...}
       refinement: {enabled, config_path, roi_padding, ...}  # optional

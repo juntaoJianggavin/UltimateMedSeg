@@ -28,7 +28,7 @@
 #   diff_l1_weight       — auxiliary L1 损失权重 (默认 0.1)
 #
 # 适用场景 / Best for: 噪声伪标签很多的医学分割, 标签 5%-20%
-# 用法 / Usage: python semi_train.py --config configs/semi/diffrect.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/diffrect.yaml
 # ============================================================================
 
 model:

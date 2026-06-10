@@ -16,8 +16,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from functools import partial
-from timm.models.layers import trunc_normal_tf_
-from timm.models.helpers import named_apply
+from medseg.utils.timm_compat import trunc_normal_tf_
+from medseg.utils.timm_compat import named_apply
 
 
 # ---------------------------------------------------------------------------

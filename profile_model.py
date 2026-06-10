@@ -5,25 +5,25 @@ Uses forward hooks to track which modules are called and accumulate FLOPs.
 
 Usage:
     # Profile a single config (FLOPs + params)
-    python3 profile_model.py --config configs/synapse/unet_resnet34.yaml
+    python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml
 
     # Profile with FPS benchmark
-    python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --fps
+    python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --fps
 
     # FPS with custom settings
-    python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --fps --warmup 50 --runs 200 --batch_size 4
+    python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --fps --warmup 50 --runs 200 --batch_size 4
 
     # Profile all configs in a directory
-    python3 profile_model.py --config_dir configs/synapse/
+    python3 profile_model.py --config_dir configs/architectures/networks/synapse/
 
     # Batch profile with FPS
-    python3 profile_model.py --config_dir configs/synapse/ --fps
+    python3 profile_model.py --config_dir configs/architectures/networks/synapse/ --fps
 
     # Custom input size
-    python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --img_size 512
+    python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --img_size 512
 
     # Show per-module breakdown
-    python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --detail
+    python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --detail
 """
 
 import os
@@ -505,12 +505,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python3 profile_model.py --config configs/synapse/unet_resnet34.yaml
-  python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --fps
-  python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --fps --warmup 50 --runs 200
-  python3 profile_model.py --config configs/synapse/unet_resnet34.yaml --detail
-  python3 profile_model.py --config_dir configs/synapse/
-  python3 profile_model.py --config_dir configs/synapse/ --fps
+  python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml
+  python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --fps
+  python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --fps --warmup 50 --runs 200
+  python3 profile_model.py --config configs/architectures/combinations/general/unet_resnet34.yaml --detail
+  python3 profile_model.py --config_dir configs/architectures/networks/synapse/
+  python3 profile_model.py --config_dir configs/architectures/networks/synapse/ --fps
   python3 profile_model.py --config_dir configs/ --img_size 512
         """,
     )

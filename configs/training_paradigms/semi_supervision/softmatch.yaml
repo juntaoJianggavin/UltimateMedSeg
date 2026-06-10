@@ -25,7 +25,7 @@
 # 适用场景 / Best for: 需要平衡伪标签数量与质量 / Balancing pseudo-label quantity vs quality
 # 源码参考 / Reference code: https://github.com/TorchSSL/TorchSSL
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/softmatch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/softmatch.yaml
 # ============================================================================
 
 model:

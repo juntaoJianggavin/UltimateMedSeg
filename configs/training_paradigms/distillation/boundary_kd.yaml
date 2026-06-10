@@ -10,7 +10,7 @@
 # edge_kernel_size: 边缘检测核大小 / Edge detection kernel size
 # edge_threshold: 边缘阈值 / Edge threshold
 #
-# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/boundary_kd.yaml
+# Usage: python train_distillation.py --teacher_config configs/training_paradigms/distillation/teacher_large.yaml --student_config configs/training_paradigms/distillation/boundary_kd.yaml
 
 model:
   num_classes: 4

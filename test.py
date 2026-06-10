@@ -72,14 +72,26 @@ def build_test_dataset(data_cfg):
             transform=transform,
             img_size=img_size,
         )
-    elif dataset_type in ('image_mask', 'binary'):
+    elif dataset_type in ('image_mask', 'binary', 'generic'):
+        if 'val_dir' in data_cfg and 'test_dir' not in data_cfg:
+            split = 'val'
+            root = data_cfg['val_dir']
+        elif 'test_dir' in data_cfg:
+            split = 'test'
+            root = data_cfg['test_dir']
+        else:
+            split = data_cfg.get('eval_split', 'test')
+            root = data_cfg.get('root_dir')
         return GenericDataset(
-            root_dir=data_cfg.get('test_dir', data_cfg.get('root_dir')),
-            split='test',
+            root_dir=root,
+            split=split,
             transform=transform,
             img_size=img_size,
             img_suffix=data_cfg.get('img_suffix', '.png'),
             mask_suffix=data_cfg.get('mask_suffix', '.png'),
+            train_ratio=data_cfg.get('train_ratio', 0.7),
+            val_ratio=data_cfg.get('val_ratio', 0.15),
+            random_state=data_cfg.get('random_state', 42),
             file_list=data_cfg.get('test_list', None),
         )
     elif dataset_type in ('synapse', 'acdc'):

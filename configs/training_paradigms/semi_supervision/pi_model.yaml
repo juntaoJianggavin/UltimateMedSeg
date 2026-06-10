@@ -27,7 +27,7 @@
 # 适用场景 / Best for: 简单基线 + 任何带 Dropout 的网络
 #                     Simple SSL baseline; works with any net that has Dropout
 #
-# Usage: python semi_train.py --config configs/semi/pi_model.yaml
+# Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/pi_model.yaml
 # ============================================================================
 
 model:

@@ -116,7 +116,7 @@ torchrun --nproc_per_node=4 train.py \
 ### 2. Semi-Supervised Training
 
 ```bash
-python semi_train.py --config configs/training_paradigms/semi/mean_teacher.yaml \
+python semi_train.py --config configs/training_paradigms/semi_supervision/mean_teacher.yaml \
     --output_dir output/semi_mt
 ```
 
@@ -450,7 +450,7 @@ training:
 > **Note**: All intensity parameters use `_range` suffix (e.g. `degrees_range`, `alpha_range`), randomly sampled per call.
 
 > Full parameter docs for each method: [docs/data/README.md](docs/data/README.md#augmentation-pipeline--24-methods)
-> Full config example: [configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml](configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml)
+> Full config example: [resnet50_unet_advanced_aug.yaml](configs/architectures/decoder_study/general/resnet50_unet_advanced_aug.yaml)
 
 ### Semi-Supervised — 21 Methods
 

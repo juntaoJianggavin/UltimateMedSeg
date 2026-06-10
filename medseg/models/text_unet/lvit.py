@@ -39,7 +39,7 @@ import torch.nn as nn
 from torch.nn import Conv2d, Dropout
 from torch.nn.modules.utils import _pair
 
-from timm.models.layers import DropPath  # type: ignore
+from medseg.utils.timm_compat import DropPath  # type: ignore
 
 
 # ============================================================================

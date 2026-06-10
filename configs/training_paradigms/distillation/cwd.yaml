@@ -9,7 +9,7 @@
 #
 # temperature: 通道归一化温度 / Channel normalization temperature
 #
-# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/student_small.yaml
+# Usage: python train_distillation.py --teacher_config configs/training_paradigms/distillation/teacher_large.yaml --student_config configs/training_paradigms/distillation/student_small.yaml
 
 model:
   num_classes: 4

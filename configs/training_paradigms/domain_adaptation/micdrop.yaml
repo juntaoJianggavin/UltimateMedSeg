@@ -21,7 +21,7 @@
 # ce_weight:            (alpha * mask + (1-alpha) * drop) CE 总权重
 # num_classes:          分类数
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/micdrop.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/micdrop.yaml
 
 model:
   num_classes: 4

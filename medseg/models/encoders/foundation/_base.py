@@ -11,11 +11,9 @@ inherit BaseFoundationEncoder. It provides:
 
 from __future__ import annotations
 
-import os as _os
-# Default to HF mirror (https://hf-mirror.com) so weight downloads work in
-# environments without direct access to huggingface.co. Users can override
-# by setting HF_ENDPOINT before importing this module.
-_os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
+from medseg.utils.hf_hub import configure_hf_hub
+
+configure_hf_hub()
 
 import warnings
 from typing import List, Optional
@@ -87,20 +85,14 @@ def hf_hub_download_vision_weights(repo_id: str, filename: str = None,
     Raises:
         RuntimeError: If the download or load fails.
     """
-    try:
-        from huggingface_hub import hf_hub_download
-    except ImportError:
-        raise RuntimeError(
-            "huggingface_hub is required for auto-download. "
-            "Install with: pip install huggingface_hub"
-        )
+    from medseg.utils.hf_hub import hf_hub_download_file
 
     candidates = [filename] if filename else ["model.safetensors", "pytorch_model.bin"]
     path = None
     last_err = None
     for fn in candidates:
         try:
-            path = hf_hub_download(repo_id=repo_id, filename=fn)
+            path = hf_hub_download_file(repo_id, fn)
             break
         except Exception as e:
             last_err = e

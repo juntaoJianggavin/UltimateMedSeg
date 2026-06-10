@@ -11,7 +11,7 @@
 # hidden_dim:   域分类器 MLP 隐层宽度 / Domain MLP hidden dim
 # domain_weight:对抗损失的额外权重 / Extra weight on the adversarial loss
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/dann.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/dann.yaml
 
 model:
   num_classes: 4

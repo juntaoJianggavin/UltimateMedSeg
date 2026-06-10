@@ -233,12 +233,12 @@ def test_config(yaml_path, dummy_root, category):
 def get_configs(category):
     """Get list of yaml configs for a category."""
     dirs = {
-        "semi": "configs/semi",
-        "da": "configs/domain_adaptation",
-        "distillation": "configs/distillation",
-        "weak": "configs/weak_supervision",
-        "foundation": "configs/foundation",
-        "text_guided": "configs/text_guided",
+        "semi": "configs/training_paradigms/semi_supervision",
+        "da": "configs/training_paradigms/domain_adaptation",
+        "distillation": "configs/training_paradigms/distillation",
+        "weak": "configs/training_paradigms/weak_supervision",
+        "foundation": "configs/architectures/foundation",
+        "text_guided": "configs/training_paradigms/text_guided",
     }
     if category == "all":
         paths = []

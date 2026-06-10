@@ -142,6 +142,33 @@ Extracted from `configs/intro_to_datasets/`.
 
 ---
 
+## Synapse / ACDC (TransUNet preprocessed layout)
+
+Two npz layouts are auto-detected by ``SynapseDataset``:
+
+| Layout | ``image`` shape | Typical use | Example |
+|--------|-----------------|-------------|---------|
+| **One slice per file** | ``(H, W)`` | TransUNet train_npz / val_npz | ``case0005_slice000.npz`` |
+| **Stacked volume** | ``(D, H, W)`` | Custom / smoke packs | ``case0001.npz`` |
+
+Test volumes use ``test_vol_h5/*.npy.h5`` or ``test_vol/*.npz`` with shape ``(D,H,W)``.
+
+**Download**: [TransUNet Google Drive](https://drive.google.com/drive/folders/1ACJEoTp-uqfFJ73qS3eUObQh52nGuzCd) (Synapse); [ACDC pack](https://drive.google.com/drive/folders/1KQcrci7aKsYZi1hQoZ3T3QUtcy7b--n4).
+
+**Verify before training**:
+
+```bash
+python scripts/verify_synapse_acdc.py \
+  --train-dir ./data/Synapse/train_npz \
+  --val-dir ./data/Synapse/test_vol_h5
+```
+
+Grayscale volumes are replicated to 3 channels in the loader; ``img_size`` resize is applied by transforms.
+
+Note: ``train.py`` validation expects **2D slice** directories. ``test_vol_h5`` is for ``test.py`` volume evaluation.
+
+---
+
 ## Synapse Config Example
 
 ```yaml
@@ -168,9 +195,9 @@ model:
 data:
   type: acdc
   img_size: 224
-  train_dir: ./data/ACDC/train
-  val_dir: ./data/ACDC/val
-  test_dir: ./data/ACDC/test
+  train_dir: ./data/ACDC/train_npz
+  val_dir: ./data/ACDC/val_npz
+  test_dir: ./data/ACDC/test_vol
 ```
 
 ## Generic Config Example

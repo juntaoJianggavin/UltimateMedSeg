@@ -27,7 +27,7 @@
 # 适用场景 / Best for: 类别不平衡的半监督 / Class-imbalanced semi-supervised learning
 # 源码参考 / Reference code: https://github.com/TorchSSL/TorchSSL
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/flexmatch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/flexmatch.yaml
 # ============================================================================
 
 model:

@@ -25,7 +25,7 @@
 # 适用场景 / Best for: 不想手动调阈值时 / When you don't want to tune thresholds manually
 # 源码参考 / Reference code: https://github.com/TorchSSL/TorchSSL
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/freematch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/freematch.yaml
 # ============================================================================
 
 model:

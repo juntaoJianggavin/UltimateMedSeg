@@ -16,87 +16,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from einops import rearrange
 
-
-# ---------------------------------------------------------------------------
-# Try to load CUDA WKV kernel; raise if unavailable on CUDA device
-# ---------------------------------------------------------------------------
-_WKV_CUDA_AVAILABLE = False
-_wkv_cuda = None
-try:
-    from torch.utils.cpp_extension import load as _load_ext
-    _wkv_cuda = _load_ext(
-        name="wkv",
-        sources=["./cuda/wkv_op.cpp", "./cuda/wkv_cuda.cu"],
-        verbose=False,
-        extra_cuda_cflags=['-res-usage', '--maxrregcount 60', '-DTmax=32768'])
-    _WKV_CUDA_AVAILABLE = True
-except Exception as _e:
-    import warnings
-    warnings.warn(
-        f"RWKV WKV CUDA kernel compilation failed ({type(_e).__name__}: {_e}). "
-        "The model will fall back to the pure-PyTorch WKV implementation "
-        "which is significantly slower. To use the fast CUDA kernel, ensure "
-        "a working CUDA toolkit and C++ compiler are available."
-    )
-
-
-def _wkv_pure_pytorch(B, T, C, w, u, k, v):
-    """Pure-PyTorch WKV computation (differentiable, O(T) sequential)."""
-    y = torch.empty(B, T, C, device=k.device, dtype=k.dtype)
-    aa = torch.zeros(B, C, device=k.device, dtype=torch.float32)
-    bb = torch.zeros(B, C, device=k.device, dtype=torch.float32)
-    pp = torch.full((B, C), -1e30, device=k.device, dtype=torch.float32)
-    ww = u.float()
-    for i in range(T):
-        kk = k[:, i, :].float()
-        vv = v[:, i, :].float()
-        ww_new = torch.maximum(pp, kk)
-        e1 = torch.exp(pp - ww_new)
-        e2 = torch.exp(kk - ww_new)
-        y[:, i, :] = ((e1 * aa + e2 * vv) / (e1 * bb + e2)).to(k.dtype)
-        ww2 = torch.maximum(pp + w.float(), kk)
-        e1 = torch.exp(pp + w.float() - ww2)
-        e2 = torch.exp(kk - ww2)
-        aa = e1 * aa + e2 * vv
-        bb = e1 * bb + e2
-        pp = ww2
-    return y
-
-
-def _RUN_WKV(B, T, C, w, u, k, v):
-    """Run WKV: uses CUDA kernel if available, else pure PyTorch."""
-    if _WKV_CUDA_AVAILABLE and k.is_cuda:
-        return _WKVCUDA.apply(B, T, C, w.cuda(), u.cuda(), k.cuda(), v.cuda())
-    return _wkv_pure_pytorch(B, T, C, w, u, k, v)
-
-
-class _WKVCUDA(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, B, T, C, w, u, k, v):
-        ctx.B, ctx.T, ctx.C = B, T, C
-        ctx.save_for_backward(w, u, k, v)
-        wf = w.float().contiguous()
-        uf = u.float().contiguous()
-        kf = k.float().contiguous()
-        vf = v.float().contiguous()
-        y = torch.empty(B, T, C, device=k.device, dtype=k.dtype)
-        _wkv_cuda.forward(B, T, C, wf, uf, kf, vf, y)
-        if k.dtype == torch.half:
-            y = y.half()
-        return y
-
-    @staticmethod
-    def backward(ctx, gy):
-        B, T, C = ctx.B, ctx.T, ctx.C
-        w, u, k, v = ctx.saved_tensors
-        gw = torch.zeros(B, C, device=k.device).contiguous()
-        gu = torch.zeros(B, C, device=k.device).contiguous()
-        gk = torch.zeros(B, T, C, device=k.device).contiguous()
-        gv = torch.zeros(B, T, C, device=k.device).contiguous()
-        _wkv_cuda.backward(B, T, C, w.float().contiguous(), u.float().contiguous(),
-                           k.float().contiguous(), v.float().contiguous(),
-                           gy.float().contiguous(), gw, gu, gk, gv)
-        return None, None, None, gw.sum(0), gu.sum(0), gk, gv
+from medseg.kernels.wkv import run_wkv
+from medseg.utils.timm_compat import DropPath
 
 
 # ---------------------------------------------------------------------------
@@ -174,7 +95,7 @@ class _VRWKVSpatialMix(nn.Module):
         v = self.value(x)
         r = torch.sigmoid(self.receptance(x))
         for j in range(self.recurrence):
-            v = _RUN_WKV(B, T, C, self.spatial_decay[j] / T,
+            v = run_wkv(B, T, C, self.spatial_decay[j] / T,
                          self.spatial_first[j] / T, k, v)
         x = v
         if self.key_norm is not None:
@@ -223,10 +144,7 @@ class _Block(nn.Module):
             self.proj_norm2 = nn.LayerNorm(outer_dim)
         self.outer_norm1 = nn.LayerNorm(outer_dim)
         self.outer_attn = _VRWKVSpatialMix(outer_dim, layer_id)
-        self.drop_path = nn.Identity()
-        if drop_path > 0.:
-            from timm.models.layers import DropPath
-            self.drop_path = DropPath(drop_path)
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.outer_norm2 = nn.LayerNorm(outer_dim)
         self.outer_ffn = _VRWKVChannelMix(outer_dim, mlp_ratio)
 

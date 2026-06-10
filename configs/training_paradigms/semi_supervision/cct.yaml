@@ -24,7 +24,7 @@
 # 适用场景 / Best for: 数据增强策略多样时 / Diverse augmentation strategies
 # 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/cct.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/cct.yaml
 # ============================================================================
 
 model:

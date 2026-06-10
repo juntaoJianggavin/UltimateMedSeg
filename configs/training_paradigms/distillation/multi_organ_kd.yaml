@@ -8,7 +8,7 @@
 # relation_weight: 类别间关系损失权重 / Inter-class relation loss weight
 # balance_mode: 类别平衡模式 (uniform/inverse_freq/custom)
 #
-# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/multi_organ_kd.yaml
+# Usage: python train_distillation.py --teacher_config configs/training_paradigms/distillation/teacher_large.yaml --student_config configs/training_paradigms/distillation/multi_organ_kd.yaml
 
 model:
   num_classes: 9

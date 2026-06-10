@@ -9,7 +9,7 @@
 # temperature: 蒸馏温度 / Distillation temperature
 # relation_type: 关系类型 (spatial/containment/both)
 #
-# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/anatomy_kd.yaml
+# Usage: python train_distillation.py --teacher_config configs/training_paradigms/distillation/teacher_large.yaml --student_config configs/training_paradigms/distillation/anatomy_kd.yaml
 
 model:
   num_classes: 4

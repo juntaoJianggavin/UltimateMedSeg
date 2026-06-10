@@ -23,8 +23,11 @@
 #         └── 每个 h5 含 'image' (D,H,W) 和 'label' (D,H,W)
 #
 # 注意:
-#   - 训练用 2D 切片 (224×224 已 resize)
-#   - 测试用 3D volume 逐切片推理再拼回 → 用 test.py 的 volume 模式
+#   - train_npz: 每个 .npz 一张 2D 切片，键 image/label 形状 (H,W)，常见 512×512
+#     （TransUNet 预处理）；训练时由 data.img_size 在线 resize（默认 224）
+#   - test_vol_h5: 3D volume，形状 (D,H,W)，用于 test.py 逐 volume 评估
+#   - train.py 内置 val 需要 2D 切片目录；若只有 test_vol_h5，训练时可设 training.val_interval 很大或暂用 train 子集
+#   - 训练前可运行: python scripts/verify_synapse_acdc.py --train-dir ./data/Synapse/train_npz
 #   - num_classes = 9 (含背景)
 # ============================================================================
 
@@ -46,8 +49,8 @@ data:
   type: synapse
   img_size: 224
   train_dir: ./data/Synapse/train_npz
-  val_dir: ./data/Synapse/test_vol_h5
-  test_dir: ./data/Synapse/test_vol_h5
+  val_dir: ./data/Synapse/test_vol_h5   # 3D volume；train.py 逐切片 val 请改用 2D val_npz
+  test_dir: ./data/Synapse/test_vol_h5  # 完整 3D 评估请用 test.py volume 模式
 
 training:
   epochs: 150

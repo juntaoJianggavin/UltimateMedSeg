@@ -1,0 +1,54 @@
+# Local smoke-training config using auto-generated dummy data.
+# Run: python train.py --config configs/intro_to_datasets/local_dummy.yaml --output_dir output/local_dummy --epochs 2
+#
+# Dummy data is created by: python scripts/smoke_test_modular.py
+
+model:
+  num_classes: 2
+  img_size: 128
+  encoder:
+    name: timm_resnet34
+    pretrained: false
+    in_channels: 3
+    params: {}
+  skip_connection:
+    name: concat
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+    params: {}
+
+data:
+  type: generic
+  img_size: 128
+  root_dir: ./data/_test_dummy/train
+  train_ratio: 0.75
+  val_ratio: 0.25
+  random_state: 42
+  img_suffix: .png
+  mask_suffix: .png
+
+training:
+  epochs: 2
+  batch_size: 2
+  num_workers: 0
+  val_interval: 1
+  save_interval: 1
+  loss:
+    name: compound
+    params:
+      losses:
+        - name: ce
+          weight: 0.5
+        - name: dice
+          weight: 0.5
+  optimizer:
+    name: adamw
+    lr: 0.001
+    weight_decay: 0.0001
+  scheduler:
+    name: cosine
+    min_lr: 0.000001

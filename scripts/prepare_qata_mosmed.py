@@ -233,10 +233,10 @@ def main():
         print(f"\n    # 用于文本引导分割")
         if args.dataset == "qata":
             print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/qata_covid19_languide.yaml")
-            print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/qata_covid19_cris.yaml")
+            print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/qata_covid19_medisee.yaml")
         else:
             print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/mosmed_plus_languide.yaml")
-            print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/mosmed_plus_clip_universal.yaml")
+            print(f"    python train_text_guided.py --config configs/training_paradigms/text_guided/mosmed_plus_medisee.yaml")
     else:
         print(f"  ✗ {name} 数据集有问题，请检查上述错误。")
         print(f"    下载地址 / Download: https://github.com/HUANGLIZI/LViT#datasets")

@@ -18,7 +18,7 @@
 # pixels_per_image:     每张图采样的锚点数
 # num_classes:          分类数
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/semivl.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/semivl.yaml
 
 model:
   num_classes: 4

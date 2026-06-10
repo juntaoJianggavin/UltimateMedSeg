@@ -9,7 +9,7 @@
 # ce_weight:    交叉熵权重 / Cross-entropy weight
 # dice_weight:  Dice 权重 / Dice loss weight
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/source_only.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/source_only.yaml
 
 model:
   num_classes: 4

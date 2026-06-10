@@ -19,7 +19,7 @@
 # num_tta               — MC-Dropout 采样数 (或 TTA 数) / MC / TTA samples
 # uncertainty_estimator — "mc_dropout" (默认/论文) | "tta" (旧实现)
 #
-# Usage: python semi_train.py --config configs/semi/ua_mt.yaml
+# Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/ua_mt.yaml
 # ============================================================================
 
 model:

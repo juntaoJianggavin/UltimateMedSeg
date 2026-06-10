@@ -26,7 +26,7 @@
 #   corr_size  — 计算 correlation 矩阵的空间分辨率 (默认 56 = 224/4)
 #
 # 适用场景 / Best for: 大量低置信度像素场景, 标签 1%-20%
-# 用法 / Usage: python semi_train.py --config configs/semi/corrmatch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/corrmatch.yaml
 # ============================================================================
 
 model:

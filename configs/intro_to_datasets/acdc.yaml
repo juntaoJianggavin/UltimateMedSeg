@@ -23,8 +23,8 @@
 #     └── test_vol/        (patient081.npz ... 每个含完整 3D volume)
 #
 # 注意:
-#   - 训练/验证用 2D 切片
-#   - 测试用 3D volume 逐切片推理
+#   - train_npz / val_npz: 每个 .npz 一张 2D 切片 (H,W)；test_vol 为 3D npz/h5
+#   - 训练前可运行: python scripts/verify_synapse_acdc.py --train-dir ./data/ACDC/train_npz
 #   - num_classes = 4 (含背景)
 # ============================================================================
 

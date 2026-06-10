@@ -12,7 +12,7 @@
 # num_classes: 分割类别数 / Number of segmentation classes
 # grl_lambda: 梯度反转层系数 / Gradient reversal layer lambda
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/advent.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/advent.yaml
 
 model:
   num_classes: 4

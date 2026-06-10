@@ -6,7 +6,7 @@ Supports:
 - CLIP text-guided models
 
 Usage:
-    python train_text_guided.py --config configs/training_paradigms/text_guided/synapse_dinov3.yaml
+    python train_text_guided.py --config configs/training_paradigms/text_guided/synapse_clip.yaml
 """
 
 import os

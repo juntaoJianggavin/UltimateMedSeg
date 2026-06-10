@@ -13,8 +13,8 @@
 #
 # Usage:
 #   python train_distillation.py \
-#       --teacher_config configs/distillation/teacher_large.yaml \
-#       --student_config configs/distillation/sdd.yaml
+#       --teacher_config configs/training_paradigms/distillation/teacher_large.yaml \
+#       --student_config configs/training_paradigms/distillation/sdd.yaml
 
 model:
   num_classes: 4

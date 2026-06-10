@@ -14,8 +14,8 @@
 #
 # Usage:
 #   python train_distillation.py \
-#       --teacher_config configs/distillation/teacher_large.yaml \
-#       --student_config configs/distillation/at.yaml
+#       --teacher_config configs/training_paradigms/distillation/teacher_large.yaml \
+#       --student_config configs/training_paradigms/distillation/at.yaml
 
 model:
   num_classes: 4

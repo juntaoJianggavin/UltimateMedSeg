@@ -7,7 +7,7 @@ Supports multiple semi-supervised methods:
   - UniMatch (Yang et al., CVPR 2023)
 
 Usage:
-    python semi_train.py --config configs/training_paradigms/semi/mean_teacher.yaml --output_dir output/semi_mt
+    python semi_train.py --config configs/training_paradigms/semi_supervision/mean_teacher.yaml --output_dir output/semi_mt
 
 Reference implementation: https://github.com/HiLab-git/SSL4MIS
 """

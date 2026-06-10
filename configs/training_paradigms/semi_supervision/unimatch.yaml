@@ -25,7 +25,7 @@
 # 适用场景 / Best for: 单模型高效半监督 / Efficient single-model semi-seg
 # 源码参考 / Reference code: https://github.com/LiheYoung/UniMatch
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/unimatch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/unimatch.yaml
 # ============================================================================
 
 model:

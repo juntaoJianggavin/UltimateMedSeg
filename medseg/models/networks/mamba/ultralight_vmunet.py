@@ -15,7 +15,7 @@ import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from timm.models.layers import trunc_normal_
+from medseg.utils.timm_compat import trunc_normal_
 
 from .umamba import MambaSSM
 

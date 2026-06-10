@@ -208,7 +208,7 @@ training:
 Use `_base_` to inherit from a parent config:
 
 ```yaml
-_base_: configs/architectures/networks/general/unet_resnet50.yaml
+_base_: configs/architectures/combinations/general/unet_resnet50.yaml
 
 # Override specific fields
 training:
@@ -228,7 +228,7 @@ The child config deep-merges into the base. Lists are replaced, not appended.
 ## Full Example
 
 ```yaml
-_base_: configs/architectures/networks/general/unet_resnet50.yaml
+_base_: configs/architectures/combinations/general/unet_resnet50.yaml
 
 model:
   num_classes: 9

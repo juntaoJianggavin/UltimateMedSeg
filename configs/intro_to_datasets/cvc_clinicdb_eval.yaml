@@ -1,0 +1,32 @@
+# Evaluate CVC-ClinicDB model trained with 80/20 split (same random_state as training).
+# Usage:
+#   python test.py --config configs/intro_to_datasets/cvc_clinicdb_eval.yaml \
+#       --checkpoint output/cvc_clinicdb/best_model.pth --save_pred
+
+model:
+  num_classes: 2
+  img_size: 352
+  encoder:
+    name: timm_resnet50
+    pretrained: false
+    in_channels: 3
+    params: {}
+  decoder:
+    name: unet
+    params: {}
+  bottleneck:
+    name: none
+
+data:
+  type: generic
+  img_size: 352
+  root_dir: ./data/CVC-ClinicDB
+  val_dir: ./data/CVC-ClinicDB
+  img_suffix: .png
+  mask_suffix: .png
+  train_ratio: 0.8
+  val_ratio: 0.2
+  random_state: 42
+
+training:
+  batch_size: 8

@@ -10,7 +10,7 @@
 #   import yaml, numpy as np
 #   from medseg.mllm import build_pipeline_from_config
 #
-#   cfg = yaml.safe_load(open('configs/text_guided/synapse_grounding_dino_sam2.yaml'))
+#   cfg = yaml.safe_load(open('configs/training_paradigms/text_guided/synapse_grounding_dino_sam2.yaml'))
 #   pipe = build_pipeline_from_config(cfg)
 #   out  = pipe(image_rgb_uint8)            # PipelineOutput(label_map, per_class_masks, ...)
 #
@@ -56,7 +56,7 @@ mllm:
     multimask: false
   refinement:
     enabled: false
-    config_path: configs/synapse/unet_resnet34.yaml
+    config_path: configs/architectures/combinations/general/unet_resnet34.yaml
     img_size: 224
     roi_padding: 0.1
 data:

@@ -8,6 +8,7 @@ checkpoints/
 
 # Data directories (user datasets)
 data/_test_dummy
+data/CVC-ClinicDB
 data/YourDataset
 data/source
 data/target

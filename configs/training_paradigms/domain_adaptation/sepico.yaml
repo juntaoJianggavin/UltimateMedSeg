@@ -17,7 +17,7 @@
 # pixels_per_image:     每张图采样的锚点数 / Anchor pixels per image
 # num_classes:          分类数 / Number of classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/sepico.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/sepico.yaml
 
 model:
   num_classes: 4

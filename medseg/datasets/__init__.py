@@ -7,7 +7,7 @@ Note:
     pixel values are used directly as class indices.
 """
 
-from .synapse_dataset import SynapseDataset
+from .synapse_dataset import SynapseDataset, verify_dataset_root, inspect_volume_file
 from .generic_dataset import GenericDataset
 from .unlabeled_dataset import UnlabeledDataset
 from .transforms import get_train_transforms, get_val_transforms
@@ -42,6 +42,8 @@ from .text_image_dataset import (
 
 __all__ = [
     'SynapseDataset',
+    'verify_dataset_root',
+    'inspect_volume_file',
     'GenericDataset',
     'UnlabeledDataset',
     'SemiSupervisedDataset',

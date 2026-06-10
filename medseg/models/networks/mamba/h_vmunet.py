@@ -19,7 +19,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import List
 from functools import partial
-from timm.models.layers import DropPath, trunc_normal_
+from medseg.utils.timm_compat import DropPath, trunc_normal_
 
 from medseg.models.encoders.vmunet_encoder import SS2D
 

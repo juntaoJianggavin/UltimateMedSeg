@@ -10,7 +10,7 @@
 # mmd_sigma: MMD高斯核带宽 / MMD Gaussian kernel bandwidth
 # cross_attn_weight: 交叉注意力一致性权重 / Cross-attention consistency weight
 #
-# Usage: python train_distillation.py --teacher_config configs/distillation/teacher_large.yaml --student_config configs/distillation/cross_modality_kd.yaml
+# Usage: python train_distillation.py --teacher_config configs/training_paradigms/distillation/teacher_large.yaml --student_config configs/training_paradigms/distillation/cross_modality_kd.yaml
 
 model:
   num_classes: 4

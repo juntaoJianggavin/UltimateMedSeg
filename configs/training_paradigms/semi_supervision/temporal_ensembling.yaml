@@ -32,7 +32,7 @@
 #   - Falls back to batch-local EMA when ``case_name`` is missing.
 #     Bank lives on CPU to bound GPU memory for large unlabeled pools.
 #
-# Usage: python semi_train.py --config configs/semi/temporal_ensembling.yaml
+# Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/temporal_ensembling.yaml
 # ============================================================================
 
 model:

@@ -27,7 +27,7 @@
 # 适用场景 / Best for: 多尺度目标分割 / Multi-scale object segmentation
 # 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/urpc.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/urpc.yaml
 # ============================================================================
 
 model:

@@ -9,7 +9,7 @@
 #
 # entropy_weight: 熵最小化权重 / Entropy minimization weight
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/tent.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/tent.yaml
 
 model:
   num_classes: 4

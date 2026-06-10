@@ -55,7 +55,7 @@ mllm:
     multimask: false
   refinement:
     enabled: false
-    config_path: configs/synapse/unet_resnet34.yaml
+    config_path: configs/architectures/combinations/general/unet_resnet34.yaml
     img_size: 224
     roi_padding: 0.1
 data:

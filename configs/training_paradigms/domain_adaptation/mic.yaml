@@ -15,7 +15,7 @@
 # consistency_weight:   损失权重 lambda / Weight on MIC term
 # num_classes:          分类数 / Number of classes
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/mic.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/mic.yaml
 
 model:
   num_classes: 4

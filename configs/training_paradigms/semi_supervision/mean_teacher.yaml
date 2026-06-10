@@ -24,7 +24,7 @@
 # 适用场景 / Best for: 通用半监督分割基线 / General-purpose semi-seg baseline
 # 源码参考 / Reference code: SSL4MIS (https://github.com/HiLab-git/SSL4MIS)
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/mean_teacher.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/mean_teacher.yaml
 # ============================================================================
 
 model:

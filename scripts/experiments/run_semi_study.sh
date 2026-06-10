@@ -12,14 +12,13 @@
 set -e
 AMP="--amp"
 BASE_OUT="output/semi_study"
-CFG_DIR="configs/training_paradigms/semi"
+CFG_DIR="configs/training_paradigms/semi_supervision"
 
 METHODS=(
     mean_teacher    # NeurIPS 2017 — EMA 教师基线
     cps             # CVPR 2021 — 双模型互伪标签
     unimatch        # CVPR 2023 — 双强增强+特征扰动
     fixmatch        # NeurIPS 2020 — 强弱增强+阈值伪标签
-    augseg          # CVPR 2023 — 增强策略改进
     corrmatch       # CVPR 2024 — 相关性匹配传播
 )
 

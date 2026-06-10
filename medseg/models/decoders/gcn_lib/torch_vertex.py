@@ -13,7 +13,7 @@ from .torch_edge import DenseDilatedKnnGraph
 from .pos_embed import get_2d_relative_pos_embed
 
 try:
-    from timm.models.layers import DropPath
+    from medseg.utils.timm_compat import DropPath
 except ImportError as e:
     raise RuntimeError(
         "Grapher/GCB blocks require timm for DropPath. "

@@ -1,6 +1,6 @@
 """Semi-supervised segmentation methods.
 
-Each method here corresponds to a yaml in ``configs/semi/`` and to a
+Each method here corresponds to a yaml in ``configs/training_paradigms/semi_supervision/`` and to a
 verifiable GitHub reference implementation (linked in each file's header).
 Methods whose implementation could not be made ~99% faithful to a published
 reference were removed; see git history if you need to recover one.

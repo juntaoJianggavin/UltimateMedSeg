@@ -16,7 +16,7 @@
 # confidence_threshold: 可靠像素置信阈值 (paper §4.3)
 # num_classes:          分类数
 #
-# Usage: python train_domain_adaptation.py --config configs/domain_adaptation/pipa.yaml
+# Usage: python train_domain_adaptation.py --config configs/training_paradigms/domain_adaptation/pipa.yaml
 
 model:
   num_classes: 4

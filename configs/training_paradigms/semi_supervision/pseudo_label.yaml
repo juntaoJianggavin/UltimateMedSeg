@@ -32,7 +32,7 @@
 #
 # 适用场景 / Best for: 最简单的自训练基线 / Simplest self-training baseline
 #
-# Usage: python semi_train.py --config configs/semi/pseudo_label.yaml
+# Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/pseudo_label.yaml
 # ============================================================================
 
 model:

@@ -9,8 +9,8 @@ Supports:
 
 Usage:
     python train_distillation.py \
-        --teacher_config configs/teacher.yaml \
-        --student_config configs/student.yaml \
+        --teacher_config configs/training_paradigms/distillation/teacher_large.yaml \
+        --student_config configs/training_paradigms/distillation/aicsd.yaml \
         --distillation_type logit \
         --temperature 4.0 \
         --alpha 0.5

@@ -200,15 +200,23 @@ class GenericDataset(Dataset):
         mask = Image.open(os.path.join(self._mask_dir, mask_file))
         mask = mask.resize(self.img_size, Image.NEAREST)
         mask = np.array(mask, dtype=np.int64)
+        if mask.ndim == 3:
+            mask = mask[..., 0]
+        if mask.max() > 1:
+            mask = (mask > 0).astype(np.int64)
 
-        # Apply transforms
+        # Apply transforms (contract: image HWC float, label HW int64)
         if self.transform is not None:
             sample = self.transform({"image": image, "label": mask})
             image, mask = sample["image"], sample["label"]
 
-        # To tensor
-        if isinstance(image, np.ndarray):
-            image = torch.from_numpy(image.transpose(2, 0, 1)).float()  # H,W,C -> C,H,W
-            mask = torch.from_numpy(mask).long()
+        image = np.asarray(image, dtype=np.float32)
+        mask = np.asarray(mask, dtype=np.int64)
+        if image.ndim == 2:
+            image = image[np.newaxis, ...]
+        else:
+            image = np.ascontiguousarray(image.transpose(2, 0, 1))
+        image = torch.from_numpy(image).float()
+        mask = torch.from_numpy(np.ascontiguousarray(mask)).long()
 
         return {"image": image, "label": mask, "case_name": img_file}

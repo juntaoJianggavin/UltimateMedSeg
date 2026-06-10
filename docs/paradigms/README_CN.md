@@ -208,7 +208,7 @@ training:
 使用 `_base_` 从父配置继承：
 
 ```yaml
-_base_: configs/architectures/networks/general/unet_resnet50.yaml
+_base_: configs/architectures/combinations/general/unet_resnet50.yaml
 
 # 覆盖特定字段
 training:
@@ -228,7 +228,7 @@ data:
 ## 完整示例
 
 ```yaml
-_base_: configs/architectures/networks/general/unet_resnet50.yaml
+_base_: configs/architectures/combinations/general/unet_resnet50.yaml
 
 model:
   num_classes: 9

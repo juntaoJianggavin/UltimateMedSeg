@@ -10,7 +10,7 @@
 # uncertainty_alpha  — 不确定性加权指数 / Uncertainty weighting exponent
 # pseudo_threshold   — 伪标签置信度阈值 / Pseudo-label confidence threshold
 #
-# Usage: python semi_train.py --config configs/semi/ssl4mis_u.yaml
+# Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/ssl4mis_u.yaml
 # ============================================================================
 
 model:

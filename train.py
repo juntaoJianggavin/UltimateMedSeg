@@ -47,10 +47,15 @@ def build_dataset(data_cfg, split='train', cfg=None):
     img_size = data_cfg.get('img_size', 224)
 
     # Use YAML-configurable augmentation pipeline if full config available
+    augment_level = data_cfg.get('augment_level', None)
     if cfg is not None and cfg.get('training', {}).get('augmentation') == 'pipeline':
         transform = build_transforms(cfg, split=split)
+    elif augment_level == 'none':
+        transform = get_val_transforms(img_size)
+    elif split == 'train':
+        transform = get_train_transforms(img_size, augment_level=augment_level or 'standard')
     else:
-        transform = get_train_transforms(img_size) if split == 'train' else get_val_transforms(img_size)
+        transform = get_val_transforms(img_size)
 
     if dataset_type == 'synapse':
         return SynapseDataset(

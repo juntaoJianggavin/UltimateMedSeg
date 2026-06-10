@@ -24,7 +24,7 @@
 #
 # 适用场景 / Best for: 高置信度伪标签需求 / High-confidence pseudo-label scenarios
 #
-# 用法 / Usage: python semi_train.py --config configs/semi/fixmatch.yaml
+# 用法 / Usage: python semi_train.py --config configs/training_paradigms/semi_supervision/fixmatch.yaml
 # ============================================================================
 
 model:
