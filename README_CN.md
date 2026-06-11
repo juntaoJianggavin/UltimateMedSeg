@@ -60,13 +60,7 @@ pip install -e .
 
 ```bash
 # Foundation 模型
-pip install timm transformers huggingface_hub safetensors
-
-# 数据增强
-pip install albumentations
-
-# 训练可视化
-pip install tensorboard wandb
+pip install transformers safetensors
 
 # MLLM 推理 pipeline
 pip install groundingdino-py
@@ -77,6 +71,10 @@ pip install onnx onnxruntime
 
 # Lion 优化器
 pip install lion-pytorch
+
+# Mamba / SSM 编码器（仅 Mamba 系列网络需要，需 CUDA 工具链编译）
+pip install causal-conv1d
+pip install mamba-ssm
 ```
 
 ### 预训练权重自动下载

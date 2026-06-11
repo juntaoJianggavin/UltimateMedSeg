@@ -1,8 +1,8 @@
-# Requires Python >= 3.10 and NVIDIA GPU with CUDA 12.4+
+# Requires Python >= 3.10 and an NVIDIA GPU with CUDA 12.x
 # (PEP 604 union types, e.g. int | None, are used in code)
 
-torch>=2.0.0
-torchvision>=0.15.0
+torch>=2.4.0
+torchvision>=0.19.0
 timm>=0.9.0
 einops>=0.6.0
 monai>=1.2.0

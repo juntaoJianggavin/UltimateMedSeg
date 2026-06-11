@@ -57,13 +57,7 @@ pip install -e .
 
 ```bash
 # Foundation models
-pip install timm transformers huggingface_hub safetensors
-
-# Data augmentation
-pip install albumentations
-
-# Training visualization
-pip install tensorboard wandb
+pip install transformers safetensors
 
 # MLLM inference pipeline
 pip install groundingdino-py
@@ -74,6 +68,10 @@ pip install onnx onnxruntime
 
 # Lion optimizer
 pip install lion-pytorch
+
+# Mamba / SSM encoders (only required for Mamba-family networks; needs CUDA toolchain to build)
+pip install causal-conv1d
+pip install mamba-ssm
 ```
 
 ### Automatic Weight Download
