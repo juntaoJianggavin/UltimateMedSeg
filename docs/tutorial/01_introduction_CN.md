@@ -45,15 +45,15 @@
 ### 常见成像模态与数据集
 
 | 模态 | 典型任务 | 内置数据集 |
-|------|----------|-----------|
-| CT | 多器官分割 | Synapse（8 个器官） |
+|------|----------|------------|
+| CT | 多器官 / 感染分割 | Synapse（8 个器官）, COVID CT Seg, MosMedData+ |
 | MRI | 心脏结构 | ACDC（RV/LV/MYO） |
-| 眼底摄影 | 视盘/视杯 | REFUGE, Drishti-GS, RITE, HRF |
+| X-ray (CXR) | 肺部 / 感染分割 | Montgomery-Shenzhen, QaTa-COV19 |
+| 眼底照相 | 血管 / 视盘视杯 | DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS |
 | 皮肤镜 | 皮肤病灶 | ISIC 2016/2017/2018, PH2 |
-| 病理切片 | 细胞核/腺体 | MoNuSeg, GlaS, PanNuke |
+| 组织病理 (WSI) | 细胞核/腺体 | MoNuSeg, GlaS, PanNuke |
 | 超声 | 乳腺病灶 | BUSI |
-| 内镜 | 息肉 | CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG |
-| 胸部 X 光 | 肺野 | Montgomery-Shenzhen |
+| 内窥镜 | 息肉 | CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG |
 
 ### 评价指标
 
@@ -125,7 +125,7 @@ APRIL-MedSeg 采用**四模块自由组合**设计：
 | 解码器 (Decoder) | 45 | `bilinear`, `deconv`, `emcad`, `cascade_full`, `unetpp` |
 | 跳跃连接 (Skip) | 25 | `concat`, `add`, `cab`, `scse`, `gating` |
 | 瓶颈层 (Bottleneck) | 17 | `none`, `aspp`, `dense_aspp`, `mamba`, `transformer` |
-| 完整网络 | 146 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
+| 完整网络 | 132 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
 
 ### 两种配置模式
 
@@ -166,7 +166,7 @@ APRIL-MedSeg/
 ├── train_text_guided.py        # 文本引导分割
 ├── configs/                    # 921 个 YAML 配置
 ├── medseg/                     # 核心库
-│   ├── models/                 # 178 编码器, 45 解码器, 146 完整网络
+│   ├── models/                 # 178 编码器, 45 解码器, 132 完整网络
 │   ├── losses/                 # 15 个损失函数
 │   ├── datasets/               # 6 个数据集类
 │   ├── training/               # 高级训练范式

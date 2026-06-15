@@ -2,9 +2,9 @@
 
 [中文文档](networks_CN.md)
 
-This project supports 146 complete network architectures (145 registered, size variants merged; 133 standard + 13 text-guided), accessible via the `architecture` field.
+This project supports 132 complete network architectures (136 registered, size variants merged; 119 standard + 13 text-guided), accessible via the `architecture` field.
 
-## CNN (37)
+## CNN (36)
 
 CNN-based architectures, classic UNet and variants.
 
@@ -45,21 +45,15 @@ CNN-based architectures, classic UNet and variants.
 | `stu_net` | STU-Net | arXiv 2023 | - | [stu_net.yaml](../../configs/architectures/networks/general/stu_net.yaml) |
 | `polyper` | Polyper | - | - | [polyper.yaml](../../configs/architectures/networks/general/polyper.yaml) |
 | `hovernet_lite` | HoverNet Lite | - | - | [hovernet_lite.yaml](../../configs/architectures/networks/general/hovernet_lite.yaml) |
-| `hrnet_w18` | HRNet (High-Resolution Net, W18) | CVPR 2019 | - | [hrnet_w18.yaml](../../configs/architectures/networks/general/hrnet_w18.yaml) |
-| `hrnet_w32` | HRNet (High-Resolution Net, W32) | CVPR 2019 | - | [hrnet_w32.yaml](../../configs/architectures/networks/general/hrnet_w32.yaml) |
+| `hrnet_w18` / `hrnet_w32` | HRNet (High-Resolution Net) | CVPR 2019 | - | [hrnet_w18.yaml](../../configs/architectures/networks/general/hrnet_w18.yaml), [hrnet_w32.yaml](../../configs/architectures/networks/general/hrnet_w32.yaml) |
 
-## Transformer (42)
+## Transformer (37)
 
 Transformer-based segmentation networks.
 
 | Name | Paper | Published | GitHub | YAML |
 |---|---|---|---|---|
-| `segformer_b0` | SegFormer (MiT-B0) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b0.yaml](../../configs/architectures/networks/general/segformer_b0.yaml) |
-| `segformer_b1` | SegFormer (MiT-B1) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b1.yaml](../../configs/architectures/networks/general/segformer_b1.yaml) |
-| `segformer_b2` | SegFormer (MiT-B2) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b2.yaml](../../configs/architectures/networks/general/segformer_b2.yaml) |
-| `segformer_b3` | SegFormer (MiT-B3) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b3.yaml](../../configs/architectures/networks/general/segformer_b3.yaml) |
-| `segformer_b4` | SegFormer (MiT-B4) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b4.yaml](../../configs/architectures/networks/general/segformer_b4.yaml) |
-| `segformer_b5` | SegFormer (MiT-B5) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b5.yaml](../../configs/architectures/networks/general/segformer_b5.yaml) |
+| `segformer_b0` ~ `segformer_b5` | SegFormer (MiT-B0\~B5) | NeurIPS 2021 | [NVlabs/SegFormer](https://github.com/NVlabs/SegFormer) | [segformer_b0.yaml](../../configs/architectures/networks/general/segformer_b0.yaml) |
 | `transunet` | TransUNet | arXiv 2021 | [Beckschen/TransUNet](https://github.com/Beckschen/TransUNet) | [transunet_cascade_full.yaml](../../configs/architectures/combinations/general/transunet_cascade_full.yaml) |
 | `swinunet` | Swin-UNet | ECCV 2022 | [HuCaoFighting/Swin-Unet](https://github.com/HuCaoFighting/Swin-Unet) | [swinunet_segformer.yaml](../../configs/architectures/combinations/general/swinunet_segformer.yaml) |
 | `medt` | MedT (Medical Transformer) | MICCAI 2021 | [jeya-maria-jose/Medical-Transformer](https://github.com/jeya-maria-jose/Medical-Transformer) | [medt.yaml](../../configs/architectures/networks/general/medt.yaml) |
@@ -77,8 +71,7 @@ Transformer-based segmentation networks.
 | `transatt_unet` | TransAttUNet | arXiv 2022 | - | [transatt_unet.yaml](../../configs/architectures/networks/general/transatt_unet.yaml) |
 | `da_transunet` | DA-TransUNet | arXiv 2023 | - | [da_transunet.yaml](../../configs/architectures/networks/acdc/da_transunet.yaml) |
 | `ds_transunet` | DS-TransUNet | arXiv 2022 | - | [ds_transunet.yaml](../../configs/architectures/networks/acdc/ds_transunet.yaml) |
-| `uctransnet_full` | UCTransNet (full) | AAAI 2022 | - | [uctransnet.yaml](../../configs/architectures/combinations/general/uctransnet.yaml) |
-| `uctransnet_enc` | UCTransNet (encoder-only) | AAAI 2022 | - | [uctransnet.yaml](../../configs/architectures/combinations/general/uctransnet.yaml) |
+| `uctransnet_full` / `uctransnet_enc` | UCTransNet | AAAI 2022 | - | [uctransnet.yaml](../../configs/architectures/combinations/general/uctransnet.yaml) |
 | `mobile_u_vit` | Mobile-UViT | - | - | [mobile_u_vit.yaml](../../configs/architectures/networks/general/mobile_u_vit.yaml) |
 | `cswin_unet` | CSWin-UNet | - | - | [cswin_unet.yaml](../../configs/architectures/networks/general/cswin_unet.yaml) |
 | `fcbformer` | FCBFormer | MICCAI 2022 | - | [fcbformer.yaml](../../configs/architectures/networks/general/fcbformer.yaml) |
@@ -97,7 +90,7 @@ Transformer-based segmentation networks.
 | `ctnet` | CTNet | - | - | [ctnet.yaml](../../configs/architectures/networks/general/ctnet.yaml) |
 | `nulite` | NuLite | - | - | [nulite.yaml](../../configs/architectures/networks/general/nulite.yaml) |
 
-## Mamba / SSM (25)
+## Mamba / SSM (24)
 
 Mamba / State-Space Model based networks.
 
@@ -107,8 +100,7 @@ Mamba / State-Space Model based networks.
 | `h_vmunet` | H-vmunet | arXiv 2024 | [h_vmunet.yaml](../../configs/architectures/networks/general/h_vmunet.yaml) |
 | `lightm_unet` | LightM-UNet | arXiv 2024 | [lightm_unet.yaml](../../configs/architectures/networks/general/lightm_unet.yaml) |
 | `swin_umamba` | Swin-UMamba | arXiv 2024 | [swin_umamba.yaml](../../configs/architectures/networks/general/swin_umamba.yaml) |
-| `umamba_bot` | U-Mamba (bottleneck) | arXiv 2024 | [umamba_cascade_full.yaml](../../configs/architectures/combinations/general/umamba_cascade_full.yaml), [umamba_cfm.yaml](../../configs/architectures/combinations/general/umamba_cfm.yaml), [umamba_emcad.yaml](../../configs/architectures/combinations/general/umamba_emcad.yaml) |
-| `umamba_enc` | U-Mamba (encoder) | arXiv 2024 | [umamba_cascade_full.yaml](../../configs/architectures/combinations/general/umamba_cascade_full.yaml) |
+| `umamba_bot` / `umamba_enc` | U-Mamba | arXiv 2024 | [umamba_cascade_full.yaml](../../configs/architectures/combinations/general/umamba_cascade_full.yaml), [umamba_cfm.yaml](../../configs/architectures/combinations/general/umamba_cfm.yaml), [umamba_emcad.yaml](../../configs/architectures/combinations/general/umamba_emcad.yaml) |
 | `ultralight_vmunet` | UltraLight VM-UNet | arXiv 2024 | [ultralight_vmunet.yaml](../../configs/architectures/networks/general/ultralight_vmunet.yaml) |
 | `vm_unet` | VM-UNet | arXiv 2024 | [vm_unet.yaml](../../configs/architectures/networks/general/vm_unet.yaml) |
 | `vm_unet_v2` | VM-UNet V2 | arXiv 2024 | [vm_unet_v2.yaml](../../configs/architectures/networks/general/vm_unet_v2.yaml) |
@@ -129,38 +121,31 @@ Mamba / State-Space Model based networks.
 | `vim_unet` | ViM-UNet | arXiv 2024 | [vim_unet.yaml](../../configs/architectures/networks/general/vim_unet.yaml) |
 | `uu_mamba` | UU-Mamba | arXiv 2024 | [uu_mamba.yaml](../../configs/architectures/networks/general/uu_mamba.yaml) |
 
-## SAM (12)
+## SAM (10)
 
 SAM (Segment Anything Model) based networks.
 
 | Name | Paper | Published | YAML |
 |---|---|---|---|
-| `sam_b` | SAM ViT-Base | ICCV 2023 | [sam_vit_cascade_full.yaml](../../configs/architectures/combinations/general/sam_vit_cascade_full.yaml), [sam_vit_cfm.yaml](../../configs/architectures/combinations/general/sam_vit_cfm.yaml), [sam_vit_emcad.yaml](../../configs/architectures/combinations/general/sam_vit_emcad.yaml) |
-| `sam_l` | SAM ViT-Large | ICCV 2023 | [sam_vit_cascade_full.yaml](../../configs/architectures/combinations/general/sam_vit_cascade_full.yaml) |
+| `sam_b` / `sam_l` | SAM ViT (Base/Large) | ICCV 2023 | [sam_vit_cascade_full.yaml](../../configs/architectures/combinations/general/sam_vit_cascade_full.yaml), [sam_vit_cfm.yaml](../../configs/architectures/combinations/general/sam_vit_cfm.yaml), [sam_vit_emcad.yaml](../../configs/architectures/combinations/general/sam_vit_emcad.yaml) |
 | `mobile_sam` | MobileSAM | arXiv 2023 | [mobile_sam.yaml](../../configs/architectures/networks/general/mobile_sam.yaml) |
 | `sam2` | SAM 2 | arXiv 2024 | [sam2.yaml](../../configs/architectures/networks/general/sam2.yaml) |
 | `medsam` | MedSAM | Nature Comms 2024 | [medsam_encoder_emcad.yaml](../../configs/architectures/combinations/general/medsam_encoder_emcad.yaml) |
 | `samus` | SAMUS | arXiv 2023 | [samus.yaml](../../configs/architectures/networks/general/samus.yaml) |
-| `sam_med2d` | SAM-Med2D | arXiv 2023 | [sam_med2d.yaml](../../configs/architectures/networks/general/sam_med2d.yaml) |
-| `sammed2d_wrapper` | SAMMed2D (wrapper) | arXiv 2023 | [qata_covid19_sammed2d.yaml](../../configs/architectures/foundation/sam/qata_covid19_sammed2d.yaml) |
+| `sam_med2d` / `sammed2d_wrapper` | SAM-Med2D | arXiv 2023 | [sam_med2d.yaml](../../configs/architectures/networks/general/sam_med2d.yaml), [qata_covid19_sammed2d.yaml](../../configs/architectures/foundation/sam/qata_covid19_sammed2d.yaml) |
 | `medical_sam_adapter` | Medical SAM Adapter | arXiv 2023 | [medical_sam_adapter.yaml](../../configs/architectures/networks/general/medical_sam_adapter.yaml) |
 | `samed` | SAMed | arXiv 2023 | [samed.yaml](../../configs/architectures/networks/general/samed.yaml) |
 | `auto_sam` | AutoSAM | arXiv 2023 | [auto_sam.yaml](../../configs/architectures/networks/general/auto_sam.yaml) |
 | `lite_medsam` | Lite-MedSAM | arXiv 2024 | [qata_covid19_lite_medsam.yaml](../../configs/architectures/foundation/sam/qata_covid19_lite_medsam.yaml) |
 
-## KAN / MLP (7)
+## KAN / MLP (4)
 
 | Name | Paper | Published | YAML |
 |---|---|---|---|
 | `ukan` | U-KAN | arXiv 2024 | [ukan.yaml](../../configs/architectures/networks/general/ukan.yaml) |
 | `wav_kan_unet` | Wav-KAN UNet | arXiv 2024 | [wav_kan_unet.yaml](../../configs/architectures/networks/general/wav_kan_unet.yaml) |
 | `unext` | UNeXt | MICCAI 2022 | [unext.yaml](../../configs/architectures/networks/general/unext.yaml) |
-| `rolling_unet` | Rolling-UNet | arXiv 2024 | [rolling_unet.yaml](../../configs/architectures/networks/general/rolling_unet.yaml) |
-| `rolling_unet_s` | Rolling-UNet (small) | arXiv 2024 | [rolling_unet_s.yaml](../../configs/architectures/networks/general/rolling_unet_s.yaml) |
-| `rolling_unet_m` | Rolling-UNet (medium) | arXiv 2024 | [rolling_unet_m.yaml](../../configs/architectures/networks/general/rolling_unet_m.yaml) |
-| `rolling_unet_l` | Rolling-UNet (large) | arXiv 2024 | [rolling_unet_l.yaml](../../configs/architectures/networks/general/rolling_unet_l.yaml) |
-| `xlstm_unet_bot` | xLSTM-UNet (bottleneck) | arXiv 2024 | [xlstm_unet_bot.yaml](../../configs/architectures/networks/general/xlstm_unet_bot.yaml) |
-| `xlstm_unet_enc` | xLSTM-UNet (encoder) | arXiv 2024 | [xlstm_unet_enc.yaml](../../configs/architectures/networks/general/xlstm_unet_enc.yaml) |
+| `rolling_unet` | Rolling-UNet (S/M/L) | arXiv 2024 | [rolling_unet.yaml](../../configs/architectures/networks/general/rolling_unet.yaml), [rolling_unet_s.yaml](../../configs/architectures/networks/general/rolling_unet_s.yaml), [rolling_unet_m.yaml](../../configs/architectures/networks/general/rolling_unet_m.yaml), [rolling_unet_l.yaml](../../configs/architectures/networks/general/rolling_unet_l.yaml) |
 
 ## RWKV (5)
 
@@ -172,7 +157,7 @@ SAM (Segment Anything Model) based networks.
 | `md_rwkv_unet` | MD-RWKV-UNet | arXiv 2024 | [md_rwkv_unet.yaml](../../configs/architectures/networks/general/md_rwkv_unet.yaml) |
 | `rir_zigzag` | RIR-Zigzag | arXiv 2024 | [rir_zigzag.yaml](../../configs/architectures/combinations/general/rir_zigzag.yaml) |
 
-## Linear Attention (4)
+## Linear Attention (3)
 
 | Name | Paper | Published | YAML |
 |---|---|---|---|

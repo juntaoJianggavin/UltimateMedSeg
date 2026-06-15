@@ -46,14 +46,14 @@ Medical image segmentation directly impacts four critical clinical workflows:
 
 | Modality | Typical Task | Built-in Datasets |
 |----------|-------------|-------------------|
-| CT | Multi-organ segmentation | Synapse (8 organs) |
+| CT | Multi-organ / Infection segmentation | Synapse (8 organs), COVID CT Seg, MosMedData+ |
 | MRI | Cardiac structure | ACDC (RV/LV/MYO) |
-| Fundus Photography | Optic disc/cup | REFUGE, Drishti-GS, RITE, HRF |
+| X-ray (CXR) | Lung / Infection segmentation | Montgomery-Shenzhen, QaTa-COV19 |
+| Fundus Photography | Vessel / Optic disc/cup | DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS |
 | Dermoscopy | Skin lesion | ISIC 2016/2017/2018, PH2 |
-| Pathology | Nuclei/gland | MoNuSeg, GlaS, PanNuke |
+| Histopathology (WSI) | Nuclei/gland | MoNuSeg, GlaS, PanNuke |
 | Ultrasound | Breast lesion | BUSI |
 | Endoscopy | Polyp | CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG |
-| Chest X-ray | Lung field | Montgomery-Shenzhen |
 
 ### Evaluation Metrics
 
@@ -125,7 +125,7 @@ Each module is independently swappable via a single YAML line:
 | Decoder | 45 | `bilinear`, `deconv`, `emcad`, `cascade_full`, `unetpp` |
 | Skip Connection | 25 | `concat`, `add`, `cab`, `scse`, `gating` |
 | Bottleneck | 17 | `none`, `aspp`, `dense_aspp`, `mamba`, `transformer` |
-| Complete Network | 146 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
+| Complete Network | 132 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
 
 ### Two Configuration Modes
 
@@ -166,7 +166,7 @@ APRIL-MedSeg/
 ├── train_text_guided.py        # Text-guided segmentation
 ├── configs/                    # 921 YAML configs
 ├── medseg/                     # Core library
-│   ├── models/                 # 178 encoders, 45 decoders, 146 networks
+│   ├── models/                 # 178 encoders, 45 decoders, 132 networks
 │   ├── losses/                 # 15 loss functions
 │   ├── datasets/               # 6 dataset classes
 │   ├── training/               # Advanced training paradigms

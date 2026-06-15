@@ -94,7 +94,7 @@ python train.py --config configs/architectures/combinations/general/unet_basic.y
 
 | Document | Content |
 |----------|---------|
-| [Models](../models/README.md) | 178 encoders, 45 decoders, 146 networks |
+| [Models](../models/README.md) | 178 encoders, 45 decoders, 132 networks |
 | [Paradigms](../paradigms/README.md) | 6 training paradigms |
 | [Data](../data/README.md) | 25 datasets, augmentation pipeline |
 | [Deployment](../deployment/README.md) | ONNX export, TTA, ensemble |

@@ -329,7 +329,7 @@ Same encoder, different decoders:
 
 ### Related Documentation
 
-- [Networks Guide](../models/networks.md) -- All 146 complete network architectures
+- [Networks Guide](../models/networks.md) -- All 132 complete network architectures
 - [Encoder Guide](../models/encoders.md) -- 178 encoders including U-Net variants
 - [Decoder Guide](../models/decoders.md) -- 45 decoders with design rationale
 - [Skip Connections](../models/skip_connections.md) -- 25 skip connection implementations

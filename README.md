@@ -716,21 +716,21 @@ data:
 
 ### Included Datasets (26)
 
-**Skin**: ISIC 2016/2017/2018, PH2
+**CT**: Synapse, COVID CT Seg, MosMedData+
 
-**Polyp**: CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG
+**MRI**: ACDC
 
-**Pathology**: GlaS, PanNuke, MoNuSeg
+**X-ray (CXR)**: Montgomery+Shenzhen, QaTa-COV19
 
-**Retinal**: DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS
+**Fundus Photography**: DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS
 
-**Chest**: Montgomery+Shenzhen CXR, QaTa-COV19, COVID CT Seg
+**Dermoscopy**: ISIC 2016/2017/2018, PH2
+
+**Endoscopy**: CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG
+
+**Histopathology (WSI)**: GlaS, PanNuke, MoNuSeg
 
 **Ultrasound**: BUSI
-
-**Multi-organ**: Synapse, ACDC
-
-**CT**: MosMedData+
 
 ---
 <a id="config-system"></a>

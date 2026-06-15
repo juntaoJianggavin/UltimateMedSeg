@@ -724,21 +724,21 @@ data:
 
 ### 已收录数据集 (26 个)
 
-**皮肤**: ISIC 2016/2017/2018, PH2
+**CT**: Synapse, COVID CT Seg, MosMedData+
 
-**息肉**: CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG
+**MRI**: ACDC
 
-**病理**: GlaS, PanNuke, MoNuSeg
+**X-ray (CXR)**: Montgomery+Shenzhen, QaTa-COV19
 
-**眼底**: DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS
+**眼底照相**: DRIVE, STARE, CHASE_DB1, HRF, ARIA, RITE, REFUGE, Drishti-GS
 
-**胸部**: Montgomery+Shenzhen CXR, QaTa-COV19, COVID CT Seg
+**皮肤镜**: ISIC 2016/2017/2018, PH2
+
+**内窥镜**: CVC-ClinicDB, CVC-ColonDB, Kvasir-SEG
+
+**组织病理 (WSI)**: GlaS, PanNuke, MoNuSeg
 
 **超声**: BUSI
-
-**多器官**: Synapse, ACDC
-
-**CT**: MosMedData+
 
 ---
 <a id="配置系统"></a>
