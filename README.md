@@ -914,7 +914,7 @@ Clinical deployment must comply with local regulations.
 
 ### Acknowledgements
 
-Thanks to PyTorch, timm, MONAI, SSL4MIS, SAM, GroundingDINO, DINOv2/v3, CLIP, transformers, and all open-source projects that made this possible.
+Thanks to [PyTorch](https://github.com/pytorch/pytorch), [timm](https://github.com/huggingface/pytorch-image-models), [MONAI](https://github.com/Project-MONAI/MONAI), [SSL4MIS](https://github.com/HiLab-git/SSL4MIS), [SAM](https://github.com/facebookresearch/segment-anything), [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO), [DINOv2](https://github.com/facebookresearch/dinov2), [CLIP](https://github.com/openai/CLIP), [transformers](https://github.com/huggingface/transformers), and all open-source projects that made this possible.
 
 ---
 <a id="contact"></a>
