@@ -18,7 +18,7 @@
   </p>
 </div>
 
-> **133** networks · **177** encoders · **45** decoders · **81** losses · **25** skip connections · **17** bottlenecks · **6** training paradigms · **24** augmentations · **917** YAML configs · switch anything with one line of YAML
+> **130** networks · **177** encoders · **45** decoders · **81** losses · **25** skip connections · **17** bottlenecks · **6** training paradigms · **24** augmentations · **917** YAML configs · switch anything with one line of YAML
 
 ---
 <a id="updates"></a>
@@ -368,11 +368,11 @@ segmentation_tool/
 │   │   │   ├── transformer/      (5 modules)    #     Transformer: CrossAttn, TransFusion, AggAttn, MISSFormer, UCTrans
 │   │   │   ├── mamba/            (1 module)     #     Mamba: SK-VM++
 │   │   │   └── fusion/           (6 modules)    #     CNN fusion: BiFusion, Deformable, MultiScale, FeatureRefine, CCM, SDI
-│   │   ├── networks/                            #   133 complete architectures (variants merged)
+│   │   ├── networks/                            #   130 complete architectures (variants merged)
 │   │   │   ├── cnn/              (36 registered)#     CNN: UNet, UNet3+, UNet++, AttUNet, nnUNet, MedNeXt, MEW-UNet, ...
-│   │   │   ├── transformer/      (37 registered)#     Transformer: SegFormer, TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, ...
+│   │   │   ├── transformer/      (36 registered)#     Transformer: SegFormer, TransUNet, SwinUNet, DAEFormer, PolypPVT, CASCADE, ...
 │   │   │   ├── mamba/            (24 registered)#     Mamba: VMUNet, U-Mamba, SwinUMamba, SkinMamba, DermoMamba, SerpMamba, ...
-│   │   │   ├── sam/              (12 registered)#     SAM family: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
+│   │   │   ├── sam/              (10 registered)#     SAM family: MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, ...
 │   │   │   ├── rwkv/             (5 registered) #     RWKV: U-RWKV (MICCAI 2025), U-RWKV (TIP 2026), RWKV-UNet, MD-RWKV, RIR-Zigzag
 │   │   │   ├── kan_mlp/          (4 registered) #     KAN/MLP: RollingUNet, UNeXt, UKAN, WA-UKAN
 │   │   │   └── linear_attn/      (3 registered) #     Linear attention: TTT-UNet, U-VixLSTM, xLSTM-UNet
@@ -423,7 +423,7 @@ segmentation_tool/
 │   └── logo.png                                 #   Project logo
 ├── configs/                      (917 yamls)    # YAML configs
 │   ├── architectures/            (783 yamls)    #   Network architecture configs
-│   │   ├── networks/             (302 yamls)    #     Complete networks (133 arch across general/acdc/synapse)
+│   │   ├── networks/             (302 yamls)    #     Complete networks (130 arch across general/acdc/synapse)
 │   │   ├── combinations/         (169 yamls)    #     Encoder+decoder free combinations
 │   │   ├── decoder_study/        (133 yamls)    #     Decoder ablation (3 enc × 44 dec + 1)
 │   │   ├── skip_study/           (75 yamls)     #     Skip ablation (3 enc × 25 skip)
@@ -484,14 +484,14 @@ segmentation_tool/
 ## 🧩 Model Components
 > Detailed docs: [docs/models/](docs/models/README.md)
 
-### Complete Networks — 133
+### Complete Networks — 130
 
 | Category | Count | Examples |
 |---|---|---|
 | CNN | 36 | UNet, UNet3+, UNet++, Attention-UNet, nnU-Net, MedNeXt, MEW-UNet, DCSAU-Net |
-| Transformer | 37 | SegFormer, TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
+| Transformer | 36 | SegFormer, TransUNet, Swin-UNet, DAEFormer, MISSFormer, HiFormer, PolypPVT, CASCADE |
 | Mamba / SSM | 24 | VM-UNet, U-Mamba, Swin-UMamba, LKM-UNet, LoG-VMamba, HC-Mamba |
-| SAM family | 12 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, LiteMedSAM, SAMed, Medical SAM Adapter |
+| SAM family | 10 | MedSAM, SAM-Med2D, SAM2, SAMUS, AutoSAM, MobileSAM, LiteMedSAM, SAMed, Medical SAM Adapter |
 | KAN / MLP | 4 | RollingUNet, UNeXt, U-KAN, WA-UKAN |
 | Linear Attention | 3 | TTT-UNet, U-VixLSTM, xLSTM-UNet |
 | RWKV | 5 | U-RWKV (MICCAI 2025), U-RWKV (TIP 2026), RWKV-UNet, MD-RWKV-UNet, RIR-Zigzag |

@@ -125,7 +125,7 @@ APRIL-MedSeg 采用**四模块自由组合**设计：
 | 解码器 (Decoder) | 45 | `bilinear`, `deconv`, `emcad`, `cascade_full`, `unetpp` |
 | 跳跃连接 (Skip) | 25 | `concat`, `add`, `cab`, `scse`, `gating` |
 | 瓶颈层 (Bottleneck) | 17 | `none`, `aspp`, `dense_aspp`, `mamba`, `transformer` |
-| 完整网络 | 133 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
+| 完整网络 | 130 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
 
 ### 两种配置模式
 
@@ -166,7 +166,7 @@ APRIL-MedSeg/
 ├── train_text_guided.py        # 文本引导分割
 ├── configs/                    # 917 个 YAML 配置
 ├── medseg/                     # 核心库
-│   ├── models/                 # 177 编码器, 45 解码器, 133 完整网络
+│   ├── models/                 # 177 编码器, 45 解码器, 130 完整网络
 │   ├── losses/                 # 15 个损失函数
 │   ├── datasets/               # 6 个数据集类
 │   ├── training/               # 高级训练范式

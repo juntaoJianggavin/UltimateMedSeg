@@ -81,7 +81,7 @@ python train.py --config configs/architectures/combinations/general/unet_basic.y
 
 | 文档 | 内容 |
 |------|------|
-| [模型](../models/README_CN.md) | 177 编码器、45 解码器、133 完整网络 |
+| [模型](../models/README_CN.md) | 177 编码器、45 解码器、130 完整网络 |
 | [训练范式](../paradigms/README_CN.md) | 6 大训练范式 |
 | [数据](../data/README.md) | 25 个数据集、增强管线 |
 | [部署](../deployment/README.md) | ONNX 导出、TTA、集成推理 |

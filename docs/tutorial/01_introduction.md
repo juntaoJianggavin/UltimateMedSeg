@@ -125,7 +125,7 @@ Each module is independently swappable via a single YAML line:
 | Decoder | 45 | `bilinear`, `deconv`, `emcad`, `cascade_full`, `unetpp` |
 | Skip Connection | 25 | `concat`, `add`, `cab`, `scse`, `gating` |
 | Bottleneck | 17 | `none`, `aspp`, `dense_aspp`, `mamba`, `transformer` |
-| Complete Network | 133 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
+| Complete Network | 130 | `unet`, `transunet`, `swinunet`, `attention_unet`, `vmunet` |
 
 ### Two Configuration Modes
 
@@ -166,7 +166,7 @@ APRIL-MedSeg/
 ├── train_text_guided.py        # Text-guided segmentation
 ├── configs/                    # 917 YAML configs
 ├── medseg/                     # Core library
-│   ├── models/                 # 177 encoders, 45 decoders, 133 networks
+│   ├── models/                 # 177 encoders, 45 decoders, 130 networks
 │   ├── losses/                 # 15 loss functions
 │   ├── datasets/               # 6 dataset classes
 │   ├── training/               # Advanced training paradigms

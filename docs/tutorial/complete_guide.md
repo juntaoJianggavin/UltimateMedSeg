@@ -33,7 +33,7 @@
 
 **APRIL-MedSeg** is a modular 2D medical image segmentation toolbox built on PyTorch. It provides:
 
-- **133** complete network architectures (CNN, Transformer, Mamba, RWKV, KAN, SAM family, etc.)
+- **130** complete network architectures (CNN, Transformer, Mamba, RWKV, KAN, SAM family, etc.)
 - **177** encoders (including 39 foundation models across 9 medical modalities + dynamic timm wrapper)
 - **45** decoders (cascade, attention, transformer, MLP, etc.)
 - **81** loss functions (supervised, distillation, domain adaptation, weakly supervised)
@@ -149,7 +149,7 @@ APRIL-MedSeg/
 │   │   ├── decoders/          # 45 decoders
 │   │   ├── skip_connections/  # 25 skip connection types
 │   │   ├── bottlenecks/       # 17 bottlenecks
-│   │   ├── networks/          # 133 complete pre-assembled architectures
+│   │   ├── networks/          # 130 complete pre-assembled architectures
 │   │   └── text_unet/         # 12 text-guided models
 │   ├── training/              # Training paradigm implementations
 │   │   ├── semi/              # 20 semi-supervised methods
@@ -742,7 +742,7 @@ model:
   architecture: transunet    # or swinunet, medsam, vmunet, etc.
 ```
 
-133 complete architectures are available. Some popular ones:
+130 complete architectures are available. Some popular ones:
 
 | Category | Examples |
 |----------|----------|

@@ -2,7 +2,7 @@
 
 [English](networks.md)
 
-本项目支持 133 个完整网络架构（136 注册，合并尺寸变体；121 个标准 + 12 个文本引导），通过 `architecture` 字段直接使用。
+本项目支持 130 个完整网络架构（136 注册，合并尺寸变体；118 个标准 + 12 个文本引导），通过 `architecture` 字段直接使用。
 
 ## CNN (36)
 
@@ -45,8 +45,9 @@
 | `dconnnet` | DconnNet | MICCAI 2023 | - | [dconnnet.yaml](../../configs/architectures/networks/general/dconnnet.yaml) |
 | `polyper` | Polyper | - | - | [polyper.yaml](../../configs/architectures/networks/general/polyper.yaml) |
 | `hovernet_lite` | HoverNet Lite | - | - | [hovernet_lite.yaml](../../configs/architectures/networks/general/hovernet_lite.yaml) |
+| `double_unet` | DoubleU-Net | CBMS 2020 | - | [double_unet.yaml](../../configs/architectures/networks/general/double_unet.yaml) |
 
-## Transformer (37)
+## Transformer (36)
 
 基于 Transformer 的分割网络。
 
@@ -84,10 +85,10 @@
 | `ldnet` | LDNet | MICCAI 2022 | - | [ldnet.yaml](../../configs/architectures/networks/general/ldnet.yaml) |
 | `esfpnet` | ESFPNet | MICCAI 2022 | - | [esfpnet.yaml](../../configs/architectures/networks/general/esfpnet.yaml) |
 | `mist` | MIST | WACV 2024 | - | [mist.yaml](../../configs/architectures/networks/general/mist.yaml) |
-| `double_unet` | DoubleU-Net | CBMS 2020 | - | [double_unet.yaml](../../configs/architectures/networks/general/double_unet.yaml) |
 | `sepnet` | SEPNet | IEEE TCSVT 2024 | - | [sepnet.yaml](../../configs/architectures/networks/general/sepnet.yaml) |
 | `ctnet` | CTNet | IEEE TCYB 2024 | - | [ctnet.yaml](../../configs/architectures/networks/general/ctnet.yaml) |
 | `nulite` | NuLite | - | - | [nulite.yaml](../../configs/architectures/networks/general/nulite.yaml) |
+| `transnuseg` | TransNuSeg | MICCAI 2023 | [zhenqi-he/transnuseg](https://github.com/zhenqi-he/transnuseg) | [transnuseg.yaml](../../configs/architectures/networks/general/transnuseg.yaml) |
 
 ## Mamba / SSM (24)
 
@@ -120,7 +121,7 @@
 | `vim_unet` | ViM-UNet | arXiv 2024 | [vim_unet.yaml](../../configs/architectures/networks/general/vim_unet.yaml) |
 | `uu_mamba` | UU-Mamba | arXiv 2024 | [uu_mamba.yaml](../../configs/architectures/networks/general/uu_mamba.yaml) |
 
-## SAM (12)
+## SAM (10)
 
 基于 Segment Anything Model 的网络。
 
