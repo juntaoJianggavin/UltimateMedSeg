@@ -50,6 +50,14 @@ U-Net remains the default baseline in virtually every medical segmentation bench
                           Output (e.g., 388 x 388 x C)
 ```
 
+<p align="center">
+  <img src="../../figs/unet.png" width="900">
+</p>
+
+<p align="center">
+  <em>Figure 1. Standard U-Net architecture.</em>
+</p>
+
 ### 2.2 Key Design Decisions
 
 **Why skip connections?**
