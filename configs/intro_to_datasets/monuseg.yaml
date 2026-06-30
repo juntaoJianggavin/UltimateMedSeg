@@ -15,7 +15,7 @@
 #
 # 下载:
 #   官方: https://monuseg.grand-challenge.org/Data/
-#   镜像: https://www.kaggle.com/datasets/aryansakhala/monuseg-dataset
+#   镜像: https://www.kaggle.com/datasets/tuanledinh/monuseg2018
 #   下载后目录结构:
 #     data/MoNuSeg/
 #     ├── train/

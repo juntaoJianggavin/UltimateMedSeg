@@ -13,7 +13,9 @@
 #
 # 下载:
 #   官方: https://warwick.ac.uk/fac/cross_fac/tia/data/pannuke
-#   镜像: https://www.kaggle.com/datasets/andrewmvd/pannuke-dataset
+#   Kaggle Part 1/3: https://www.kaggle.com/datasets/andrewmvd/cancer-inst-segmentation-and-classification
+#   Kaggle Part 2/3: https://www.kaggle.com/datasets/andrewmvd/cancer-instance-segmentation-and-classification-2
+#   Kaggle Part 3/3: https://www.kaggle.com/datasets/andrewmvd/cancer-instance-segmentation-and-classification-3
 #   下载后目录结构:
 #     data/PanNuke/
 #     ├── fold1/
