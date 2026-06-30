@@ -13,7 +13,7 @@
 #
 # 下载:
 #   官方: https://challenge.isic-archive.com/data/#2018
-#   镜像: https://www.kaggle.com/datasets/codeinstitute/isic-2018-challenge-task-1
+#   镜像: https://www.kaggle.com/datasets/tschandl/isic2018-challenge-task1-data-segmentation
 #   下载后目录结构:
 #     data/ISIC2018/
 #     ├── train/

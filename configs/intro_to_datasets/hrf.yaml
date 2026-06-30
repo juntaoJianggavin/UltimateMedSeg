@@ -17,7 +17,7 @@
 #
 # 下载:
 #   官方: https://www5.cs.fau.de/research/data/fundus-images/
-#   镜像: https://www.kaggle.com/datasets/andrewmvd/high-resolution-fundus-image-database
+#   可选镜像(非官方重传): https://www.kaggle.com/datasets/addisamare/high-resolution-fundus-image
 #   下载后目录结构:
 #     data/HRF/
 #     ├── images/       (01_dr.jpg, 01_g.jpg, 01_h.jpg ...)
