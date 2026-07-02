@@ -60,71 +60,173 @@ logger = logging.getLogger(__name__)
 
 class WeaklySupervisedDataset:
     """Dataset wrapper for weakly supervised learning.
-    
-    Supports:
-    - Images with full pixel annotations
-    - Images with only bounding boxes
-    - Images with only image-level labels
+
+    Loads weak annotations from JSON files specified in data_cfg:
+    - annotation_file: boxes.json, points.json, scribbles.json, etc.
+    - label_file: image_labels.json
+
+    JSON annotations use normalized coordinates (0-1) which are converted
+    to pixel coordinates using the image tensor dimensions. Falls back to
+    generating annotations from segmentation masks when JSON is unavailable.
     """
-    
-    def __init__(self, dataset, supervision_type='box', num_classes=None):
+
+    def __init__(self, dataset, supervision_type='box', num_classes=None,
+                 data_cfg=None):
         self.dataset = dataset
         self.supervision_type = supervision_type
         self.num_classes = num_classes
-    
+        self.data_cfg = data_cfg or {}
+        self._annotations = {}
+        self._load_annotations()
+
+    def _load_annotations(self):
+        """Load JSON annotation files indexed by image filename."""
+        import json as _json
+        for key in ('annotation_file', 'label_file'):
+            fpath = self.data_cfg.get(key)
+            if fpath and os.path.exists(fpath):
+                with open(fpath, 'r', encoding='utf-8') as f:
+                    entries = _json.load(f)
+                for entry in entries:
+                    img_name = entry.get('image', '')
+                    if img_name not in self._annotations:
+                        self._annotations[img_name] = {}
+                    self._annotations[img_name].update(entry)
+
     def __len__(self):
         return len(self.dataset)
-    
+
     def __getitem__(self, idx):
         item = self.dataset[idx]
-        
-        # Add weak supervision annotations
-        if self.supervision_type == 'box':
-            # Generate or load boxes
+        case_name = item.get('case_name', '')
+        ann = self._annotations.get(case_name, {})
+
+        if 'boxes' in ann:
+            boxes, box_classes = self._parse_boxes(ann['boxes'], item)
+            item['boxes'] = boxes
+            if box_classes is not None:
+                item['box_classes'] = box_classes
+        elif self.supervision_type == 'box':
             item['boxes'] = self._get_or_generate_boxes(item)
+
+        if 'image_labels' in ann:
+            item['image_labels'] = self._parse_image_labels(ann['image_labels'])
+        else:
             item['image_labels'] = self._get_image_labels(item)
-        elif self.supervision_type == 'image_label':
-            item['image_labels'] = self._get_image_labels(item)
-        
+
+        if 'scribbles' in ann:
+            scribbles, scribble_classes = self._parse_scribbles(
+                ann['scribbles'], item)
+            item['scribbles'] = scribbles
+            item['scribble_classes'] = scribble_classes
+
+        if 'points' in ann:
+            points, point_classes = self._parse_points(ann['points'], item)
+            item['points'] = points
+            item['point_classes'] = point_classes
+
         return item
-    
+
+    def _parse_boxes(self, boxes_data, item):
+        """Parse boxes from JSON. Handles class-annotated and plain formats.
+
+        Returns (boxes_tensor, box_classes_tensor_or_None).
+        """
+        _, H, W = item['image'].shape
+        boxes = []
+        classes = []
+        has_class = False
+        for b in boxes_data:
+            if isinstance(b, dict):
+                box = b['box']
+                cls = b.get('class', 1)
+                has_class = True
+            else:
+                box = b
+                cls = 1
+            boxes.append([box[0] * W, box[1] * H, box[2] * W, box[3] * H])
+            classes.append(cls)
+        boxes_t = torch.tensor(boxes, dtype=torch.float32) if boxes else torch.empty(0, 4)
+        classes_t = torch.tensor(classes, dtype=torch.long) if has_class and classes else None
+        return boxes_t, classes_t
+
+    def _parse_image_labels(self, labels_data):
+        """Parse image-level labels from JSON. Returns multi-hot tensor."""
+        num_classes = self.num_classes if self.num_classes is not None else (
+            max(labels_data) + 1 if labels_data else 2)
+        image_labels = torch.zeros(num_classes)
+        for cls in labels_data:
+            if 0 <= cls < num_classes:
+                image_labels[cls] = 1.0
+        return image_labels
+
+    def _parse_scribbles(self, scribbles_data, item):
+        """Parse scribbles from JSON. Returns (coords_tensor, classes_tensor)."""
+        _, H, W = item['image'].shape
+        coords = []
+        classes = []
+        for s in scribbles_data:
+            if isinstance(s, dict):
+                pts = s['scribble']
+                cls = s.get('class', 0)
+            else:
+                pts = s
+                cls = 0
+            for pt in pts:
+                coords.append([int(pt[0] * W), int(pt[1] * H)])
+                classes.append(cls)
+        if coords:
+            return (torch.tensor(coords, dtype=torch.long),
+                    torch.tensor(classes, dtype=torch.long))
+        return torch.empty(0, 2, dtype=torch.long), torch.empty(0, dtype=torch.long)
+
+    def _parse_points(self, points_data, item):
+        """Parse points from JSON. Returns (points_tensor, classes_tensor)."""
+        _, H, W = item['image'].shape
+        pts = []
+        classes = []
+        for p in points_data:
+            if isinstance(p, dict):
+                pt = p['point']
+                cls = p.get('class', 0)
+            else:
+                pt = p
+                cls = 0
+            pts.append([int(pt[0] * W), int(pt[1] * H)])
+            classes.append(cls)
+        if pts:
+            return (torch.tensor(pts, dtype=torch.long),
+                    torch.tensor(classes, dtype=torch.long))
+        return torch.empty(0, 2, dtype=torch.long), torch.empty(0, dtype=torch.long)
+
     def _get_or_generate_boxes(self, item):
-        """Get bounding boxes from annotation or generate from label."""
+        """Generate pseudo-boxes from label statistics (fallback)."""
         if 'boxes' in item:
             return item['boxes']
-        
-        # Generate pseudo-boxes from label statistics
         label = item['label']
         boxes = []
-        
         for cls in range(label.max() + 1):
             if cls == 0:
                 continue
             mask = (label == cls)
             if mask.sum() > 0:
-                # Get bounding box
                 y_indices, x_indices = torch.where(mask)
                 if len(y_indices) > 0:
                     x1, y1 = x_indices.min(), y_indices.min()
                     x2, y2 = x_indices.max(), y_indices.max()
                     boxes.append([x1.item(), y1.item(), x2.item(), y2.item()])
-        
         return torch.tensor(boxes) if boxes else torch.empty(0, 4)
-    
+
     def _get_image_labels(self, item):
-        """Get image-level classification labels."""
+        """Generate image-level labels from mask (fallback)."""
         if 'image_labels' in item:
             return item['image_labels']
-        
-        # Generate from segmentation mask
         label = item['label']
         num_classes = self.num_classes if self.num_classes is not None else label.max() + 1
         image_labels = torch.zeros(num_classes)
-        
         for cls in range(num_classes):
             if (label == cls).sum() > 0:
                 image_labels[cls] = 1.0
-        
         return image_labels
 
 
@@ -254,10 +356,23 @@ def train_one_epoch_weakly(
             
         elif supervision_type == 'cam':
             if cam_generator is not None:
+                image_labels_raw = batch.get('image_labels', None)
+                if image_labels_raw is not None:
+                    # Convert multi-hot (B, num_classes) float to primary class index (B,) long
+                    primary_classes = image_labels_raw.argmax(dim=1).long().to(device)
+                else:
+                    primary_classes = torch.zeros(images.shape[0], dtype=torch.long, device=device)
                 cams = cam_generator.generate_batch_cam(
-                    images,
-                    batch.get('image_labels', None)
+                    images, primary_classes
                 )
+                # generate_batch_cam returns (B, H_cam, W_cam) at feature-map resolution;
+                # CAMLoss expects (B, C, H, W) matching predictions spatial size.
+                num_cls = batch['image_labels'].shape[1]
+                cams = cams.unsqueeze(1).expand(-1, num_cls, -1, -1)
+                cams = F.interpolate(
+                    cams, size=predictions.shape[-2:],
+                    mode='bilinear', align_corners=False,
+                ).to(device)
                 image_labels = batch['image_labels'].to(device)
                 target = batch.get('label', None)
                 if target is not None:
@@ -316,6 +431,7 @@ def train_one_epoch_weakly(
                     loss = criterion(predictions, image_labels)
                 elif loss_name == 'scribble_sup':
                     scribbles_list = batch.get('scribbles', None)
+                    scribble_classes_list = batch.get('scribble_classes', None)
                     images_t = batch['image'].to(device)
                     if scribbles_list is not None and isinstance(scribbles_list, list):
                         # Convert scribble coordinates to a mask
@@ -323,9 +439,13 @@ def train_one_epoch_weakly(
                         scribble_mask = torch.full((B_s, H_s, W_s), -1, dtype=torch.long, device=device)
                         for b_idx, scrib in enumerate(scribbles_list):
                             if isinstance(scrib, torch.Tensor) and scrib.numel() > 0 and scrib.dim() == 2:
-                                x_coords = (scrib[:, 0].clamp(0, W_s - 1).long())
-                                y_coords = (scrib[:, 1].clamp(0, H_s - 1).long())
-                                scribble_mask[b_idx, y_coords, x_coords] = 0
+                                x_coords = scrib[:, 0].clamp(0, W_s - 1).long().to(device)
+                                y_coords = scrib[:, 1].clamp(0, H_s - 1).long().to(device)
+                                if scribble_classes_list is not None and b_idx < len(scribble_classes_list):
+                                    cls = scribble_classes_list[b_idx].long().to(device)
+                                    scribble_mask[b_idx, y_coords, x_coords] = cls
+                                else:
+                                    scribble_mask[b_idx, y_coords, x_coords] = 0
                     else:
                         scribble_mask = torch.zeros(predictions.shape[0], predictions.shape[2], predictions.shape[3], dtype=torch.long, device=device)
                     loss = criterion(predictions, scribble_mask, images_t)
@@ -397,6 +517,23 @@ def train_one_epoch_weakly(
                         cam_mask_exp = cam_mask.sum(dim=1, keepdim=True).clamp_min(1e-6)
                         cls_token_masked = (features * cam_mask_exp).mean(dim=(2, 3))
                         loss = criterion(patch_tokens, cam_tokens, cls_token_full, cls_token_masked, image_labels)
+                elif loss_name in ('advcam_loss', 'mctformer_loss'):
+                    # These losses all take (predictions, image_labels, ...)
+                    image_labels = ctx.pop('image_labels', None)
+                    loss = criterion(predictions, image_labels)
+                elif loss_name == 'puzzle_cam':
+                    # PuzzleCAMLoss: (features_full, features_tiled_merged,
+                    #                 predictions_full, predictions_tiled, image_labels)
+                    image_labels = ctx.pop('image_labels', None)
+                    cls_preds = F.adaptive_avg_pool2d(predictions, 1).flatten(1)
+                    loss = criterion(predictions, predictions, cls_preds, cls_preds, image_labels)
+                elif loss_name == 'seam_loss':
+                    # SEAMLoss: (cam1_raw, cam_rv1_raw, cam2_raw, cam_rv2_raw, image_labels)
+                    # SEAM expects C+1 channels (bg + classes)
+                    image_labels = ctx.pop('image_labels', None)
+                    bg = torch.zeros_like(predictions[:, :1])
+                    cams_with_bg = torch.cat([bg, predictions], dim=1)
+                    loss = criterion(cams_with_bg, cams_with_bg, cams_with_bg, cams_with_bg, image_labels)
                 else:
                     target = ctx.pop('label', None)
                     loss = criterion(predictions, target, **ctx) if target is not None else criterion(predictions, **ctx)
@@ -495,7 +632,8 @@ def main():
     data_cfg = cfg.get('data', {})
     train_dataset = build_dataset(data_cfg, 'train')
     num_classes = cfg.get('model', {}).get('num_classes', 9)
-    train_dataset = WeaklySupervisedDataset(train_dataset, args.supervision_type, num_classes)
+    train_dataset = WeaklySupervisedDataset(
+        train_dataset, args.supervision_type, num_classes, data_cfg)
     
     train_loader = DataLoader(
         train_dataset,

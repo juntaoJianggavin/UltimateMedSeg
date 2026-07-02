@@ -203,8 +203,8 @@ class CAMGenerator:
         # Forward pass
         output = self.model(image)
 
-        # Backward for target class
-        output[0, class_idx].backward()
+        # Backward for target class (reduce to scalar for GradCAM)
+        output[0, class_idx].mean().backward()
 
         # Get weights from gradients
         weights = self.gradients.mean(dim=[2, 3])  # Global average pooling

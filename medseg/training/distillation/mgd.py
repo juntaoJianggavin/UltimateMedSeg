@@ -27,8 +27,8 @@ class MGDLoss(nn.Module):
 
     def __init__(
         self,
-        student_channels: int,
-        teacher_channels: int,
+        student_channels: int = 256,
+        teacher_channels: int = 256,
         alpha_mgd: float = 0.00002,
         lambda_mgd: float = 0.5,
         **kwargs,
@@ -58,6 +58,16 @@ class MGDLoss(nn.Module):
         """Strictly reproduce official get_dis_loss."""
         loss_mse = nn.MSELoss(reduction='sum')
         N, C, H, W = preds_T.shape
+
+        # Lazily rebuild generation if input channels changed (e.g. default 256 vs actual)
+        if self.generation[0].in_channels != C:
+            self.generation = nn.Sequential(
+                nn.Conv2d(C, C, kernel_size=3, padding=1),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(C, C, kernel_size=3, padding=1),
+            ).to(preds_S.device)
+        if self.align is not None and self.align.out_channels != C:
+            self.align = None
 
         device = preds_S.device
         mat = torch.rand((N, 1, H, W), device=device)

@@ -35,7 +35,7 @@ class MCTformerLoss(nn.Module):
         return reg_loss
 
     def forward(self, outputs, image_labels, patch_outputs=None,
-                class_token_embeddings=None, labeled_loss=None):
+                class_token_embeddings=None, labeled_loss=None, **kwargs):
         if outputs.dim() == 4:
             outputs = outputs.mean(dim=[2, 3])
         cls_loss = F.multilabel_soft_margin_loss(outputs, image_labels.float())

@@ -104,7 +104,7 @@ class AdvCAMLoss(nn.Module):
     def forward(self, predictions, image_labels,
                 features=None, model_ref=None, input_image=None,
                 cam_accumulated=None, cam_orig=None,
-                labeled_loss=None):
+                labeled_loss=None, **kwargs):
         """Compute the AdvCAM loss.
 
         Args:

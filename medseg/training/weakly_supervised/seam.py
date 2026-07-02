@@ -45,7 +45,7 @@ class SEAMLoss(nn.Module):
         return torch.sum(y) / (k * n)
 
     def forward(self, cam1_raw, cam_rv1_raw, cam2_raw, cam_rv2_raw,
-                image_labels, labeled_loss=None):
+                image_labels, labeled_loss=None, **kwargs):
         N, C_total, H, W = cam1_raw.shape
         bg_score = torch.ones((N, 1), device=image_labels.device)
         label = torch.cat((bg_score, image_labels), dim=1).unsqueeze(2).unsqueeze(3)

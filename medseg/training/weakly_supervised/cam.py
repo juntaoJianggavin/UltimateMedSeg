@@ -69,6 +69,9 @@ class CAMLoss(nn.Module):
 
         for b in range(B):
             present_classes = torch.where(image_labels[b] > 0)[0]
+            # Filter to valid channel range in case image_labels has more classes
+            # than model output channels (e.g. during smoke tests with patched data).
+            present_classes = present_classes[present_classes < C]
             if len(present_classes) == 0:
                 continue
 

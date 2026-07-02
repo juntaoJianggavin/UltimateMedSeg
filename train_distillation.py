@@ -228,6 +228,8 @@ def train_one_epoch(
             'student_logits': student_output, 'teacher_logits': teacher_output,
             'student_pred': student_output, 'teacher_pred': teacher_output,
             'student': student_output, 'teacher': teacher_output,
+            # DISTLoss aliases
+            'z_s': student_output, 'z_t': teacher_output,
             'student_features': student_feats, 'teacher_features': teacher_feats,
             'target': labels, 'labels': labels,
         }
@@ -239,11 +241,19 @@ def train_one_epoch(
                 'feat_S': s_feat_list, 'feat_T': t_feat_list,
                 's_feats': s_feat_list, 't_feats': t_feat_list,
                 'features_student': s_feat_list, 'features_teacher': t_feat_list,
+                # HintDistillationLoss aliases
+                'student_hints': s_feat_list, 'teacher_hints': t_feat_list,
+                # MGDLoss aliases
+                'preds_S': s_feat_list, 'preds_T': t_feat_list,
             })
         else:
             # No intermediate features hooked — use logits as fallback.
             ctx['feat_S'] = student_output
             ctx['feat_T'] = teacher_output
+            ctx['student_hints'] = [student_output]
+            ctx['teacher_hints'] = [teacher_output]
+            ctx['preds_S'] = student_output
+            ctx['preds_T'] = teacher_output
         kept = _filter_kwargs_for(distillation_loss.forward, ctx)
         kd_loss = distillation_loss(**kept)
 

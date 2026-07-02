@@ -50,7 +50,7 @@ class PuzzleCAMLoss(nn.Module):
     def forward(self, features_full, features_tiled_merged, predictions_full,
                 predictions_tiled, image_labels, labeled_loss=None,
                 iteration: Optional[int] = None,
-                max_iteration: Optional[int] = None):
+                max_iteration: Optional[int] = None, **kwargs):
         if iteration is not None and max_iteration is not None:
             self.update_progress(iteration, max_iteration)
 
