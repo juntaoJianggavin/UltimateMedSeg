@@ -18,6 +18,7 @@ import yaml
 import numpy as np
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from torch.optim import AdamW, SGD
 from torch.optim.lr_scheduler import CosineAnnealingLR
@@ -241,6 +242,11 @@ def train_one_epoch_text_guided(
                 encoder_features = None
             outputs = model(encoder_features)
 
+        # Upsample predictions to match target resolution
+        if outputs.shape[-2:] != labels.shape[-2:]:
+            outputs = F.interpolate(outputs, size=labels.shape[-2:],
+                                    mode='bilinear', align_corners=False)
+
         # Compute loss
         loss = criterion(outputs, labels)
         loss.backward()
@@ -288,6 +294,11 @@ def validate_text_guided(model, encoder, dataloader, num_classes, device,
 
         if isinstance(outputs, (list, tuple)):
             outputs = outputs[0]
+
+        # Upsample predictions to match target resolution
+        if outputs.shape[-2:] != images.shape[-2:]:
+            outputs = F.interpolate(outputs, size=images.shape[-2:],
+                                    mode='bilinear', align_corners=False)
 
         preds = outputs.argmax(dim=1).cpu().numpy()
 
@@ -444,8 +455,8 @@ def main():
 
     optimizer = AdamW(
         trainable_params,
-        lr=opt_cfg.get('lr', 1e-4),
-        weight_decay=opt_cfg.get('weight_decay', 1e-4)
+        lr=float(opt_cfg.get('lr', 1e-4)),
+        weight_decay=float(opt_cfg.get('weight_decay', 1e-4))
     )
 
     # Build scheduler

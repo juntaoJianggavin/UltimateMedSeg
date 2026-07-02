@@ -671,8 +671,8 @@ def main():
     opt_cfg = training_cfg.get('optimizer', {'name': 'adamw', 'lr': 1e-4})
     optimizer = AdamW(
         model.parameters(),
-        lr=opt_cfg.get('lr', 1e-4),
-        weight_decay=opt_cfg.get('weight_decay', 1e-4)
+        lr=float(opt_cfg.get('lr', 1e-4)),
+        weight_decay=float(opt_cfg.get('weight_decay', 1e-4))
     )
     
     # Build scheduler

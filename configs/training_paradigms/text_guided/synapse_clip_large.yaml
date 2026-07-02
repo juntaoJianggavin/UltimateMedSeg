@@ -39,7 +39,7 @@ data:
   type: synapse
   img_size: 224
   train_dir: ./data/Synapse/train_npz
-  val_dir: ./data/Synapse/test_vol_h5
+  val_dir: ./data/Synapse/val_npz
   test_dir: ./data/Synapse/test_vol_h5
   test_list: ./data/Synapse/lists/lists_Synapse/test_vol.txt
 
@@ -50,12 +50,12 @@ training:
 
   optimizer:
     name: adamw
-    lr: 5e-5                             # 大模型用更小学习率
-    weight_decay: 1e-4
+    lr: 5.0e-5                             # 大模型用更小学习率
+    weight_decay: 1.0e-4
 
   scheduler:
     name: cosine
-    min_lr: 1e-6
+    min_lr: 1.0e-6
 
   loss:
     name: compound

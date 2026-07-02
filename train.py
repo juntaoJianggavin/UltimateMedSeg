@@ -138,8 +138,8 @@ def uses_inline_generic_val(data_cfg) -> bool:
 def build_optimizer(params, opt_cfg):
     """Build optimizer from config."""
     name = opt_cfg.get('name', 'adamw')
-    lr = opt_cfg.get('lr', 1e-4)
-    weight_decay = opt_cfg.get('weight_decay', 1e-4)
+    lr = float(opt_cfg.get('lr', 1e-4))
+    weight_decay = float(opt_cfg.get('weight_decay', 1e-4))
     if name == 'adamw':
         return AdamW(params, lr=lr, weight_decay=weight_decay)
     elif name == 'sgd':

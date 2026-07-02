@@ -37,8 +37,8 @@ training:
   
   optimizer:
     name: adamw
-    lr: 2e-4
-    weight_decay: 1e-4
+    lr: 2.0e-4
+    weight_decay: 1.0e-4
   
   loss:
     name: compound
